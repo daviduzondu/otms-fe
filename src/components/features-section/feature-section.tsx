@@ -9,7 +9,7 @@ export default function FeatureSection({ context, title, description, cards }: T
  return (
   <section className={"flex flex-col gap-8"}>
    <div className="flex flex-col gap-3">
-    <div className="px-3 py-1 rounded-md bg-gray-200 w-fit select-none">{context}</div>
+    <div className="px-3 py-1 rounded-md bg-gray-200 w-fit select-none mb-2 text-[#3e3c3c]">{context}</div>
     <h2 className={'font-bold text-4xl tracking-tight'}>{title}</h2>
     <div className="text-lg">{description}</div>
    </div>
@@ -26,7 +26,7 @@ function Card({ cardTitle, cardDescription, icon }: TCard): React.JSX.Element {
   {/* <Wallpaper size={70} strokeWidth={1.3} /> */}
   <div className="flex flex-col gap-2 break-words">
    <h3 className="text-2xl font-semibold">{cardTitle}</h3>
-   <div className="text-lg">{cardDescription}</div>
+   <div className="text-base lg:w-[70%] opacity-80">{cardDescription}</div>
   </div>
  </div>)
 }

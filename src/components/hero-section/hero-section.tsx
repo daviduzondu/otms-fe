@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react"
 import { Button } from "../../components/ui/button"
+import Image from "next/image"
 
 export default function HeroSection(): React.JSX.Element {
  return <div className="flex flex-col gap-11 overflow-hidden h-[93.8vh]">
@@ -38,10 +39,14 @@ export default function HeroSection(): React.JSX.Element {
    </span>
   </div>
 
-  <img
-   className="w-full object-cover border-solid border-8 rounded-3xl border-black drop-shadow-2xl"
+  <Image
+   className="w-full object-cover border-solid border-8 rounded-3xl border-black drop-shadow-2xl select-none"
+   draggable={false}
    src="https://cal.com/_next/static/media/feature-01.2d7d8eea.svg"
    alt="Feature Image"
+   width={800}
+   height={600}
+   priority
   />
 
  </div>

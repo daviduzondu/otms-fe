@@ -78,6 +78,7 @@
   -webkit-text-fill-color: transparent;
   animation: gradient-animation 7s linear infinite;
   background-size: 200% 200%;
+  -webkit-user-drag: none;
  }
 
  @keyframes gradient-animation {
