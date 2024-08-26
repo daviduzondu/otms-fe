@@ -66,6 +66,7 @@
   box-sizing: border-box;
  }
 
+
  .mask-rect {
   mask-image: linear-gradient(180deg, rgba(0, 0, 0, 30%) 55%, rgba(0, 0, 0, 15%) 70%);
   overflow: hidden;

@@ -7,14 +7,14 @@ export type TFeatureSection = { context: string, title: string, description: str
 
 export default function FeatureSection({ context, title, description, cards }: TFeatureSection): React.JSX.Element {
  return (
-  <section className={"flex flex-col gap-8"}>
+  <section className={"flex flex-col gap-8 relative border xl:-mx-[7em] lg:-mx-[7em] md:-mx-[6em] sm:-mx-[4em] mx-[2em] pb-20 pt-8 xl:px-[7em] lg:px-[7em] md:px-[6em] sm:px-[4em] px-[2em] [&:not(nth-of-type(2n))]:bg-red-400"}>
    <div className="flex flex-col gap-3">
     <div className="px-3 py-1 rounded-md bg-gray-200 w-fit select-none mb-2 text-[#3e3c3c]">{context}</div>
     <h2 className={'font-bold text-4xl tracking-tight'}>{title}</h2>
     <div className="text-lg">{description}</div>
    </div>
    <div className={"grid grid-cols-[25%,25%,25%,25%] gap-2"}>
-    {cards.map((card, i) => { return <Card {...card} key={i}/> })}
+    {cards.map((card, i) => { return <Card {...card} key={i} /> })}
    </div>
   </section>
  )

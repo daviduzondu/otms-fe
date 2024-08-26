@@ -1,4 +1,6 @@
 import type { Config } from "tailwindcss"
+import { PluginAPI } from "tailwindcss/types/config";
+const plugin = require('tailwindcss/plugin')
 
 const config = {
  darkMode: ["class"],

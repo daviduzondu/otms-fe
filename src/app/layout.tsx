@@ -18,7 +18,7 @@ export default function RootLayout({
 }>) {
  return (
   <html lang="en">
-   <body className={`${inter.className} ${ibm.variable} xl:px-[7em] lg:px-[7em] md:px-[6em] sm:px-[4em] px-[2em] py-10`}>
+   <body className={`${inter.className} ${ibm.variable} xl:px-[7em] lg:px-[7em] md:px-[6em] sm:px-[4em] px-[2em] pt-10 pb-4 overflow-x-hidden`}>
     <Navbar />
     <div className="mt-4">
     {children}
