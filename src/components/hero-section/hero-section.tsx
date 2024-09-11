@@ -1,6 +1,9 @@
 import { ArrowRight } from "lucide-react"
 import { Button } from "../../components/ui/button"
 import Image from "next/image"
+import Link from "next/link"
+import { useContext } from "react"
+import ActionButtons from "./action-buttons"
 
 export default function HeroSection(): React.JSX.Element {
  return <div className="flex flex-col gap-11 overflow-hidden h-[93.8vh]">
@@ -20,24 +23,7 @@ export default function HeroSection(): React.JSX.Element {
    Tests For Students. Effectively.
   </div>
 
-  <div className="flex flex-col gap-6">
-   <Button className="w-fit lg:text-lg lg:py-6 font-normal group relative flex items-center shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out">
-    Create an account
-    <ArrowRight
-     className="ml-2 w-5 transition-all duration-100 ease-in-out group-hover:ml-[0.8rem] group-hover:w-5 group-hover:opacity-100"
-    />
-   </Button>
-
-   <span className="font-semibold flex gap-1 lg:text-xl text-base">Already have an account?
-    <button className="group flex text-blue-600 hover:underline hover:underline-offset-1 items-center justify-center">
-     Login
-     <ArrowRight
-      size={20}
-      className="-ml-1 w-6 opacity-0 transition-all duration-100 ease-in-out group-hover:ml-[0.1rem] group-hover:w-6 group-hover:opacity-100"
-     />
-    </button>
-   </span>
-  </div>
+  <ActionButtons />
 
   <Image
    className="w-full object-cover border-solid border-8 rounded-3xl border-black drop-shadow-2xl select-none"

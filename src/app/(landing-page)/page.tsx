@@ -2,6 +2,7 @@ import { BookA, ChartSpline, CircleMinus, Dice1, FileLock, FileQuestion, LucideD
 import FeatureSection, { TFeatureSection } from "../../components/features-section/feature-section"
 import HeroSection from "../../components/hero-section/hero-section"
 import Footer from "../../components/footer"
+import { AuthProvider } from "../../contexts/auth.context"
 
 const featureSections: TFeatureSection[] = [
  {

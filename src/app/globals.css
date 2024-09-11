@@ -66,6 +66,38 @@
   box-sizing: border-box;
  }
 
+ .auth-container {
+  view-transition-name: auth-container;
+ }
+
+ @keyframes fade-in {
+  from {
+   opacity: 0;
+  }
+ }
+
+ @keyframes fade-out {
+  to {
+   opacity: 0;
+  }
+ }
+
+
+ .main-header {
+  view-transition-name: main-header-text;
+  width: fit-content;
+  height: fit-content;
+  margin: 0 auto;
+ }
+
+ 
+ ::view-transition-old(auth-container) {
+  animation: 90ms cubic-bezier(0.4, 0, 1, 1) both fade-out,
+ }
+
+ ::view-transition-new(auth-container) {
+  animation: 210ms cubic-bezier(0, 0, 0.2, 1) 90ms both fade-in,
+ }
 
  .mask-rect {
   mask-image: linear-gradient(180deg, rgba(0, 0, 0, 30%) 55%, rgba(0, 0, 0, 15%) 70%);
@@ -95,5 +127,4 @@
    background-position: 0% 0%;
   }
  }
-
 }
