@@ -1,0 +1,534 @@
+'use client'
+'use client'
+import React, { useState, useEffect } from 'react'
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
+import { Slider } from "@/components/ui/slider"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
+import { AlertCircle, Plus, Trash2, Upload, Download, Edit2, Eye, Save, MoveUp, MoveDown, Settings, Clock, Printer, Link } from 'lucide-react'
+import { format } from 'date-fns'
+import { cn } from "@/lib/utils"
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
+import { Question } from '../../../../types/test'
+import CreateQuestion from '../../../../components/create-test/create-question'
+
+
+
+export default function CreateTestClient() {
+ const [testName, setTestName] = useState('New Test')
+ const [testInstructions, setTestInstructions] = useState('')
+ const [testDuration, setTestDuration] = useState(60)
+ const [questions, setQuestions] = useState<Question[]>([
+  {
+   id: '1',
+   type: 'multiple-choice',
+   text: 'What is the capital of France?',
+   options: ['London', 'Berlin', 'Paris', 'Madrid'],
+   correctAnswer: 'Paris',
+   points: 1
+  }
+ ])
+ const [currentQuestion, setCurrentQuestion] = useState<Question | null>(questions[0])
+ const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+ const [startDate, setStartDate] = useState<Date | undefined>(new Date())
+ const [endDate, setEndDate] = useState<Date | undefined>(new Date())
+ const [advancedSettings, setAdvancedSettings] = useState({
+  maxAttempts: 1,
+  passingScore: 70,
+  randomizeQuestions: false,
+  showResults: true,
+  timeLimit: 0,
+  gradeReleaseDate: new Date(),
+  accessCode: '',
+  ipRestriction: '',
+  browserSecurity: {
+   preventTabSwitching: false,
+   disableCopyPaste: false,
+   requireFullScreen: false
+  },
+  allowedResources: [],
+  gradingRubric: '',
+  feedbackOptions: {
+   showCorrectAnswers: true,
+   provideExplanations: true,
+   allowRetakes: false
+  },
+  accommodations: {
+   extraTime: 0,
+   textToSpeech: false,
+   highContrastMode: false
+  }
+ })
+
+ const addQuestion = () => {
+  const newQuestion: Question = {
+   id: Date.now().toString(),
+   type: 'multiple-choice',
+   text: '',
+   options: ['', '', '', ''],
+   correctAnswer: '',
+   points: 1
+  }
+  setQuestions([...questions, newQuestion])
+  setCurrentQuestion(newQuestion)
+ }
+
+ const updateQuestion = (updatedQuestion: Question) => {
+  setQuestions(questions.map(q => q.id === updatedQuestion.id ? updatedQuestion : q))
+  setCurrentQuestion(updatedQuestion)
+ }
+
+ const deleteQuestion = (id: string) => {
+  const newQuestions = questions.filter(q => q.id !== id)
+  setQuestions(newQuestions)
+  if (currentQuestion?.id === id) {
+   setCurrentQuestion(newQuestions[0] || null)
+  }
+ }
+
+ const onDragEnd = (result) => {
+  if (!result.destination) {
+   return
+  }
+
+  const newQuestions = Array.from(questions)
+  const [reorderedItem] = newQuestions.splice(result.source.index, 1)
+  newQuestions.splice(result.destination.index, 0, reorderedItem)
+
+  setQuestions(newQuestions)
+ }
+
+ const truncateTitle = (title: string, maxLength: number) => {
+  return title.length > maxLength ? title.substring(0, maxLength - 3) + '...' : title
+ }
+
+ const handlePrint = () => {
+  window.print()
+ }
+
+ const generateTestLink = () => {
+  // This is a placeholder function. In a real application, you would generate a unique link here.
+  alert('Test link generated: https://yourschool.com/tests/' + Date.now())
+ }
+
+ return (
+  <div className="w-screen mx-auto p-6">
+   <div className="flex justify-between items-center mb-6">
+    <h1 className="text-3xl font-bold">Create New Test</h1>
+    <div className="space-x-4">
+     <Button variant="outline" onClick={handlePrint}>
+      <Printer className="mr-2 h-4 w-4" />
+      Print Test
+     </Button>
+     <Button variant="outline" onClick={generateTestLink}>
+      <Link className="mr-2 h-4 w-4" />
+      Generate Test Link
+     </Button>
+    </div>
+   </div>
+
+   {/* Test Settings */}
+   <Card className="mb-6">
+    <CardContent className="space-y-4 pt-6">
+     <div className="space-y-2">
+      <Label htmlFor="test-name">Test Name</Label>
+      <Input
+       id="test-name"
+       value={testName}
+       onChange={(e) => setTestName(e.target.value)}
+       placeholder="Enter test name"
+      />
+     </div>
+     <div className="space-y-2">
+      <Label htmlFor="test-instructions">Test Instructions</Label>
+      <Textarea
+       id="test-instructions"
+       value={testInstructions}
+       onChange={(e) => setTestInstructions(e.target.value)}
+       placeholder="Enter test instructions"
+      />
+     </div>
+     <div className="space-y-2">
+      <Label htmlFor="test-duration">Test Duration</Label>
+      <div className="flex items-center space-x-2">
+       <Slider
+        id="test-duration"
+        min={5}
+        max={180}
+        step={5}
+        value={[testDuration]}
+        onValueChange={(value) => setTestDuration(value[0])}
+        className="flex-grow"
+       />
+       <div className="w-16 flex items-center">
+        <Input
+         type="number"
+         value={testDuration}
+         onChange={(e) => setTestDuration(Number(e.target.value))}
+         className="w-12 text-right"
+        />
+        <span className="ml-1">min</span>
+       </div>
+      </div>
+     </div>
+     <div className="flex space-x-4">
+      <div className="w-1/2 space-y-2">
+       <Label>Start Date</Label>
+       <Popover>
+        <PopoverTrigger asChild>
+         <Button
+          variant={"outline"}
+          className={cn(
+           "w-full justify-start text-left font-normal",
+           !startDate && "text-muted-foreground"
+          )}
+         >
+          {/* <Calendar className="mr-2 h-4 w-4" /> */}
+          {startDate ? format(startDate, "PPP") : <span>Pick a date</span>}
+         </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0">
+         <Calendar
+          mode="single"
+          selected={startDate}
+          onSelect={setStartDate}
+          initialFocus
+         />
+        </PopoverContent>
+       </Popover>
+      </div>
+      <div className="w-1/2 space-y-2">
+       <Label>End Date</Label>
+       <Popover>
+        <PopoverTrigger asChild>
+         <Button
+          variant={"outline"}
+          className={cn(
+           "w-full justify-start text-left font-normal",
+           !endDate && "text-muted-foreground"
+          )}
+         >
+          {/* <Calendar className="mr-2 h-4 w-4" /> */}
+          {endDate ? format(endDate, "PPP") : <span>Pick a date</span>}
+         </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0">
+         <Calendar
+          mode="single"
+          selected={endDate}
+          onSelect={setEndDate}
+          initialFocus
+         />
+        </PopoverContent>
+       </Popover>
+      </div>
+     </div>
+     <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+      <DialogTrigger asChild>
+       <Button variant="outline">
+        <Settings className="w-4 h-4 mr-2" />
+        Advanced Settings
+       </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+       <DialogHeader>
+        <DialogTitle>Advanced Test Settings</DialogTitle>
+       </DialogHeader>
+       <Tabs defaultValue="general" className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+         <TabsTrigger value="general">General</TabsTrigger>
+         <TabsTrigger value="security">Security</TabsTrigger>
+         <TabsTrigger value="grading">Grading</TabsTrigger>
+         <TabsTrigger value="accommodations">Accommodations</TabsTrigger>
+        </TabsList>
+        <TabsContent value="general">
+         <div className="space-y-4">
+          <div className="space-y-2">
+           <Label htmlFor="max-attempts">Maximum Attempts</Label>
+           <Input
+            id="max-attempts"
+            type="number"
+            value={advancedSettings.maxAttempts}
+            onChange={(e) => setAdvancedSettings({ ...advancedSettings, maxAttempts: Number(e.target.value) })}
+           />
+          </div>
+          <div className="flex items-center space-x-2">
+           <Switch
+            id="randomize-questions"
+            checked={advancedSettings.randomizeQuestions}
+            onCheckedChange={(checked) => setAdvancedSettings({ ...advancedSettings, randomizeQuestions: checked })}
+           />
+           <Label htmlFor="randomize-questions">Randomize Question Order</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+           <Switch
+            id="show-results"
+            checked={advancedSettings.showResults}
+            onCheckedChange={(checked) => setAdvancedSettings({ ...advancedSettings, showResults: checked })}
+           />
+           <Label htmlFor="show-results">Show Results Immediately</Label>
+          </div>
+          <div className="space-y-2">
+           <Label htmlFor="time-limit">Time Limit per Question (seconds)</Label>
+           <Input
+            id="time-limit"
+            type="number"
+            value={advancedSettings.timeLimit}
+            onChange={(e) => setAdvancedSettings({ ...advancedSettings, timeLimit: Number(e.target.value) })}
+           />
+          </div>
+         </div>
+        </TabsContent>
+        <TabsContent value="security">
+         <div className="space-y-4">
+          <div className="space-y-2">
+           <Label htmlFor="access-code">Access Code</Label>
+           <Input
+            id="access-code"
+            type="text"
+            value={advancedSettings.accessCode}
+            onChange={(e) => setAdvancedSettings({ ...advancedSettings, accessCode: e.target.value })}
+           />
+          </div>
+          <div className="space-y-2">
+           <Label htmlFor="ip-restriction">IP Address Restriction</Label>
+           <Textarea
+            id="ip-restriction"
+            value={advancedSettings.ipRestriction}
+            onChange={(e) => setAdvancedSettings({ ...advancedSettings, ipRestriction: e.target.value })}
+            placeholder="Enter allowed IP addresses (one per line)"
+           />
+          </div>
+          <div className="space-y-2">
+           <Label>Browser Security</Label>
+           <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+             <Checkbox
+              id="prevent-tab-switching"
+              checked={advancedSettings.browserSecurity.preventTabSwitching}
+              onCheckedChange={(checked) => setAdvancedSettings({
+               ...advancedSettings,
+               browserSecurity: { ...advancedSettings.browserSecurity, preventTabSwitching: checked as boolean }
+              })}
+             />
+             <Label htmlFor="prevent-tab-switching">Prevent Tab Switching</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+             <Checkbox
+              id="disable-copy-paste"
+              checked={advancedSettings.browserSecurity.disableCopyPaste}
+              onCheckedChange={(checked) => setAdvancedSettings({
+               ...advancedSettings,
+               browserSecurity: { ...advancedSettings.browserSecurity, disableCopyPaste: checked as boolean }
+              })}
+             />
+             <Label htmlFor="disable-copy-paste">Disable Copy/Paste</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+             <Checkbox
+              id="require-full-screen"
+              checked={advancedSettings.browserSecurity.requireFullScreen}
+              onCheckedChange={(checked) => setAdvancedSettings({
+               ...advancedSettings,
+               browserSecurity: { ...advancedSettings.browserSecurity, requireFullScreen: checked as boolean }
+              })}
+             />
+             <Label htmlFor="require-full-screen">Require Full Screen Mode</Label>
+            </div>
+           </div>
+          </div>
+         </div>
+        </TabsContent>
+        <TabsContent value="grading">
+         <div className="space-y-4">
+          <div className="space-y-2">
+           <Label htmlFor="passing-score">Passing Score (%)</Label>
+           <Input
+            id="passing-score"
+            type="number"
+            value={advancedSettings.passingScore}
+            onChange={(e) => setAdvancedSettings({ ...advancedSettings, passingScore: Number(e.target.value) })}
+           />
+          </div>
+          <div className="space-y-2">
+           <Label>Feedback Options</Label>
+           <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+             <Checkbox
+              id="show-correct-answers"
+              checked={advancedSettings.feedbackOptions.showCorrectAnswers}
+              onCheckedChange={(checked) => setAdvancedSettings({
+               ...advancedSettings,
+               feedbackOptions: { ...advancedSettings.feedbackOptions, showCorrectAnswers: checked as boolean }
+              })}
+             />
+             <Label htmlFor="show-correct-answers">Show Correct Answers</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+             <Checkbox
+              id="provide-explanations"
+              checked={advancedSettings.feedbackOptions.provideExplanations}
+              onCheckedChange={(checked) => setAdvancedSettings({
+               ...advancedSettings,
+               feedbackOptions: { ...advancedSettings.feedbackOptions, provideExplanations: checked as boolean }
+              })}
+             />
+             <Label htmlFor="provide-explanations">Provide Explanations</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+             <Checkbox
+              id="allow-retakes"
+              checked={advancedSettings.feedbackOptions.allowRetakes}
+              onCheckedChange={(checked) => setAdvancedSettings({
+               ...advancedSettings,
+               feedbackOptions: { ...advancedSettings.feedbackOptions, allowRetakes: checked as boolean }
+              })}
+             />
+             <Label htmlFor="allow-retakes">Allow Retakes</Label>
+            </div>
+           </div>
+          </div>
+         </div>
+        </TabsContent>
+        <TabsContent value="accommodations">
+         <div className="space-y-4">
+          <div className="space-y-2">
+           <Label htmlFor="extra-time">Extra Time (%)</Label>
+           <Input
+            id="extra-time"
+            type="number"
+            value={advancedSettings.accommodations.extraTime}
+            onChange={(e) => setAdvancedSettings({
+             ...advancedSettings,
+             accommodations: { ...advancedSettings.accommodations, extraTime: Number(e.target.value) }
+            })}
+           />
+          </div>
+          <div className="flex items-center space-x-2">
+           <Switch
+            id="text-to-speech"
+            checked={advancedSettings.accommodations.textToSpeech}
+            onCheckedChange={(checked) => setAdvancedSettings({
+             ...advancedSettings,
+             accommodations: { ...advancedSettings.accommodations, textToSpeech: checked }
+            })}
+           />
+           <Label htmlFor="text-to-speech">Enable Text-to-Speech</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+           <Switch
+            id="high-contrast"
+            checked={advancedSettings.accommodations.highContrastMode}
+            onCheckedChange={(checked) => setAdvancedSettings({
+             ...advancedSettings,
+             accommodations: { ...advancedSettings.accommodations, highContrastMode: checked }
+            })}
+           />
+           <Label htmlFor="high-contrast">High Contrast Mode</Label>
+          </div>
+         </div>
+        </TabsContent>
+       </Tabs>
+       <DialogFooter>
+        <Button onClick={() => setIsSettingsOpen(false)}>Save Changes</Button>
+       </DialogFooter>
+      </DialogContent>
+     </Dialog>
+    </CardContent>
+   </Card>
+
+   {/* Question Management */}
+   <div className="flex gap-6">
+    <div className="w-1/3">
+     <Card>
+      <CardHeader>
+       <CardTitle>Question List</CardTitle>
+      </CardHeader>
+      <CardContent>
+       <Button onClick={addQuestion} className="w-full mb-4">
+        <Plus className="mr-2 h-4 w-4" /> Add Question
+       </Button>
+       <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="questions">
+         {(provided) => (
+          <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
+           {questions && questions.length > 0 ? (
+            questions.map((question, index) => (
+             <Draggable key={question.id} draggableId={`draggable-${question.id}`} index={index}>
+              {(provided, snapshot) => (
+               <div
+                ref={provided.innerRef}
+                {...provided.draggableProps}
+                {...provided.dragHandleProps}
+                className={cn(
+                 "flex items-center justify-between p-2 rounded-md",
+                 currentQuestion?.id === question.id
+                  ? "border-black bg-gray-600 border-2 text-primary-foreground"
+                  : "bg-muted",
+                 snapshot.isDragging && "opacity-50"
+                )}
+               >
+                <span className="font-medium">
+                 Q{index + 1}: {truncateTitle(question.text, 20)}
+                </span>
+                <div>
+                 <Button variant="ghost" size="sm" onClick={() => setCurrentQuestion(question)}>
+                  <Edit2 className="h-4 w-4" />
+                 </Button>
+                 <Button variant="ghost" size="sm" onClick={() => deleteQuestion(question.id)}>
+                  <Trash2 className="h-4 w-4" />
+                 </Button>
+                </div>
+               </div>
+              )}
+             </Draggable>
+            ))
+           ) : (
+            <p>No questions available</p>
+           )}
+           {provided.placeholder}
+          </div>
+         )}
+        </Droppable>
+       </DragDropContext>
+
+      </CardContent>
+     </Card>
+    </div>
+    <div className="w-2/3">
+     {currentQuestion && (
+      <CreateQuestion currentQuestion={currentQuestion}/>
+     )}
+    </div>
+   </div>
+
+
+   <div className="mt-6 flex justify-between">
+    <Button variant="outline">
+     <Upload className="mr-2 h-4 w-4" />
+     Import Questions
+    </Button>
+    <div className="space-x-4">
+     <Button variant="outline">
+      <Eye className="mr-2 h-4 w-4" />
+      Preview: {truncateTitle(testName, 20)}
+     </Button>
+     <Button>
+      <Save className="mr-2 h-4 w-4" />
+      Save Test
+     </Button>
+    </div>
+   </div>
+  </div>
+ )
+}

@@ -5,37 +5,36 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Link } from "next-view-transitions"
 import { useForm } from "react-hook-form"
-import { LoginSchema, LoginSchemaProps } from "../../../validation/auth.validation"
+import { LoginSchema, LoginSchemaProps } from "../../../../validation/auth.validation"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useContext, useEffect } from "react"
+import { signIn } from "next-auth/react"
+import { errorToast, successToast } from "../../../../helpers/show-toasts"
 import { useRouter } from "next/navigation"
-import { AuthContext } from "../../../contexts/auth.context"
-import firebaseApp from "../../../config/firebase/firebase.config"
-import { getAuth } from "firebase/auth"
-
+import { useState } from "react"
 
 export default function LoginClient() {
- const { user } = useContext(AuthContext);
- const { register, handleSubmit, formState: { errors } } = useForm<LoginSchemaProps>({ resolver: zodResolver(LoginSchema) });
+ const { register, formState: { errors }, getValues, handleSubmit } = useForm<LoginSchemaProps>({ resolver: zodResolver(LoginSchema) });
  const router = useRouter();
+ const [submitting, setSubmitting] = useState(false)
 
- // useEffect(() => {
- //  if (user) router.push('/')
- // })
-
- async function handleLogin() {
-  const req = await fetch(String(process.env.NEXT_PUBLIC_API_URL), {
-   method: "GET",
-   headers: {
-    'Authorization': `Bearer ${await user?.getIdToken()}`
-   }
-  })
-  const data = await req.text()
-  console.log(data)
- }
+ const loginHandler = async () => {
+  setSubmitting(true)
+  const res = await signIn("credentials", {
+   redirect: false,
+   email: getValues().email,
+   password: getValues().password,
+  });
+  if (res?.error) {
+   errorToast("Invalid credentials")
+  } else {
+   successToast("Welcome back " + getValues().email)
+   router.push('/dashboard')
+  }
+  setSubmitting(false)
+ };
 
  return (
-  <form onSubmit={handleSubmit(handleLogin)}>
+  <form onSubmit={handleSubmit(loginHandler)}>
    <div className="space-y-2 text-center" style={{ viewTransitionName: "auth-main-header" }}>
     <h1 className="text-3xl font-bold">Welcome Back</h1>
     <p className="text-muted-foreground">Login to your account</p>
@@ -52,8 +51,8 @@ export default function LoginClient() {
       <Input id="password" type="password" placeholder="Enter a strong password" {...register("password")} />
       {errors?.password && <div className="text-xs text-red-700">{errors.password.message}</div>}
      </div>
-     <Button type="submit" className="w-full" style={{ viewTransitionName: "action-btn" }}>
-      Login
+     <Button type="submit" className="w-full" style={{ viewTransitionName: "action-btn" }} disabled={submitting}>
+      {submitting ? "Logging in..." : "Login"}
      </Button>
     </div>
     <div className="mt-4 text-center text-sm">

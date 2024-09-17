@@ -4,6 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useContext } from "react"
 import ActionButtons from "./action-buttons"
+import dashboard from "@/assets/dashboard.png"
 
 export default function HeroSection(): React.JSX.Element {
  return <div className="flex flex-col gap-11 overflow-hidden h-[93.8vh]">
@@ -28,11 +29,12 @@ export default function HeroSection(): React.JSX.Element {
   <Image
    className="w-full object-cover border-solid border-8 rounded-3xl border-black drop-shadow-2xl select-none"
    draggable={false}
-   src="https://cal.com/_next/static/media/feature-01.2d7d8eea.svg"
+   src={dashboard}
    alt="Feature Image"
    width={800}
    height={600}
    priority
+   unoptimized
   />
 
  </div>

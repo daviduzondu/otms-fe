@@ -14,7 +14,7 @@ export default function ActionButtons(): React.JSX.Element {
 
  return <>
   <div className="flex flex-col gap-6">
-   <Button className="w-fit lg:text-lg lg:py-6 font-normal group relative flex items-center shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out" onClick={() => router.push("/auth/register")}>
+   <Button className="w-fit lg:text-lg lg:py-6 font-normal group relative flex items-center shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out" onClick={() => router.push("/dashboard")}>
     {!user ? "Create an account" : "Continue to dashboard"}
     <ArrowRight
      className="ml-2 w-5 transition-all duration-100 ease-in-out group-hover:ml-[0.8rem] group-hover:w-5 group-hover:opacity-100"

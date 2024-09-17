@@ -1,35 +1,23 @@
-'use client'
-import { getAuth, User } from 'firebase/auth';
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import firebaseApp from '../config/firebase/firebase.config';
-import { useRouter } from 'next/navigation';
-
-const auth = getAuth(firebaseApp);
+'use client';
+import { useSession } from 'next-auth/react';
+import { createContext, ReactNode, useContext } from 'react';
 
 interface AuthContextType {
- user: User | null;
- authLoading: boolean;
+  user: any | null; // You can type this more specifically if needed
+  authLoading: string;
 }
 
-export const AuthContext = createContext<AuthContextType>({ user: null, authLoading: true });
+export const AuthContext = createContext<AuthContextType>({ user: null, authLoading: "" });
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
- const [user, setUser] = useState<User | null>(null);
- const [authLoading, setAuthLoading] = useState<boolean>(true);
+  const { data: session, status } = useSession();
 
- useEffect(() => {
-  const unsubscribe = auth.onAuthStateChanged((user) => {
-   setUser(user);
-   setAuthLoading(false);
-  });
+  const user = session?.user || null;
+  const authLoading = status;
 
-  return () => unsubscribe();
- }, []);
-
-
- return (
-  <AuthContext.Provider value={{ user, authLoading }}>
-   {children}
-  </AuthContext.Provider>
- );
+  return (
+    <AuthContext.Provider value={{ user, authLoading }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };

@@ -103,7 +103,7 @@ const featureSections: TFeatureSection[] = [
 ]
 
 export default function Home() {
- return <main className={"flex flex-col"}>
+ return <main className={"flex flex-col xl:px-[7em] lg:px-[7em] md:px-[6em] sm:px-[4em] px-[2em] pt-10 pb-4"}>
   <HeroSection />
   {featureSections.map((f, i) => { return <FeatureSection {...f} key={i} /> })}
   <Footer />
