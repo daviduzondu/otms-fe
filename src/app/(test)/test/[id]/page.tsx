@@ -1,30 +1,26 @@
 'use client'
 
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Checkbox } from "@/components/ui/checkbox"
-import { PlusCircle, Edit, Trash2, GripVertical, Image, Music, Video, FileText, Lock, Clock, Printer, Link, FunctionSquare } from 'lucide-react'
-import { format, differenceInMinutes, addMinutes, isBefore, startOfDay } from 'date-fns'
+import { PlusCircle, Edit, Trash2, Image, Music, Video, FileText, Lock, Clock, Printer, Link } from 'lucide-react'
+import { format, differenceInMinutes, isBefore, startOfDay } from 'date-fns'
+import { AuthContext } from '../../../../contexts/auth.context'
+import { errorToast, successToast } from '../../../../helpers/show-toasts'
+import QuestionForm from '../../../../components/test/question-form'
 
-// Mock AuthContext and toast functions (replace with actual implementations)
-const AuthContext = React.createContext({ user: null })
-const errorToast = (message: string) => console.error(message)
-const successToast = (message: string) => console.log(message)
 
 // Define the schema for test details
 const TestDetailsSchema = z.object({
@@ -44,22 +40,9 @@ const TestDetailsSchema = z.object({
 
 type TestDetailsSchemaType = z.infer<typeof TestDetailsSchema>
 
-export default function EnhancedTestQuestionManagement() {
+export default function EnhancedTestQuestionManagement({ params }) {
  const { user } = useContext(AuthContext)
- const [testDetails, setTestDetails] = useState({
-  title: "Introduction to React",
-  instructions: "",
-  startsAt: addMinutes(new Date(), 120),
-  endsAt: addMinutes(new Date(), 240),
-  passingScore: 70,
-  accessCode: "",
-  randomizeQuestions: false,
-  showResults: false,
-  showCorrectAnswers: false,
-  provideExplanations: false,
-  disableCopyPaste: false,
-  requireFullScreen: false,
- })
+ const [testDetails, setTestDetails] = useState({})
  const [questions, setQuestions] = useState([])
  const [isEditTestOpen, setIsEditTestOpen] = useState(false)
  const [isAddQuestionOpen, setIsAddQuestionOpen] = useState(false)
@@ -69,6 +52,23 @@ export default function EnhancedTestQuestionManagement() {
   resolver: zodResolver(TestDetailsSchema),
   defaultValues: testDetails,
  })
+ 
+ useEffect(() => {
+  const fetchData = async () => {
+   try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/${params.id}`, { headers: { Authorization: `Bearer ${user.accessToken}` } });
+    const { data, message } = await res.json();
+
+    if (!res.ok) throw new Error(message);
+    setTestDetails(data)
+   } catch (e) {
+    console.error(e);
+   }
+  };
+
+  fetchData(); // call the async function
+ }, [params.id]); // add params.id as a dependency to avoid unnecessary re-fetching
+
 
  const handleAddQuestion = (question) => {
   setQuestions([...questions, { ...question, id: Date.now().toString() }])
@@ -126,12 +126,12 @@ export default function EnhancedTestQuestionManagement() {
  const RequiredAsterisk = () => <span className="text-red-500">*</span>
 
  return (
-  <div className="container mx-auto p-4">
+  <div className="container mx-auto p-4 w-[60vw]">
    <header className="mb-6">
     <h1 className="text-3xl font-bold">{testDetails.title}</h1>
     <div className="flex justify-between items-center mt-2">
      <div className="text-sm text-muted-foreground">
-      Duration: {calculateDuration()} | Start: {format(testDetails.startsAt, "PPP p")} | End: {format(testDetails.endsAt, "PPP p")}
+      {/* Duration: {calculateDuration()} | Start: {format(testDetails.startsAt, "PPP p")} | End: {format(testDetails.endsAt, "PPP p")} */}
      </div>
      <div className="flex space-x-2">
       <Button variant="outline" size="sm" onClick={handlePrintTest}>
@@ -408,95 +408,96 @@ export default function EnhancedTestQuestionManagement() {
 
    <div className="flex flex-col md:flex-row gap-6">
     <div className="w-full md:w-1/3">
-     <Card>
-      <CardHeader>
-       <CardTitle>Questions</CardTitle>
-      </CardHeader>
-      <CardContent>
-       <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="questions">
-         {(provided) => (
-          <ul {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
-           {questions.map((question, index) => (
-            <Draggable key={question.id} draggableId={question.id} index={index}>
-             {(provided) => (
-              <li
-               ref={provided.innerRef}
-               {...provided.draggableProps}
-               {...provided.dragHandleProps}
-               className="flex justify-between items-center bg-muted p-2 rounded"
-              >
-               <span>Question {index + 1}</span>
-               <Button variant="ghost" size="sm" onClick={() => setEditingQuestion(question)}>
-                <Edit className="w-4 h-4" />
-               </Button>
-              </li>
-             )}
-            </Draggable>
-           ))}
-           {provided.placeholder}
-          </ul>
-         )}
-        </Droppable>
-       </DragDropContext>
-       <Button className="w-full mt-4" onClick={() => setIsAddQuestionOpen(true)}>
-        <PlusCircle className="w-4 h-4 mr-2" />
-        Add Question
-       </Button>
-      </CardContent>
-     </Card>
+     <div className='sticky top-7'>
+      <Card className='overflow-y-auto max-h-[75vh]'>
+       <CardHeader>
+        <CardTitle>Question List</CardTitle>
+        <div className='text-muted-foreground text-sm pt-1'>{questions.length ? `${questions.length} questions in total` : "No questions yet"}</div>
+       </CardHeader>
+       <CardContent>
+        <DragDropContext onDragEnd={onDragEnd}>
+         <Droppable droppableId="questions">
+          {(provided) => (
+           <ul {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
+            {questions.map((question, index) => (
+             <Draggable key={question.id} draggableId={question.id} index={index}>
+              {(provided) => (
+               <li
+                ref={provided.innerRef}
+                {...provided.draggableProps}
+                {...provided.dragHandleProps}
+                className="flex justify-between items-center bg-muted p-2 rounded"
+               >
+                <span>Question {index + 1}</span>
+                <Button variant="ghost" size="sm" onClick={() => setEditingQuestion(question)}>
+                 <Edit className="w-4 h-4" />
+                </Button>
+               </li>
+              )}
+             </Draggable>
+            ))}
+            {provided.placeholder}
+           </ul>
+          )}
+         </Droppable>
+        </DragDropContext>
+       </CardContent>
+      </Card>
+      <Button className="w-full mt-4" onClick={() => setIsAddQuestionOpen(true)}>
+       <PlusCircle className="w-4 h-4 mr-2" />
+       Add Question
+      </Button>
+     </div>
     </div>
 
-    <div className="w-full md:w-2/3">
-     <Card>
-      <CardHeader></CardHeader>
-      <CardContent>
-       {questions.length === 0 ? (
-        <div className="text-center text-muted-foreground py-8">
-         No questions added yet. Click "Add Question" to get started.
-        </div>
-       ) : (
-        questions.map((question) => (
-         <Card key={question.id} className="mb-4">
-          <CardContent className="pt-6">
-           <h3 className="font-semibold mb-2">{question.text}</h3>
-           <p className="text-sm text-muted-foreground mb-2">{question.type}</p>
-           {(question.type === 'multiple-choice' || question.type === 'true-false') && (
-            <div className="mb-2">
-             <p className="text-sm font-medium">Correct Answer: {question.correctAnswer}</p>
-            </div>
-           )}
-           {question.media && (
-            <div className="mb-2">
-             <p className="text-sm font-medium">Attached Media:</p>
-             <div className="flex items-center">
-              {question.media.type === 'image' && <Image className="w-4 h-4 mr-1" />}
-              {question.media.type === 'audio' && <Music className="w-4 h-4 mr-1" />}
-              {question.media.type === 'video' && <Video className="w-4 h-4 mr-1" />}
-              <span className="text-sm">{question.media.filename}</span>
-             </div>
-            </div>
-           )}
-           {question.partialCredit && (
-            <p className="text-sm mb-2">Partial credit allowed</p>
-           )}
-           <div className="flex justify-end space-x-2">
-            <Button variant="outline" size="sm" onClick={() => setEditingQuestion(question)}>
-             <Edit className="w-4 h-4 mr-2" />
-             Edit
-            </Button>
-            <Button variant="destructive" size="sm" onClick={() => handleDeleteQuestion(question.id)}>
-             <Trash2 className="w-4 h-4 mr-2" />
-             Delete
-            </Button>
+    <div className="w-full md:w-2/3 ">
+     {/* <Card className='px-0'>
+      <CardContent> */}
+     {questions.length === 0 ? (
+      <div className="text-center text-muted-foreground py-8">
+       No questions added yet. Click "Add Question" to get started.
+      </div>
+     ) : (
+      questions.map((question) => (
+       <Card key={question.id} className="mb-4">
+        <CardContent className="pt-6">
+         <h3 className="font-semibold mb-2">{question.text}</h3>
+         <p className="text-sm text-muted-foreground mb-2">{question.type}</p>
+         {(question.type === 'multiple-choice' || question.type === 'true-false') && (
+          <div className="mb-2">
+           <p className="text-sm font-medium">Correct Answer: {question.correctAnswer}</p>
+          </div>
+         )}
+         {question.media && (
+          <div className="mb-2">
+           <p className="text-sm font-medium">Attached Media:</p>
+           <div className="flex items-center">
+            {question.media.type === 'image' && <Image className="w-4 h-4 mr-1" />}
+            {question.media.type === 'audio' && <Music className="w-4 h-4 mr-1" />}
+            {question.media.type === 'video' && <Video className="w-4 h-4 mr-1" />}
+            <span className="text-sm">{question.media.filename}</span>
            </div>
-          </CardContent>
-         </Card>
-        ))
-       )}
-      </CardContent>
-      <CardFooter></CardFooter>
-     </Card>
+          </div>
+         )}
+         {question.partialCredit && (
+          <p className="text-sm mb-2">Partial credit allowed</p>
+         )}
+         <div className="flex justify-end space-x-2">
+          <Button variant="outline" size="sm" onClick={() => setEditingQuestion(question)}>
+           <Edit className="w-4 h-4 mr-2" />
+           Edit
+          </Button>
+          <Button variant="destructive" size="sm" onClick={() => handleDeleteQuestion(question.id)}>
+           <Trash2 className="w-4 h-4 mr-2" />
+           Delete
+          </Button>
+         </div>
+        </CardContent>
+       </Card>
+      ))
+     )}
+     {/* </CardContent>
+     </Card> */}
     </div>
    </div>
 
@@ -524,137 +525,5 @@ export default function EnhancedTestQuestionManagement() {
     </DialogContent>
    </Dialog>
   </div>
- )
-}
-
-function QuestionForm({ initialData = {}, onSubmit, onCancel }) {
- const [questionData, setQuestionData] = useState({
-  text: '',
-  type: 'multiple-choice',
-  options: ['', '', '', ''],
-  correctAnswer: '',
-  media: null,
-  partialCredit: false,
-  ...initialData
- })
-
- const handleSubmit = (e) => {
-  e.preventDefault()
-  onSubmit(questionData)
- }
-
- const handleMediaUpload = (e) => {
-  const file = e.target.files[0]
-  if (file) {
-   setQuestionData({
-    ...questionData,
-    media: {
-     type: file.type.split('/')[0],
-     filename: file.name
-    }
-   })
-  }
- }
-
- const handleOptionChange = (index, value) => {
-  const newOptions = [...questionData.options]
-  newOptions[index] = value
-  setQuestionData({ ...questionData, options: newOptions })
- }
-
- const handleEquationEditor = () => {
-  // Implement equation editor functionality here
-  console.log("Equation Editor clicked")
- }
-
- return (
-  <form onSubmit={handleSubmit} className="space-y-4">
-   <div>
-    <Label htmlFor="questionText">Question Text</Label>
-    <div className="flex items-center space-x-2">
-     <Textarea
-      id="questionText"
-      value={questionData.text}
-      onChange={(e) => setQuestionData({ ...questionData, text: e.target.value })}
-      required
-     />
-     <Button type="button" onClick={handleEquationEditor}>
-      <FunctionSquare className="w-4 h-4" />
-     </Button>
-    </div>
-   </div>
-   <div>
-    <Label htmlFor="questionType">Question Type</Label>
-    <Select
-     value={questionData.type}
-     onValueChange={(value) => setQuestionData({ ...questionData, type: value, correctAnswer: '' })}
-    >
-     <SelectTrigger>
-      <SelectValue placeholder="Select question type" />
-     </SelectTrigger>
-     <SelectContent>
-      <SelectItem value="multiple-choice">Multiple Choice</SelectItem>
-      <SelectItem value="true-false">True/False</SelectItem>
-      <SelectItem value="short-answer">Short Answer</SelectItem>
-      <SelectItem value="essay">Essay</SelectItem>
-     </SelectContent>
-    </Select>
-   </div>
-   {questionData.type === 'multiple-choice' && (
-    <div className="space-y-2">
-     <Label>Options</Label>
-     {questionData.options.map((option, index) => (
-      <div key={index} className="flex items-center space-x-2">
-       <Input
-        value={option}
-        onChange={(e) => handleOptionChange(index, e.target.value)}
-        placeholder={`Option ${index + 1}`}
-       />
-       <RadioGroup value={questionData.correctAnswer} onValueChange={(value) => setQuestionData({ ...questionData, correctAnswer: value })}>
-        <RadioGroupItem value={option} id={`option-${index}`} />
-       </RadioGroup>
-      </div>
-     ))}
-    </div>
-   )}
-   {questionData.type === 'true-false' && (
-    <div className="space-y-2">
-     <Label>Correct Answer</Label>
-     <RadioGroup value={questionData.correctAnswer} onValueChange={(value) => setQuestionData({ ...questionData, correctAnswer: value })}>
-      <div className="flex items-center space-x-2">
-       <RadioGroupItem value="true" id="true" />
-       <Label htmlFor="true">True</Label>
-      </div>
-      <div className="flex items-center space-x-2">
-       <RadioGroupItem value="false" id="false" />
-       <Label htmlFor="false">False</Label>
-      </div>
-     </RadioGroup>
-    </div>
-   )}
-   <div>
-    <Label htmlFor="mediaUpload">Upload Media (Image, Audio, or Video)</Label>
-    <Input
-     id="mediaUpload"
-     type="file"
-     accept="image/*,audio/*,video/*"
-     onChange={handleMediaUpload}
-    />
-   </div>
-   <div className="flex items-center space-x-2">
-    <Checkbox
-     id="partialCredit"
-     checked={questionData.partialCredit}
-     onCheckedChange={(checked) => setQuestionData({ ...questionData, partialCredit: checked })}
-    />
-    <Label htmlFor="partialCredit">Allow Partial Credit</Label>
-   </div>
-   <div className="flex justify-end space-x-2">
-    <Button type="button" variant="outline" onClick={onCancel}>
-     Cancel
-    </Button>
-    <Button type="submit">Save Question</Button>
-   </div>
-  </form>
  )
 }

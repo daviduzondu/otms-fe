@@ -30,7 +30,7 @@ export default function RootLayout({
     <AuthSessionProvider>
      <AuthProvider>
       <Link href="/dashboard">
-       <Button className="absolute top-2 left-2 h-fit flex gap-2" variant={"outline"}>
+       <Button className="fixed top-4 left-4 h-fit flex gap-2" variant={"outline"}>
         <ArrowLeft size={'18'} />
         Return to dashboard</Button>
       </Link>
