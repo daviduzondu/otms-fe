@@ -1,11 +1,36 @@
-// 'use client'
-// import { MathfieldComponent } from "react-mathlive";
-// import { useState } from "react";
+'use client'
+import CKEditor from '@ckeditor/ckeditor5-react';
+import ClassicEditor from 'ckeditor5-classic-with-mathtype';
 
-// export default function View() {
-//  const [latex, setLatex] = useState("f(x)=\\log _10 x");
-//  return <MathfieldComponent
-//    latex={latex}
-//    onChange={setLatex}
-//  />;
-// }
+
+export default function View(){
+ return (
+  <CKEditor
+      editor={ClassicEditor}
+      config={{
+          toolbar: {
+              items: [
+                  'heading', 'MathType', 'ChemType',
+                  '|',
+                  'bold',
+                  'italic',
+                  'link',
+                  'bulletedList',
+                  'numberedList',
+                  'imageUpload',
+                  'mediaEmbed',
+                  'insertTable',
+                  'blockQuote',
+                  'undo',
+                  'redo'
+              ]
+          },
+      }}
+      data="<p>Hello from CKEditor 5 with MathType!</p>"
+      onInit={editor => {
+          // You can store the "editor" and use when it is needed.
+          // console.log( 'Editor is ready to use!', editor );
+      }}
+  />
+);
+}

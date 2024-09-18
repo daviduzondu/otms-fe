@@ -5,6 +5,7 @@ import { FunctionSquare, X, PlusCircle, Trash, Plus } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
+import View from "./equation"
 
 type QuestionFormProps = {
  initialData?: QuestionData
@@ -164,7 +165,7 @@ export default function QuestionForm({ initialData, onSubmit, onCancel }: Questi
      </div>
     </div>
    )}
-   {/* <View /> */}
+   <View />
    {questionData.type === "true-false" && (
     <div className="space-y-2">
      <Label>Correct Answer</Label>
