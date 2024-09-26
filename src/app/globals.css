@@ -90,7 +90,7 @@
   margin: 0 auto;
  }
 
- 
+
  ::view-transition-old(auth-container) {
   animation: 90ms cubic-bezier(0.4, 0, 1, 1) both fade-out,
  }
@@ -112,6 +112,13 @@
   animation: gradient-animation 7s linear infinite;
   background-size: 200% 200%;
   -webkit-user-drag: none;
+ }
+
+ .wysiwyg * {
+  font-size: 15px !important;
+  /* Set default font size to 20px */
+  line-height: 1.6;
+  /* Optionally, adjust line height for better readability */
  }
 
  @keyframes gradient-animation {

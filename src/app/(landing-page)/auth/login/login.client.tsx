@@ -8,13 +8,16 @@ import { useForm } from "react-hook-form"
 import { LoginSchema, LoginSchemaProps } from "../../../../validation/auth.validation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { signIn } from "next-auth/react"
-import { errorToast, successToast } from "../../../../helpers/show-toasts"
+import { errorToast, infoToast, successToast } from "../../../../helpers/show-toasts"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useContext, useEffect, useState } from "react"
+import { AuthContext } from "../../../../contexts/auth.context"
 
-export default function LoginClient() {
- const { register, formState: { errors }, getValues, handleSubmit } = useForm<LoginSchemaProps>({ resolver: zodResolver(LoginSchema) });
+
+export default function LoginClient({ callback }: { callback: string | null }) {
  const router = useRouter();
+ const { user } = useContext(AuthContext);
+ const { register, formState: { errors }, getValues, handleSubmit } = useForm<LoginSchemaProps>({ resolver: zodResolver(LoginSchema) });
  const [submitting, setSubmitting] = useState(false)
 
  const loginHandler = async () => {
@@ -24,11 +27,12 @@ export default function LoginClient() {
    email: getValues().email,
    password: getValues().password,
   });
+
   if (res?.error) {
    errorToast("Invalid credentials")
   } else {
    successToast("Welcome back " + getValues().email)
-   router.push('/dashboard')
+   router.push(callback && callback !== location.href ? callback : "/dashboard");
   }
   setSubmitting(false)
  };

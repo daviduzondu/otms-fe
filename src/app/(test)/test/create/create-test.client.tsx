@@ -19,7 +19,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { CreateTestSchema, CreateTestSchemaProps } from '../../../../validation/create-test.validation'
 import { useRouter } from 'next/navigation';
 
-export default function CreateTest() {
+export default function CreateTestClient() {
  const router = useRouter();
  const { user } = useContext(AuthContext);
  const { control, handleSubmit, watch, register, setValue, formState: { errors, isSubmitting } } = useForm<CreateTestSchemaProps>({ resolver: zodResolver(CreateTestSchema) })
@@ -38,6 +38,8 @@ export default function CreateTest() {
   provideExplanations: false,
  })
 
+ localStorage.setItem('callbackUrl', '/test/create');
+ 
  const calculateDuration = () => {
   const durationInMinutes = differenceInMinutes(endsAt, startsAt)
   const hours = Math.floor(durationInMinutes / 60)
@@ -59,7 +61,7 @@ export default function CreateTest() {
    "Authorization": `Bearer ${user?.accessToken}`
   }}
    onSuccess={async ({ response }) => {
-    const {data} = await response.json();
+    const { data } = await response.json();
     router.push(`/test/${data.id}`)
     successToast("Test created successfully")
    }}

@@ -48,11 +48,7 @@ export default function EnhancedTestQuestionManagement({ params }) {
  const [isAddQuestionOpen, setIsAddQuestionOpen] = useState(false)
  const [editingQuestion, setEditingQuestion] = useState(null)
 
- const { control, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<TestDetailsSchemaType>({
-  resolver: zodResolver(TestDetailsSchema),
-  defaultValues: testDetails,
- })
- 
+
  useEffect(() => {
   const fetchData = async () => {
    try {
@@ -60,7 +56,9 @@ export default function EnhancedTestQuestionManagement({ params }) {
     const { data, message } = await res.json();
 
     if (!res.ok) throw new Error(message);
-    setTestDetails(data)
+    console.log(data);
+    setTestDetails(data);
+    setQuestions(data.questions)
    } catch (e) {
     console.error(e);
    }
@@ -76,7 +74,9 @@ export default function EnhancedTestQuestionManagement({ params }) {
  }
 
  const handleEditQuestion = (question) => {
+  console.log("Question!", question)
   setQuestions(questions.map(q => q.id === question.id ? question : q))
+  console.log(questions);
   setEditingQuestion(null)
  }
 
@@ -126,7 +126,7 @@ export default function EnhancedTestQuestionManagement({ params }) {
  const RequiredAsterisk = () => <span className="text-red-500">*</span>
 
  return (
-  <div className="container mx-auto p-4 w-[60vw]">
+  <div className="mx-auto mt-4 w-[60vw]">
    <header className="mb-6">
     <h1 className="text-3xl font-bold">{testDetails.title}</h1>
     <div className="flex justify-between items-center mt-2">
@@ -142,266 +142,10 @@ export default function EnhancedTestQuestionManagement({ params }) {
        <Link className="w-4 h-4 mr-2" />
        Generate Test Link
       </Button>
-      <Dialog open={isEditTestOpen} onOpenChange={setIsEditTestOpen}>
-       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-         <Edit className="w-4 h-4 mr-2" />
-         Edit Test
-        </Button>
-       </DialogTrigger>
-       <DialogContent className="max-w-3xl">
-        <DialogHeader>
-         <DialogTitle>Edit Test Details</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-         <Tabs defaultValue="general">
-          <TabsList>
-           <TabsTrigger value="general">General</TabsTrigger>
-           <TabsTrigger value="schedule">Schedule</TabsTrigger>
-           <TabsTrigger value="settings">Settings</TabsTrigger>
-          </TabsList>
-          <TabsContent value="general">
-           <div className="space-y-4">
-            <div>
-             <Label htmlFor="title">Test Title <RequiredAsterisk /></Label>
-             <Controller
-              name="title"
-              control={control}
-              render={({ field }) => <Input id="title" {...field} />}
-             />
-             {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
-            </div>
-            <div>
-             <Label htmlFor="instructions">Instructions</Label>
-             <Controller
-              name="instructions"
-              control={control}
-              render={({ field }) => <Textarea id="instructions" {...field} />}
-             />
-            </div>
-            <div>
-             <Label htmlFor="passingScore">Passing Score (%)</Label>
-             <Controller
-              name="passingScore"
-              control={control}
-              render={({ field }) => <Input id="passingScore" type="number" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />}
-             />
-             {errors.passingScore && <p className="text-red-500 text-sm">{errors.passingScore.message}</p>}
-            </div>
-           </div>
-          </TabsContent>
-          <TabsContent value="schedule">
-           <div className="space-y-4">
-            <div>
-             <Label>Start Date & Time <RequiredAsterisk /></Label>
-             <Controller
-              name="startsAt"
-              control={control}
-              render={({ field }) => (
-               <Popover>
-                <PopoverTrigger asChild>
-                 <Button variant="outline" className="w-full justify-start text-left font-normal">
-                  <Clock className="mr-2 h-4 w-4" />
-                  {format(field.value, "PPP p")}
-                 </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                 <Calendar
-                  mode="single"
-                  selected={field.value}
-                  onSelect={(date) => {
-                   if (date) {
-                    const newDate = new Date(date)
-                    newDate.setHours(field.value.getHours(), field.value.getMinutes())
-                    field.onChange(newDate)
-                   }
-                  }}
-                  disabled={(date) => isBefore(date, startOfDay(new Date()))}
-                  initialFocus
-                 />
-                 <div className="p-3 border-t">
-                  <Input
-                   type="time"
-                   value={format(field.value, "HH:mm")}
-                   onChange={(e) => {
-                    const [hours, minutes] = e.target.value.split(':')
-                    const newDate = new Date(field.value)
-                    newDate.setHours(parseInt(hours), parseInt(minutes))
-                    field.onChange(newDate)
-                   }}
-                  />
-                 </div>
-                </PopoverContent>
-               </Popover>
-              )}
-             />
-             {errors.startsAt && <p className="text-red-500 text-sm">{errors.startsAt.message}</p>}
-            </div>
-            <div>
-             <Label>End Date & Time <RequiredAsterisk /></Label>
-             <Controller
-              name="endsAt"
-              control={control}
-              render={({ field }) => (
-               <Popover>
-                <PopoverTrigger asChild>
-                 <Button variant="outline" className="w-full justify-start text-left font-normal">
-                  <Clock className="mr-2 h-4 w-4" />
-                  {format(field.value, "PPP p")}
-                 </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                 <Calendar
-                  mode="single"
-                  selected={field.value}
-                  onSelect={(date) => {
-                   if (date) {
-                    const newDate = new Date(date)
-                    newDate.setHours(field.value.getHours(), field.value.getMinutes())
-                    field.onChange(newDate)
-                   }
-                  }}
-                  disabled={(date) => isBefore(date, startOfDay(testDetails.startsAt))}
-                  initialFocus
-                 />
-                 <div className="p-3 border-t">
-                  <Input
-                   type="time"
-                   value={format(field.value, "HH:mm")}
-                   onChange={(e) => {
-                    const [hours, minutes] = e.target.value.split(':')
-                    const newDate = new Date(field.value)
-                    newDate.setHours(parseInt(hours), parseInt(minutes))
-                    field.onChange(newDate)
-                   }}
-                  />
-                 </div>
-                </PopoverContent>
-               </Popover>
-              )}
-             />
-             {errors.endsAt && <p className="text-red-500 text-sm">{errors.endsAt.message}</p>}
-            </div>
-           </div>
-          </TabsContent>
-          <TabsContent value="settings">
-           <div className="space-y-4">
-            <div>
-             <Label htmlFor="accessCode">Access Code</Label>
-             <Controller
-              name="accessCode"
-              control={control}
-              render={({ field }) => <Input id="accessCode" {...field} />}
-             />
-            </div>
-            <div className="space-y-2">
-             <Label className="text-base">Test Options</Label>
-             <div className="flex flex-col space-y-2">
-              <div className="flex items-center justify-between">
-               <Label htmlFor="randomizeQuestions">Randomize Questions</Label>
-               <Controller
-                name="randomizeQuestions"
-                control={control}
-                render={({ field }) => (
-                 <Switch
-                  id="randomizeQuestions"
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                 />
-                )}
-               />
-              </div>
-              <div className="flex items-center justify-between">
-               <Label htmlFor="showResults">Show Results Immediately</Label>
-               <Controller
-                name="showResults"
-                control={control}
-                render={({ field }) => (
-                 <Switch
-                  id="showResults"
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                 />
-                )}
-               />
-              </div>
-              <div className="flex items-center justify-between">
-               <Label htmlFor="showCorrectAnswers">Show Correct Answers</Label>
-               <Controller
-                name="showCorrectAnswers"
-                control={control}
-                render={({ field }) => (
-                 <Switch
-                  id="showCorre ctAnswers"
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                 />
-                )}
-               />
-              </div>
-              <div className="flex items-center justify-between">
-               <Label htmlFor="provideExplanations">Provide Explanations</Label>
-               <Controller
-                name="provideExplanations"
-                control={control}
-                render={({ field }) => (
-                 <Switch
-                  id="provideExplanations"
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                 />
-                )}
-               />
-              </div>
-             </div>
-            </div>
-            <div className="space-y-2">
-             <Label className="text-base">Security</Label>
-             <div className="flex flex-col space-y-2">
-              <div className="flex items-center justify-between">
-               <Label htmlFor="disableCopyPaste">Disable Copy/Paste</Label>
-               <Controller
-                name="disableCopyPaste"
-                control={control}
-                render={({ field }) => (
-                 <Switch
-                  id="disableCopyPaste"
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                 />
-                )}
-               />
-              </div>
-              <div className="flex items-center justify-between">
-               <Label htmlFor="requireFullScreen">Require Full Screen Mode</Label>
-               <Controller
-                name="requireFullScreen"
-                control={control}
-                render={({ field }) => (
-                 <Switch
-                  id="requireFullScreen"
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                 />
-                )}
-               />
-              </div>
-             </div>
-            </div>
-           </div>
-          </TabsContent>
-         </Tabs>
-         <div className="flex justify-end space-x-2">
-          <Button type="button" variant="outline" onClick={() => setIsEditTestOpen(false)}>
-           Cancel
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-           {isSubmitting ? "Saving..." : "Save Changes"}
-          </Button>
-         </div>
-        </form>
-       </DialogContent>
-      </Dialog>
+      <Button variant="outline" size="sm">
+       <Link className="w-4 h-4 mr-2" />
+       Edit Test
+      </Button>
      </div>
     </div>
    </header>
@@ -455,13 +199,13 @@ export default function EnhancedTestQuestionManagement({ params }) {
       <CardContent> */}
      {questions.length === 0 ? (
       <div className="text-center text-muted-foreground py-8">
-       No questions added yet. Click "Add Question" to get started.
+       No questions added yet. Click &quot;Add Question&quot; to get started.
       </div>
      ) : (
       questions.map((question) => (
        <Card key={question.id} className="mb-4">
         <CardContent className="pt-6">
-         <h3 className="font-semibold mb-2">{question.text}</h3>
+         <span className="mb-2" dangerouslySetInnerHTML={{ __html: question.body }}></span>
          <p className="text-sm text-muted-foreground mb-2">{question.type}</p>
          {(question.type === 'multiple-choice' || question.type === 'true-false') && (
           <div className="mb-2">
@@ -479,11 +223,8 @@ export default function EnhancedTestQuestionManagement({ params }) {
            </div>
           </div>
          )}
-         {question.partialCredit && (
-          <p className="text-sm mb-2">Partial credit allowed</p>
-         )}
          <div className="flex justify-end space-x-2">
-          <Button variant="outline" size="sm" onClick={() => setEditingQuestion(question)}>
+          <Button variant="outline" size="sm" onClick={() => { console.log(question); setEditingQuestion(question) }}>
            <Edit className="w-4 h-4 mr-2" />
            Edit
           </Button>

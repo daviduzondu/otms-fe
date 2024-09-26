@@ -7,7 +7,6 @@ import Navbar from "../../components/navbar/navbar";
 import { AuthProvider } from "../../contexts/auth.context";
 import AuthSessionProvider from "../../contexts/auth-session.provider";
 import { Toaster } from "@/components/ui/sonner";
-import { Suspense } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 

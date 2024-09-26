@@ -1,132 +1,140 @@
-import { useState, ChangeEvent, FormEvent } from "react"
-import { Label } from "@/components/ui/label"
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
-import { FunctionSquare, X, PlusCircle, Trash, Plus } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import View from "./equation"
+'use client'
+
+import { useState, ChangeEvent, FormEvent, useRef, useEffect, useContext } from "react";
+import { Label } from "@/components/ui/label";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Controller, Form, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CreateQuestionSchema, CreateQuestionSchemaProps } from "../../validation/create-question.validation";
+import WYSIWYGLatexEditor from "./question-box";
+import EquationEditor from "./equation-editor"; // Importing the Equation Editor
+import ReactQuill from "react-quill";
+import { AuthContext } from "../../contexts/auth.context";
+import { errorToast } from "../../helpers/show-toasts";
 
 type QuestionFormProps = {
- initialData?: QuestionData
- onSubmit: (data: QuestionData) => void
- onCancel: () => void
-}
-
-type QuestionData = {
- text: string
- type: "multiple-choice" | "true-false" | "short-answer" | "essay"
- options: string[]
- correctAnswer: string | boolean
- media: Media | null
- partialCredit: boolean
-}
-
-type Media = {
- type: string
- filename: string
-}
+ initialData?: (CreateQuestionSchemaProps & { id: number });
+ onSubmit: (data: CreateQuestionSchemaProps & { id?: number }) => void;
+ onCancel: () => void;
+};
 
 export default function QuestionForm({ initialData, onSubmit, onCancel }: QuestionFormProps) {
- const [questionData, setQuestionData] = useState<QuestionData>({
-  text: "",
-  type: "multiple-choice",
-  options: ["", "", ""],
-  correctAnswer: "",
-  media: null,
-  partialCredit: false,
-  ...initialData,
- })
+ const {
+  register,
+  control,
+  setValue,
+  watch,
+  handleSubmit,
+  getValues,
+  formState: { isSubmitting, errors },
+ } = useForm<CreateQuestionSchemaProps>({
+  resolver: zodResolver(CreateQuestionSchema),
+  defaultValues: initialData,
+ });
+ const { user } = useContext(AuthContext);
+ const [editorContent, setEditorContent] = useState(initialData?.body || "");
+ const quillRef = useRef<ReactQuill | null>(null);
+ const options = watch("options") || [];
+ const questionType = watch("type");
 
- const handleSubmit = (e: FormEvent) => {
-  e.preventDefault()
-  onSubmit(questionData)
- }
+ useEffect(() => {
+  // console.log(initialData)
+  quillRef.current?.focus();
+ }, [])
 
- const handleMediaUpload = (e: ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0]
-  if (file) {
-   setQuestionData({
-    ...questionData,
-    media: {
-     type: file.type.split("/")[0],
-     filename: file.name,
-    },
-   })
+ useEffect(() => {
+  setValue("body", editorContent);
+ }, [editorContent, setValue]);
+
+ const handleQuestionSubmit = (data: CreateQuestionSchemaProps) => {
+  onSubmit({ ...data, body: editorContent, id: initialData && initialData.id });
+ };
+
+ const handleOptionChange = (index: number, value: string) => {
+  const updatedOptions = [...options];
+  updatedOptions[index] = value;
+  setValue("options", updatedOptions);
+ };
+
+ const addOption = () => {
+  const updatedOptions = [...options, ""];
+  setValue("options", updatedOptions);
+ };
+
+ const removeOption = (index: number) => {
+  const updatedOptions = options.filter((_, i) => i !== index);
+  setValue("options", updatedOptions);
+ };
+
+ function onInsert(latex: string) {
+  if (quillRef.current) {
+   const editor = quillRef.current.getEditor();
+   const range = editor.getSelection(true);
+   editor.insertEmbed(range.index, 'formula', latex);
+   editor.setSelection(range.index + 1);
   }
  }
 
- const handleOptionChange = (index: number, value: string) => {
-  const updatedOptions = [...questionData.options]
-  updatedOptions[index] = value
-  setQuestionData({ ...questionData, options: updatedOptions })
- }
-
- const addOption = () => {
-  setQuestionData({
-   ...questionData,
-   options: [...questionData.options, ""],
-  })
- }
-
- const removeOption = (index: number) => {
-  const updatedOptions = questionData.options.filter((_, i) => i !== index)
-  setQuestionData({
-   ...questionData,
-   options: updatedOptions,
-   correctAnswer: updatedOptions.includes(questionData.correctAnswer as string)
-    ? questionData.correctAnswer
-    : "",
-  })
- }
-
- const handleEquationEditor = () => {
-  // Implement equation editor functionality here
-  console.log("Equation Editor clicked")
- }
-
  return (
-  <form onSubmit={handleSubmit} className="space-y-4">
+  <Form
+   control={control}
+   action={`${process.env.NEXT_PUBLIC_API_URL}/api/questions/create`}
+   headers={{
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${user.accessToken}`
+   }}
+   onSuccess={() => handleQuestionSubmit(getValues())}
+   onError={async ({ response }) => { errorToast((await response?.json()).message) }}
+   className="space-y-4 max-h-[75vh] overflow-y-auto">
+   <Input type="hidden" {...register("testId", { value: location.pathname.split("/")[2] })} />
    <div className="space-y-2">
     <Label htmlFor="questionText">Question Text</Label>
-    <div className="flex flex-col items-start space-y-2">
-     <Textarea
-      id="questionText"
-      value={questionData.text}
-      onChange={(e) => setQuestionData({ ...questionData, text: e.target.value })}
-      required
-     />
+    <div className="flex flex-col items-start gap-12">
+     <div className="h-24 w-full wysiwyg">
+      <Controller
+       name="body"
+       control={control}
+       render={({ field }) => (
+        <WYSIWYGLatexEditor ref={quillRef} value={editorContent} onChange={setEditorContent} />
+       )}
+      />
+      {errors.body && <p className="text-red-500 text-sm">{errors.body.message}</p>}
+     </div>
      <div className="flex space-x-2">
-      <Button type="button" onClick={handleEquationEditor} className="flex gap-1 text-blue-600 p-0 m-0" variant={'link'}>
-       <FunctionSquare />
-       Add Equation
-      </Button>
+      <EquationEditor onInsert={onInsert} />
      </div>
     </div>
    </div>
 
    <div className="space-y-2">
     <Label htmlFor="questionType">Question Type</Label>
-    <Select
-     value={questionData.type}
-     onValueChange={(value: QuestionData["type"]) => setQuestionData({ ...questionData, type: value, correctAnswer: "" })}
-    >
-     <SelectTrigger>
-      <SelectValue placeholder="Select question type" />
-     </SelectTrigger>
-     <SelectContent>
-      <SelectItem value="multiple-choice">Multiple Choice</SelectItem>
-      <SelectItem value="true-false">True/False</SelectItem>
-      <SelectItem value="short-answer">Short Answer</SelectItem>
-      <SelectItem value="essay">Essay</SelectItem>
-     </SelectContent>
-    </Select>
+    <Controller
+     name="type"
+     control={control}
+     render={({ field }) => (
+      <Select value={field.value} onValueChange={field.onChange}>
+       <SelectTrigger>
+        <SelectValue placeholder="Select question type" />
+       </SelectTrigger>
+       <SelectContent>
+        <SelectItem value="mcq">Multiple Choice</SelectItem>
+        <SelectItem value="trueOrFalse">True/False</SelectItem>
+        <SelectItem value="shortAnswer">Short Answer</SelectItem>
+        <SelectItem value="essay">Essay</SelectItem>
+       </SelectContent>
+      </Select>
+     )}
+    />
+    {errors.type && <p className="text-red-500 text-sm">{errors.type.message}</p>}
    </div>
 
-   {questionData.type === "multiple-choice" && (
+   {/* Options for Multiple Choice Questions */}
+   {questionType === "mcq" && (
     <div className="space-y-2">
      <Label>Options</Label>
-     {questionData.options.map((option, index) => (
+     {options.map((option, index) => (
       <div key={index} className="flex items-center space-x-2">
        <Input
         value={option}
@@ -134,72 +142,78 @@ export default function QuestionForm({ initialData, onSubmit, onCancel }: Questi
         placeholder={`Option ${index + 1}`}
        />
        <Button type="button" onClick={() => removeOption(index)} className="flex gap-2" variant="destructive">
-        <Trash size={18} />
+        Remove
        </Button>
       </div>
      ))}
-     <Button type="button" onClick={addOption} className="flex gap-1 p-0 m-0 text-blue-600" variant={'link'}>
-      <Plus />
+     <Button type="button" onClick={addOption} className="flex gap-1 p-0 m-0 text-blue-600" variant="link">
       Add Option
      </Button>
-
-     <div className="space-y-2">
-      <Label htmlFor="correctAnswer">Correct Answer</Label>
-      <Select
-       value={questionData.correctAnswer as string}
-       onValueChange={(value) => setQuestionData({ ...questionData, correctAnswer: value })}
-      >
-       <SelectTrigger>
-        <SelectValue placeholder="Select correct answer" />
-       </SelectTrigger>
-       <SelectContent>
-        {questionData.options
-         .filter(option => option.trim() !== "")
-         .map((option, index) => (
-          <SelectItem key={index} value={option}>
-           {option}
-          </SelectItem>
-         ))}
-       </SelectContent>
-      </Select>
-     </div>
+     {errors.options && <p className="text-red-500 text-sm">{errors.options.message}</p>}
+     {options.length < 2 && questionType === 'mcq' && (
+      <p className="text-red-500 text-sm">At least two options are required for Multiple Choice questions.</p>
+     )}
     </div>
    )}
-   <View />
-   {questionData.type === "true-false" && (
+
+   {/* Correct Answer Validation */}
+   {(questionType === "mcq" || questionType === "trueOrFalse") && (
     <div className="space-y-2">
-     <Label>Correct Answer</Label>
-     <Select
-      value={questionData.correctAnswer as string}
-      onValueChange={(value) => setQuestionData({ ...questionData, correctAnswer: value })}
-     >
-      <SelectTrigger>
-       <SelectValue placeholder="Select correct answer" />
-      </SelectTrigger>
-      <SelectContent>
-       <SelectItem value="true">True</SelectItem>
-       <SelectItem value="false">False</SelectItem>
-      </SelectContent>
-     </Select>
+     <Label htmlFor="correctAnswer">Correct Answer</Label>
+     <Controller
+      name="correctAnswer"
+      control={control}
+      render={({ field }) => (
+       <Select value={field.value} onValueChange={field.onChange}>
+        <SelectTrigger>
+         <SelectValue placeholder="Select correct answer" />
+        </SelectTrigger>
+        <SelectContent>
+         {questionType === "mcq" &&
+          options
+           .filter((option) => option.trim() !== "")
+           .map((option, index) => (
+            <SelectItem key={index} value={option}>
+             {option}
+            </SelectItem>
+           ))}
+         {questionType === "trueOrFalse" && (
+          <>
+           <SelectItem value="true">True</SelectItem>
+           <SelectItem value="false">False</SelectItem>
+          </>
+         )}
+        </SelectContent>
+       </Select>
+      )}
+     />
+     {errors.correctAnswer && <p className="text-red-500 text-sm">{errors.correctAnswer.message}</p>}
     </div>
    )}
 
    <div className="space-y-2">
-    <Label htmlFor="mediaUpload">Upload Media (Image, Audio, or Video)</Label>
+    <Label htmlFor="points">Points</Label>
     <Input
-     id="mediaUpload"
-     type="file"
-     accept="image/*,audio/*,video/*"
-     onChange={handleMediaUpload}
+     id="points"
+     type="number"
+     defaultValue={initialData?.points}
+     {...register("points")}
     />
+    {errors.points && <p className="text-red-500 text-sm">{errors.points.message}</p>}
    </div>
 
    <div className="flex justify-end space-x-2">
     <Button type="button" variant="outline" onClick={onCancel}>
      Cancel
     </Button>
-    <Button type="submit">Save Question</Button>
+    <Button
+     type="submit"
+     disabled={isSubmitting || (questionType === "mcq" && options.length < 2)}
+    >
+
+     {!initialData ? "Save Question" : "Edit Question"}
+    </Button>
    </div>
-  </form>
- )
+  </Form>
+ );
 }

@@ -17,7 +17,7 @@ export const authOptions: NextAuthOptions = {
  ],
  callbacks: {
   async jwt({ token, user }) {
-   console.log(token)
+   // console.log(token)
    // If user is returned on login, attach user data to token
    if (user) {
     Object.assign(token, user)
@@ -27,7 +27,7 @@ export const authOptions: NextAuthOptions = {
   async session({ session, token, }) {
    // Attach token data to session
    Object.assign(session, { user: token })
-   console.log(session)
+   // console.log(session)
    return session;
   },
  },

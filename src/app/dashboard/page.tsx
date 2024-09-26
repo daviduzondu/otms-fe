@@ -7,130 +7,140 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { BarChart, Bell, Book, Calendar, FileText, Home, LogOut, PieChart, PlusCircle, Settings, Users } from 'lucide-react'
 import Link from 'next/link'
+import { Metadata } from 'next'
+import AuthGuard from '../../components/guards/auth-guard'
+
+
+export const metadata: Metadata = {
+ title: 'Dashboard',
+ description: 'Welcome to your Dashboard',
+};
 
 export default function TeacherDashboard() {
  return (
-  <div className="flex h-screen bg-gray-100">
-   {/* Sidebar */}
-   <aside className="w-64 bg-white shadow-md">
-    <div className="p-4">
-     <h2 className="text-2xl font-bold text-primary">OTMS</h2>
-    </div>
-    <nav className="mt-6">
-     <NavItem icon={<Home className="w-5 h-5 mr-2" />} label="Dashboard" active />
-     <NavItem icon={<FileText className="w-5 h-5 mr-2" />} label="Tests" />
-     <NavItem icon={<Users className="w-5 h-5 mr-2" />} label="Students" />
-     <NavItem icon={<Book className="w-5 h-5 mr-2" />} label="Question Pools" />
-     <NavItem icon={<PieChart className="w-5 h-5 mr-2" />} label="Analytics" />
-     <NavItem icon={<Settings className="w-5 h-5 mr-2" />} label="Settings" />
-    </nav>
-   </aside>
-
-   {/* Main Content */}
-   <main className="flex-1 overflow-y-auto">
-    {/* Header */}
-    <header className="bg-white shadow-sm">
-     <div className="flex items-center justify-between px-8 py-4">
-      <h1 className="text-2xl font-semibold text-gray-800">Dashboard</h1>
-      <div className="flex items-center space-x-4">
-       <Button variant="ghost" size="icon">
-        <Bell className="w-5 h-5" />
-       </Button>
-       <Avatar>
-        <AvatarImage src="/placeholder.svg?height=32&width=32" alt="Teacher" />
-        <AvatarFallback>TC</AvatarFallback>
-       </Avatar>
-      </div>
+  <AuthGuard>
+   <div className="flex h-screen bg-gray-100">
+    {/* Sidebar */}
+    <aside className="w-64 bg-white shadow-md">
+     <div className="p-4">
+      <h2 className="text-2xl font-bold text-primary">OTMS</h2>
      </div>
-    </header>
+     <nav className="mt-6">
+      <NavItem icon={<Home className="w-5 h-5 mr-2" />} label="Dashboard" active />
+      <NavItem icon={<FileText className="w-5 h-5 mr-2" />} label="Tests" />
+      <NavItem icon={<Users className="w-5 h-5 mr-2" />} label="Students" />
+      <NavItem icon={<Book className="w-5 h-5 mr-2" />} label="Question Pools" />
+      <NavItem icon={<PieChart className="w-5 h-5 mr-2" />} label="Analytics" />
+      <NavItem icon={<Settings className="w-5 h-5 mr-2" />} label="Settings" />
+     </nav>
+    </aside>
 
-    {/* Dashboard Content */}
-    <div className="p-8">
-     {/* Quick Actions */}
-     <div className="mb-8">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">Quick Actions</h2>
-      <div className="flex space-x-4">
-       <Link href='/test/create'>
-        <Button>
-         <PlusCircle className="w-4 h-4 mr-2" />
-         Create New Test
+    {/* Main Content */}
+    <main className="flex-1 overflow-y-auto">
+     {/* Header */}
+     <header className="bg-white shadow-sm">
+      <div className="flex items-center justify-between px-8 py-4">
+       <h1 className="text-2xl font-semibold text-gray-800">Dashboard</h1>
+       <div className="flex items-center space-x-4">
+        <Button variant="ghost" size="icon">
+         <Bell className="w-5 h-5" />
         </Button>
-       </Link>
-       <Button variant="outline">
-        <FileText className="w-4 h-4 mr-2" />
-        Manage Question Pools
-       </Button>
-       <Button variant="outline">
-        <Users className="w-4 h-4 mr-2" />
-        View Student Reports
-       </Button>
+        <Avatar>
+         <AvatarImage src="/placeholder.svg?height=32&width=32" alt="Teacher" />
+         <AvatarFallback>TC</AvatarFallback>
+        </Avatar>
+       </div>
       </div>
-     </div>
+     </header>
 
-     {/* Statistics */}
-     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-      <StatCard title="Total Tests" value="24" icon={<FileText className="w-4 h-4 text-muted-foreground" />} change="+2 from last week" />
-      <StatCard title="Active Students" value="573" icon={<Users className="w-4 h-4 text-muted-foreground" />} change="+18 from last month" />
-      <StatCard title="Average Score" value="76%" icon={<BarChart className="w-4 h-4 text-muted-foreground" />} change="+2% from last month" />
-      <StatCard title="Upcoming Tests" value="3" icon={<Calendar className="w-4 h-4 text-muted-foreground" />} change="Next test in 2 days" />
-     </div>
+     {/* Dashboard Content */}
+     <div className="p-8">
+      {/* Quick Actions */}
+      <div className="mb-8">
+       <h2 className="text-xl font-semibold text-gray-800 mb-4">Quick Actions</h2>
+       <div className="flex space-x-4">
+        <Link href='/test/create'>
+         <Button>
+          <PlusCircle className="w-4 h-4 mr-2" />
+          Create New Test
+         </Button>
+        </Link>
+        <Button variant="outline">
+         <FileText className="w-4 h-4 mr-2" />
+         Manage Question Pools
+        </Button>
+        <Button variant="outline">
+         <Users className="w-4 h-4 mr-2" />
+         View Student Reports
+        </Button>
+       </div>
+      </div>
 
-     {/* Recent and Upcoming Tests */}
-     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+      {/* Statistics */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+       <StatCard title="Total Tests" value="24" icon={<FileText className="w-4 h-4 text-muted-foreground" />} change="+2 from last week" />
+       <StatCard title="Active Students" value="573" icon={<Users className="w-4 h-4 text-muted-foreground" />} change="+18 from last month" />
+       <StatCard title="Average Score" value="76%" icon={<BarChart className="w-4 h-4 text-muted-foreground" />} change="+2% from last month" />
+       <StatCard title="Upcoming Tests" value="3" icon={<Calendar className="w-4 h-4 text-muted-foreground" />} change="Next test in 2 days" />
+      </div>
+
+      {/* Recent and Upcoming Tests */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+       <Card>
+        <CardHeader>
+         <CardTitle>Recent Tests</CardTitle>
+         <CardDescription>Last 5 tests created or administered</CardDescription>
+        </CardHeader>
+        <CardContent>
+         <TestList tests={recentTests} />
+        </CardContent>
+       </Card>
+       <Card>
+        <CardHeader>
+         <CardTitle>Upcoming Tests</CardTitle>
+         <CardDescription>Tests scheduled for the next 7 days</CardDescription>
+        </CardHeader>
+        <CardContent>
+         <TestList tests={upcomingTests} />
+        </CardContent>
+       </Card>
+      </div>
+
+      {/* Performance Insights */}
       <Card>
        <CardHeader>
-        <CardTitle>Recent Tests</CardTitle>
-        <CardDescription>Last 5 tests created or administered</CardDescription>
+        <CardTitle>Performance Insights</CardTitle>
+        <CardDescription>Overview of student performance across recent tests</CardDescription>
        </CardHeader>
        <CardContent>
-        <TestList tests={recentTests} />
-       </CardContent>
-      </Card>
-      <Card>
-       <CardHeader>
-        <CardTitle>Upcoming Tests</CardTitle>
-        <CardDescription>Tests scheduled for the next 7 days</CardDescription>
-       </CardHeader>
-       <CardContent>
-        <TestList tests={upcomingTests} />
+        <Tabs defaultValue="overall">
+         <TabsList>
+          <TabsTrigger value="overall">Overall Performance</TabsTrigger>
+          <TabsTrigger value="bySubject">Performance by Subject</TabsTrigger>
+          <TabsTrigger value="improvement">Areas for Improvement</TabsTrigger>
+         </TabsList>
+         <TabsContent value="overall">
+          <div className="h-[300px] flex items-center justify-center bg-muted text-muted-foreground">
+           Overall performance chart placeholder
+          </div>
+         </TabsContent>
+         <TabsContent value="bySubject">
+          <div className="h-[300px] flex items-center justify-center bg-muted text-muted-foreground">
+           Performance by subject chart placeholder
+          </div>
+         </TabsContent>
+         <TabsContent value="improvement">
+          <div className="h-[300px] flex items-center justify-center bg-muted text-muted-foreground">
+           Areas for improvement chart placeholder
+          </div>
+         </TabsContent>
+        </Tabs>
        </CardContent>
       </Card>
      </div>
-
-     {/* Performance Insights */}
-     <Card>
-      <CardHeader>
-       <CardTitle>Performance Insights</CardTitle>
-       <CardDescription>Overview of student performance across recent tests</CardDescription>
-      </CardHeader>
-      <CardContent>
-       <Tabs defaultValue="overall">
-        <TabsList>
-         <TabsTrigger value="overall">Overall Performance</TabsTrigger>
-         <TabsTrigger value="bySubject">Performance by Subject</TabsTrigger>
-         <TabsTrigger value="improvement">Areas for Improvement</TabsTrigger>
-        </TabsList>
-        <TabsContent value="overall">
-         <div className="h-[300px] flex items-center justify-center bg-muted text-muted-foreground">
-          Overall performance chart placeholder
-         </div>
-        </TabsContent>
-        <TabsContent value="bySubject">
-         <div className="h-[300px] flex items-center justify-center bg-muted text-muted-foreground">
-          Performance by subject chart placeholder
-         </div>
-        </TabsContent>
-        <TabsContent value="improvement">
-         <div className="h-[300px] flex items-center justify-center bg-muted text-muted-foreground">
-          Areas for improvement chart placeholder
-         </div>
-        </TabsContent>
-       </Tabs>
-      </CardContent>
-     </Card>
-    </div>
-   </main>
-  </div>
+    </main>
+   </div>
+  </AuthGuard>
  )
 }
 

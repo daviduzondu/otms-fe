@@ -1,27 +1,25 @@
 // app/auth/layout.tsx
 'use client'
-
 import React, { ReactNode, useEffect } from 'react';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { ViewTransitions } from 'next-view-transitions';
-import { continueWithGoogle } from './utils/authentication';
 import { useRouter } from 'next/navigation';
+import { headers } from 'next/headers';
+import { infoToast } from '../../../helpers/show-toasts';
 
 
 export default function AuthLayout({ children }: { children: React.JSX.Element }) {
- const router = useRouter();
+
  return (
   <ViewTransitions>
    <div className="mx-auto max-w-[450px] space-y-6 flex flex-col justify-center min-h-[90dvh]">
-    {children} 
+
+    {children}
     {/* <div className='flex justify-center items-center text-gray-700 text-xs gap-2'>
      <Separator className="w-20" />
      OR
      <Separator className="w-20" />
     </div> */}
-    <div className="space-y-4">
+    {/* <div className="space-y-4">
      <Button variant="outline" className="w-full" onClick={async () => {
       await continueWithGoogle()
       router.back()
@@ -29,7 +27,7 @@ export default function AuthLayout({ children }: { children: React.JSX.Element }
       <img className={"w-5 h-5 mr-2"} src="https://www.svgrepo.com/show/475656/google-color.svg" loading="lazy" alt="google logo" />
       Continue with Google
      </Button>
-    </div>
+    </div> */}
    </div>
   </ViewTransitions>
  );
