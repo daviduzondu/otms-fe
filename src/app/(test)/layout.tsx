@@ -11,6 +11,8 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import UserProfileBtn from "../../components/user-profile-btn";
 import AuthGuard from "../../components/guards/auth-guard";
+import { ErrorBoundary } from "react-error-boundary";
+import ErrorFallback from "../../components/errors/error-fallback";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -32,7 +34,7 @@ export default function RootLayout({
     <AuthSessionProvider>
      <AuthProvider>
       <AuthGuard>
-       <>
+       <ErrorBoundary FallbackComponent={ErrorFallback}>
         <Link href="/dashboard">
          <Button className="fixed top-4 left-4 h-fit flex gap-2" variant={"outline"}>
           <ArrowLeft size={'18'} />
@@ -43,7 +45,7 @@ export default function RootLayout({
          {children}
          <Toaster richColors position="top-center" theme="light" closeButton />
         </div>
-       </>
+       </ErrorBoundary>
       </AuthGuard>
      </AuthProvider>
     </AuthSessionProvider>

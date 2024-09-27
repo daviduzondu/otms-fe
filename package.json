@@ -46,6 +46,7 @@
     "react-beautiful-dnd": "^13.1.1",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18",
+    "react-error-boundary": "^4.0.13",
     "react-hook-form": "^7.53.0",
     "react-katex": "^3.0.1",
     "react-loader-spinner": "^6.1.6",

@@ -20,6 +20,7 @@ import { format, differenceInMinutes, isBefore, startOfDay } from 'date-fns'
 import { AuthContext } from '../../../../contexts/auth.context'
 import { errorToast, successToast } from '../../../../helpers/show-toasts'
 import QuestionForm from '../../../../components/test/question-form'
+import { useErrorBoundary } from 'react-error-boundary'
 
 
 // Define the schema for test details
@@ -41,6 +42,7 @@ const TestDetailsSchema = z.object({
 type TestDetailsSchemaType = z.infer<typeof TestDetailsSchema>
 
 export default function EnhancedTestQuestionManagement({ params }) {
+ const { showBoundary } = useErrorBoundary();
  const { user } = useContext(AuthContext)
  const [testDetails, setTestDetails] = useState({})
  const [questions, setQuestions] = useState([])
@@ -55,8 +57,8 @@ export default function EnhancedTestQuestionManagement({ params }) {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/${params.id}`, { headers: { Authorization: `Bearer ${user.accessToken}` } });
     const { data, message } = await res.json();
 
-    if (!res.ok) throw new Error(message);
-    console.log(data);
+    if (!res.ok) showBoundary({ message: `${message}`, 
+     heading: res.status === 404 ? "Failed to retrieve test" : undefined });
     setTestDetails(data);
     setQuestions(data.questions)
    } catch (e) {
