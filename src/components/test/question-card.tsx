@@ -10,7 +10,7 @@ import { errorToast, successToast } from "../../helpers/show-toasts";
 export default function QuestionCard({ question, setEditingQuestion, handleDeleteQuestion }) {
  const { user } = useContext(AuthContext);
  const [isDeleting, setIsDeleting] = useState(false);
-
+ 
  async function handleDelete(id: string) {
   const deleteQuestion = confirm("Are you sure you want to delete this question?");
   if (deleteQuestion) {

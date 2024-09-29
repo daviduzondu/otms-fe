@@ -15,6 +15,7 @@ import { useErrorBoundary } from 'react-error-boundary'
 import Loader from '../../../../components/loader/loader'
 import QuestionCard from '../../../../components/test/question-card'
 import { CreateQuestionSchemaProps } from '../../../../validation/create-question.validation'
+import { Oval } from 'react-loader-spinner'
 
 const TestDetailsSchema = z.object({
  title: z.string().min(1, "Title is required"),
@@ -44,6 +45,7 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
  const [editingQuestion, setEditingQuestion] = useState<TQuestion | null>(null)
  const [isLoading, setIsLoading] = useState(true);
  const reqHeaders = { Authorization: `Bearer ${user.accessToken}` }
+ const [isIndexUpdating, setIsIndexUpdating] = useState(false);
 
  useEffect(() => {
   const fetchData = async () => {
@@ -87,7 +89,9 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
  }
 
  const onDragEnd = async (result: DragUpdate) => {
+  if (isIndexUpdating) return;
   if (!result.destination) return;
+  setIsIndexUpdating(true);
 
   const newQuestions = Array.from(questions);
   const sourceIndex = result.source.index;
@@ -117,17 +121,20 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
     destinationId,
     sourceIndex,
     destinationIndex,
+    testId: params.id
    }),
   });
 
   if (!res.ok) {
    const { message } = await res.json();
    errorToast(message);
+   setIsIndexUpdating(false);
    return;
   }
 
   const { message } = await res.json();
   setQuestions(newQuestions);
+  setIsIndexUpdating(false);
  };
 
 
@@ -187,7 +194,11 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
       <div className='sticky top-7 block'>
        <Card className='overflow-y-auto max-h-[75vh] h-auto'>
         <CardHeader>
-         <CardTitle>Question List</CardTitle>
+         <div className='flex justify-between items-center'>
+          <CardTitle>Question List</CardTitle>
+          {isIndexUpdating ? <Oval width={20} height={20} color='black' strokeWidth={5} secondaryColor='gray' /> : null}
+          {/* <div className='w-4 h-4 bg-black'></div> */}
+         </div>
          <div className='text-muted-foreground text-sm pt-1'>{questions.length ? `${questions.length} questions in total` : "No questions yet"}</div>
         </CardHeader>
         <CardContent>
@@ -206,13 +217,13 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
                 >
                  <div className='whitespace-nowrap'>
                   <span>Question {index + 1}:</span>
-                  <span dangerouslySetInnerHTML={{ __html: question.body }} style={{
-                   whiteSpace: 'nowrap',         // 
+                  <span style={{
+                   whiteSpace: 'nowrap',
                    overflow: 'hidden',
                    textOverflow: 'ellipsis',
-                   maxWidth: '300px',
+                   maxWidth: '250px',
                    display: 'block',
-                  }}></span>
+                  }}>{new DOMParser().parseFromString(question.body, 'text/html').children[0].textContent}</span>
                  </div>
                  <Button variant="ghost" size="sm" onClick={() => setEditingQuestion(question)}>
                   <Edit className="w-4 h-4" />
@@ -241,7 +252,7 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
         No questions added yet. Click &quot;Add Question&quot; to get started.
        </div>
       ) : (
-       questions.map((question) => (
+       questions.map((question, index) => (
         <QuestionCard question={question} setEditingQuestion={setEditingQuestion} handleDeleteQuestion={handleDeleteQuestion} />
        ))
       )}

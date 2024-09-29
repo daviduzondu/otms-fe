@@ -48,7 +48,7 @@ const sampleQuestions: Question[] = [
 
 const EXAM_DURATION = 60 * 60 // 1 hour in seconds
 
-export default function StudentAnswerPage() {
+export default function StudentAnswerPageClient() {
   const [answers, setAnswers] = useState<{ [key: string]: string }>({})
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [timeLeft, setTimeLeft] = useState(EXAM_DURATION)

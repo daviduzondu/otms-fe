@@ -94,7 +94,6 @@ export default function QuestionForm({ initialData, onSubmit, onCancel, question
    onError={async ({ response }) => { errorToast((await response?.json()).message) }}
    className="space-y-4 max-h-[75vh] overflow-y-auto">
    <Input type="hidden" {...register("testId", { value: location.pathname.split("/")[2] })} />
-   <Input type="hidden" {...register("index", { value: initialData ? initialData.index : questions.length > 0 ? questions.length - 1 : 0 })} />
    <div className="space-y-2">
     <Label htmlFor="questionText">Question Text</Label>
     <div className="flex flex-col items-start gap-12">
