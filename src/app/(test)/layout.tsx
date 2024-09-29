@@ -21,15 +21,15 @@ export const metadata: Metadata = {
  description: "Your All-In-One Platform to Create, Deliver & Grade Tests For Students. Effectively.",
 };
 
-export default function RootLayout({
+export default function TestLayout({
  children,
 }: Readonly<{
  children: React.ReactNode;
 }>) {
  return (
-  <html lang="en">
+  <>
 
-   <body className={`${inter.className} ${ibm.variable} overflow-x-hidden min-h-screen flex justify-center bg-gray-100`}>
+   <div className={`${inter.className} ${ibm.variable} overflow-x-hidden min-h-screen flex justify-center bg-gray-100`}>
 
     <AuthSessionProvider>
      <AuthProvider>
@@ -41,7 +41,7 @@ export default function RootLayout({
           Return to dashboard</Button>
         </Link>
         <UserProfileBtn />
-        <div className="mt-4">
+        <div className="mt-4 flex justify-center">
          {children}
          <Toaster richColors position="top-center" theme="light" closeButton />
         </div>
@@ -49,7 +49,7 @@ export default function RootLayout({
       </AuthGuard>
      </AuthProvider>
     </AuthSessionProvider>
-   </body>
-  </html>
+   </div>
+  </>
  );
 }

@@ -1,34 +1,27 @@
 'use client'
 
 import React, { useState, useContext, useEffect } from 'react'
-import { useForm, Controller } from "react-hook-form"
-import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
+import { DragDropContext, Droppable, Draggable, DragUpdate } from '@hello-pangea/dnd'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
-import { PlusCircle, Edit, Trash2, Image, Music, Video, FileText, Lock, Clock, Printer, Link } from 'lucide-react'
-import { format, differenceInMinutes, isBefore, startOfDay } from 'date-fns'
+import { PlusCircle, Edit, Trash2, Image, Music, Video, FileText, Lock, Clock, Printer, Link, Edit3, Settings, SendHorizonal } from 'lucide-react'
+import { format, differenceInMinutes } from 'date-fns'
 import { AuthContext } from '../../../../contexts/auth.context'
 import { errorToast, successToast } from '../../../../helpers/show-toasts'
 import QuestionForm from '../../../../components/test/question-form'
 import { useErrorBoundary } from 'react-error-boundary'
+import Loader from '../../../../components/loader/loader'
+import QuestionCard from '../../../../components/test/question-card'
+import { CreateQuestionSchemaProps } from '../../../../validation/create-question.validation'
 
-
-// Define the schema for test details
 const TestDetailsSchema = z.object({
  title: z.string().min(1, "Title is required"),
  instructions: z.string().optional(),
  startsAt: z.date(),
  endsAt: z.date(),
+ code: z.string(),
  passingScore: z.number().min(0).max(100),
  accessCode: z.string().optional(),
  randomizeQuestions: z.boolean(),
@@ -40,61 +33,103 @@ const TestDetailsSchema = z.object({
 })
 
 type TestDetailsSchemaType = z.infer<typeof TestDetailsSchema>
+type TQuestion = CreateQuestionSchemaProps & { id: string, index?: number }
 
-export default function EnhancedTestQuestionManagement({ params }) {
+export default function EnhancedTestQuestionManagement({ params }: { params: { id: string } }) {
  const { showBoundary } = useErrorBoundary();
  const { user } = useContext(AuthContext)
- const [testDetails, setTestDetails] = useState({})
- const [questions, setQuestions] = useState([])
- const [isEditTestOpen, setIsEditTestOpen] = useState(false)
+ const [testDetails, setTestDetails] = useState<TestDetailsSchemaType | Record<string, any>>({})
+ const [questions, setQuestions] = useState<Array<TQuestion>>([])
  const [isAddQuestionOpen, setIsAddQuestionOpen] = useState(false)
- const [editingQuestion, setEditingQuestion] = useState(null)
-
+ const [editingQuestion, setEditingQuestion] = useState<TQuestion | null>(null)
+ const [isLoading, setIsLoading] = useState(true);
+ const reqHeaders = { Authorization: `Bearer ${user.accessToken}` }
 
  useEffect(() => {
   const fetchData = async () => {
    try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/${params.id}`, { headers: { Authorization: `Bearer ${user.accessToken}` } });
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/${params.id}`, { headers: reqHeaders });
     const { data, message } = await res.json();
-
-    if (!res.ok) showBoundary({ message: `${message}`, 
-     heading: res.status === 404 ? "Failed to retrieve test" : undefined });
+    if (!res.ok) {
+     showBoundary({
+      message: `${message}`,
+      heading: res.status === 404 ? "Failed to retrieve test" : undefined
+     });
+     return;
+    }
     setTestDetails(data);
-    setQuestions(data.questions)
+    // console.log(data.questions.sort((a: TQuestion, b: TQuestion) => a.index - b.index))
+    setQuestions(data.questions);
+
+    setIsLoading(false);
    } catch (e) {
+    showBoundary(e);
     console.error(e);
    }
   };
 
-  fetchData(); // call the async function
- }, [params.id]); // add params.id as a dependency to avoid unnecessary re-fetching
+  fetchData();
+ }, [params.id]);
 
 
- const handleAddQuestion = (question) => {
+ const handleAddQuestion = (question: TQuestion) => {
   setQuestions([...questions, { ...question, id: Date.now().toString() }])
   setIsAddQuestionOpen(false)
  }
 
- const handleEditQuestion = (question) => {
-  console.log("Question!", question)
+ const handleEditQuestion = (question: TQuestion) => {
   setQuestions(questions.map(q => q.id === question.id ? question : q))
-  console.log(questions);
   setEditingQuestion(null)
  }
 
- const handleDeleteQuestion = (id) => {
-  setQuestions(questions.filter(q => q.id !== id))
+ const handleDeleteQuestion = (id: string) => {
+  setQuestions(prevQuestions => prevQuestions.filter(q => q.id !== id));
  }
 
- const onDragEnd = (result) => {
-  if (!result.destination) return
+ const onDragEnd = async (result: DragUpdate) => {
+  if (!result.destination) return;
 
-  const newQuestions = Array.from(questions)
-  const [reorderedItem] = newQuestions.splice(result.source.index, 1)
-  newQuestions.splice(result.destination.index, 0, reorderedItem)
+  const newQuestions = Array.from(questions);
+  const sourceIndex = result.source.index;
+  const destinationIndex = result.destination.index;
 
-  setQuestions(newQuestions)
- }
+  if (sourceIndex === destinationIndex) return;
+  // Validate indexes
+  if (sourceIndex < 0 || sourceIndex >= newQuestions.length || destinationIndex < 0 || destinationIndex >= newQuestions.length) {
+   errorToast('Invalid drag operation');
+   return;
+  }
+
+  const [reorderedItem] = newQuestions.splice(sourceIndex, 1);
+  newQuestions.splice(destinationIndex, 0, reorderedItem);
+
+  const sourceId = newQuestions[sourceIndex].id;
+  const destinationId = newQuestions[destinationIndex].id;
+
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/questions/update-index`, {
+   method: "PATCH",
+   headers: {
+    ...reqHeaders,
+    'Content-Type': 'application/json',
+   },
+   body: JSON.stringify({
+    sourceId,
+    destinationId,
+    sourceIndex,
+    destinationIndex,
+   }),
+  });
+
+  if (!res.ok) {
+   const { message } = await res.json();
+   errorToast(message);
+   return;
+  }
+
+  const { message } = await res.json();
+  setQuestions(newQuestions);
+ };
+
 
  const calculateDuration = () => {
   const durationInMinutes = differenceInMinutes(testDetails.endsAt, testDetails.startsAt)
@@ -103,170 +138,141 @@ export default function EnhancedTestQuestionManagement({ params }) {
   return `${hours > 0 ? `${hours} hour${hours > 1 ? 's' : ''}` : ''}${hours > 0 && minutes > 0 ? ' and ' : ''}${minutes > 0 ? `${minutes} minute${minutes > 1 ? 's' : ''}` : ''}`
  }
 
- const onSubmit = async (data: TestDetailsSchemaType) => {
-  try {
-   // Here you would typically send the data to your API
-   console.log(data)
-   setTestDetails(data)
-   setIsEditTestOpen(false)
-   successToast("Test details updated successfully")
-  } catch (error) {
-   errorToast("Failed to update test details")
-  }
- }
-
  const handlePrintTest = () => {
   window.print()
  }
 
  const handleGenerateTestLink = () => {
-  // This would typically involve creating a unique URL for the test
-  const testLink = `https://yourdomain.com/test/${Date.now()}`
+  const testLink = `${location.origin}/t/${testDetails.code}`
   successToast(`Test link generated: ${testLink}`)
  }
 
  const RequiredAsterisk = () => <span className="text-red-500">*</span>
 
- return (
-  <div className="mx-auto mt-4 w-[60vw]">
-   <header className="mb-6">
-    <h1 className="text-3xl font-bold">{testDetails.title}</h1>
-    <div className="flex justify-between items-center mt-2">
-     <div className="text-sm text-muted-foreground">
-      {/* Duration: {calculateDuration()} | Start: {format(testDetails.startsAt, "PPP p")} | End: {format(testDetails.endsAt, "PPP p")} */}
-     </div>
-     <div className="flex space-x-2">
-      <Button variant="outline" size="sm" onClick={handlePrintTest}>
-       <Printer className="w-4 h-4 mr-2" />
-       Print Test
-      </Button>
-      <Button variant="outline" size="sm" onClick={handleGenerateTestLink}>
-       <Link className="w-4 h-4 mr-2" />
-       Generate Test Link
-      </Button>
-      <Button variant="outline" size="sm">
-       <Link className="w-4 h-4 mr-2" />
-       Edit Test
-      </Button>
-     </div>
-    </div>
-   </header>
+ if (isLoading) return <Loader />
 
-   <div className="flex flex-col md:flex-row gap-6">
-    <div className="w-full md:w-1/3">
-     <div className='sticky top-7'>
-      <Card className='overflow-y-auto max-h-[75vh]'>
-       <CardHeader>
-        <CardTitle>Question List</CardTitle>
-        <div className='text-muted-foreground text-sm pt-1'>{questions.length ? `${questions.length} questions in total` : "No questions yet"}</div>
-       </CardHeader>
-       <CardContent>
-        <DragDropContext onDragEnd={onDragEnd}>
-         <Droppable droppableId="questions">
-          {(provided) => (
-           <ul {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
-            {questions.map((question, index) => (
-             <Draggable key={question.id} draggableId={question.id} index={index}>
-              {(provided) => (
-               <li
-                ref={provided.innerRef}
-                {...provided.draggableProps}
-                {...provided.dragHandleProps}
-                className="flex justify-between items-center bg-muted p-2 rounded"
-               >
-                <span>Question {index + 1}</span>
-                <Button variant="ghost" size="sm" onClick={() => setEditingQuestion(question)}>
-                 <Edit className="w-4 h-4" />
-                </Button>
-               </li>
-              )}
-             </Draggable>
-            ))}
-            {provided.placeholder}
-           </ul>
-          )}
-         </Droppable>
-        </DragDropContext>
-       </CardContent>
-      </Card>
-      <Button className="w-full mt-4" onClick={() => setIsAddQuestionOpen(true)}>
-       <PlusCircle className="w-4 h-4 mr-2" />
-       Add Question
-      </Button>
-     </div>
-    </div>
-
-    <div className="w-full md:w-2/3 ">
-     {/* <Card className='px-0'>
-      <CardContent> */}
-     {questions.length === 0 ? (
-      <div className="text-center text-muted-foreground py-8">
-       No questions added yet. Click &quot;Add Question&quot; to get started.
+ if (!isLoading) {
+  return (
+   <div className="mt-4 w-[60vw]">
+    <header className="mb-6">
+     <h1 className="text-3xl font-bold">{testDetails.title}</h1>
+     <div className="flex justify-between items-center mt-2">
+      <div className="text-sm text-muted-foreground">
+       Duration: {calculateDuration()} | Start: {format(testDetails.startsAt, "PPP p")} | End: {format(testDetails.endsAt, "PPP p")}
       </div>
-     ) : (
-      questions.map((question) => (
-       <Card key={question.id} className="mb-4">
-        <CardContent className="pt-6">
-         <span className="mb-2" dangerouslySetInnerHTML={{ __html: question.body }}></span>
-         <p className="text-sm text-muted-foreground mb-2">{question.type}</p>
-         {(question.type === 'multiple-choice' || question.type === 'true-false') && (
-          <div className="mb-2">
-           <p className="text-sm font-medium">Correct Answer: {question.correctAnswer}</p>
-          </div>
-         )}
-         {question.media && (
-          <div className="mb-2">
-           <p className="text-sm font-medium">Attached Media:</p>
-           <div className="flex items-center">
-            {question.media.type === 'image' && <Image className="w-4 h-4 mr-1" />}
-            {question.media.type === 'audio' && <Music className="w-4 h-4 mr-1" />}
-            {question.media.type === 'video' && <Video className="w-4 h-4 mr-1" />}
-            <span className="text-sm">{question.media.filename}</span>
-           </div>
-          </div>
-         )}
-         <div className="flex justify-end space-x-2">
-          <Button variant="outline" size="sm" onClick={() => { console.log(question); setEditingQuestion(question) }}>
-           <Edit className="w-4 h-4 mr-2" />
-           Edit
-          </Button>
-          <Button variant="destructive" size="sm" onClick={() => handleDeleteQuestion(question.id)}>
-           <Trash2 className="w-4 h-4 mr-2" />
-           Delete
-          </Button>
-         </div>
+      <div className="flex space-x-2">
+       <Button variant="outline" size="sm" onClick={handlePrintTest}>
+        <Printer className="w-4 h-4 mr-2" />
+        Print Test
+       </Button>
+       <Button variant="outline" size="sm">
+        <Settings className="w-4 h-4 mr-2" />
+        Test Settings
+       </Button>
+       <Button
+        variant="default"
+        size="sm"
+        className="bg-gradient-to-b from-blue-300 via-blue-500 to-blue-700 text-white hover:from-blue-400 transition-all"
+       >
+        <SendHorizonal className="w-4 h-4 mr-2" />
+        Send
+       </Button>
+
+      </div>
+     </div>
+    </header>
+
+    <div className="flex flex-col md:flex-row gap-6 p-3 border-dotted border-2 rounded-lg bg-gray-200">
+     <div className="w-full md:w-1/3 ">
+      <div className='sticky top-7 block'>
+       <Card className='overflow-y-auto max-h-[75vh] h-auto'>
+        <CardHeader>
+         <CardTitle>Question List</CardTitle>
+         <div className='text-muted-foreground text-sm pt-1'>{questions.length ? `${questions.length} questions in total` : "No questions yet"}</div>
+        </CardHeader>
+        <CardContent>
+         <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId="questions">
+           {(provided) => (
+            <ul {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
+             {questions.map((question, index) => (
+              <Draggable key={question.id} draggableId={question.id} index={index}>
+               {(provided) => (
+                <li
+                 ref={provided.innerRef}
+                 {...provided.draggableProps}
+                 {...provided.dragHandleProps}
+                 className="flex justify-between items-center bg-muted p-2 rounded"
+                >
+                 <div className='whitespace-nowrap'>
+                  <span>Question {index + 1}:</span>
+                  <span dangerouslySetInnerHTML={{ __html: question.body }} style={{
+                   whiteSpace: 'nowrap',         // 
+                   overflow: 'hidden',
+                   textOverflow: 'ellipsis',
+                   maxWidth: '300px',
+                   display: 'block',
+                  }}></span>
+                 </div>
+                 <Button variant="ghost" size="sm" onClick={() => setEditingQuestion(question)}>
+                  <Edit className="w-4 h-4" />
+                 </Button>
+                </li>
+               )}
+              </Draggable>
+             ))}
+             {provided.placeholder}
+            </ul>
+           )}
+          </Droppable>
+         </DragDropContext>
         </CardContent>
        </Card>
-      ))
-     )}
-     {/* </CardContent>
-     </Card> */}
+       <Button className="w-full mt-4" onClick={() => setIsAddQuestionOpen(true)}>
+        <PlusCircle className="w-4 h-4 mr-2" />
+        Add Question
+       </Button>
+      </div>
+     </div>
+
+     <div className="w-full md:w-2/3 ">
+      {questions.length === 0 ? (
+       <div className="text-center text-muted-foreground py-8">
+        No questions added yet. Click &quot;Add Question&quot; to get started.
+       </div>
+      ) : (
+       questions.map((question) => (
+        <QuestionCard question={question} setEditingQuestion={setEditingQuestion} handleDeleteQuestion={handleDeleteQuestion} />
+       ))
+      )}
+     </div>
     </div>
-   </div>
 
-   <Dialog open={isAddQuestionOpen} onOpenChange={setIsAddQuestionOpen}>
-    <DialogContent className="max-w-3xl">
-     <DialogHeader>
-      <DialogTitle>Add New Question</DialogTitle>
-     </DialogHeader>
-     <QuestionForm onSubmit={handleAddQuestion} onCancel={() => setIsAddQuestionOpen(false)} />
-    </DialogContent>
-   </Dialog>
+    <Dialog open={isAddQuestionOpen} onOpenChange={setIsAddQuestionOpen}>
+     <DialogContent className="max-w-3xl">
+      <DialogHeader>
+       <DialogTitle>Add New Question</DialogTitle>
+      </DialogHeader>
+      <QuestionForm onSubmit={(q) => handleAddQuestion(q)} questions={questions} onCancel={() => setIsAddQuestionOpen(false)} />
+     </DialogContent>
+    </Dialog>
 
-   <Dialog open={editingQuestion !== null} onOpenChange={() => setEditingQuestion(null)}>
-    <DialogContent className="max-w-3xl">
-     <DialogHeader>
-      <DialogTitle>Edit Question</DialogTitle>
-     </DialogHeader>
-     {editingQuestion && (
-      <QuestionForm
-       initialData={editingQuestion}
-       onSubmit={handleEditQuestion}
-       onCancel={() => setEditingQuestion(null)}
-      />
-     )}
-    </DialogContent>
-   </Dialog>
-  </div>
- )
+    <Dialog open={editingQuestion !== null} onOpenChange={() => setEditingQuestion(null)}>
+     <DialogContent className="max-w-3xl">
+      <DialogHeader>
+       <DialogTitle>Edit Question</DialogTitle>
+      </DialogHeader>
+      {editingQuestion && (
+       <QuestionForm
+        initialData={editingQuestion}
+        questions={questions}
+        onSubmit={(q) => handleEditQuestion(q)}
+        onCancel={() => setEditingQuestion(null)}
+       />
+      )}
+     </DialogContent>
+    </Dialog>
+   </div >
+  )
+ }
 }

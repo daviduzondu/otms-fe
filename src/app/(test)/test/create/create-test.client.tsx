@@ -56,7 +56,7 @@ export default function CreateTestClient() {
  };
 
  return (
-  <Form className="w-full max-w-3xl p-6" control={control} action={`${process.env.NEXT_PUBLIC_API_URL}/api/tests/create`} headers={{
+  <Form className="w-full max-w-3xl p-6 flex" control={control} action={`${process.env.NEXT_PUBLIC_API_URL}/api/tests/create`} headers={{
    "Content-Type": "application/json",
    "Authorization": `Bearer ${user?.accessToken}`
   }}

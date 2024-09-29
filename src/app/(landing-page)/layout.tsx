@@ -15,14 +15,14 @@ export const metadata: Metadata = {
  description: "Your All-In-One Platform to Create, Deliver & Grade Tests For Students. Effectively.",
 };
 
-export default function RootLayout({
+export default function LandingLayout({
  children,
 }: Readonly<{
  children: React.ReactNode;
 }>) {
  return (
-  <html lang="en">
-   <body className={`${inter.className} ${ibm.variable} overflow-x-hidden`}>
+  <>
+   <div className={`${inter.className} ${ibm.variable} overflow-x-hidden`}>
 
     <AuthSessionProvider>
      <AuthProvider>
@@ -33,7 +33,7 @@ export default function RootLayout({
       </div>
      </AuthProvider>
     </AuthSessionProvider>
-   </body>
-  </html>
+   </div>
+  </>
  );
 }

@@ -8,7 +8,7 @@ import { ArrowLeft, Bird, RotateCw, TriangleAlert } from "lucide-react";
 export default function NotFound() {
 
  return (
-  <div role="alert" className="flex items-center justify-center text-center h-screen flex-col space-y-4 w-1/3">
+  <div role="alert" className="flex items-center justify-center text-center h-screen flex-col space-y-4 w-screen ">
    <div className="flex flex-col gap-3 items-center">
     <Bird size={80} />
     <h1 className="text-3xl font-semibold">404</h1>

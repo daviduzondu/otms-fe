@@ -2,6 +2,7 @@
 
 import { SessionProvider, useSession } from "next-auth/react";
 import { ReactNode, useState, useEffect, Suspense } from "react";
+import Loader from "../components/loader/loader";
 
 interface AuthProviderProperties {
  children: ReactNode;
@@ -30,7 +31,7 @@ function SessionChecker({ children }: AuthProviderProperties) {
 export default function AuthSessionProvider({ children }: AuthProviderProperties) {
  return (
   <SessionProvider>
-   <Suspense fallback={<div>Something nice!</div>}>
+   <Suspense fallback={<Loader />}>
     <SessionChecker>{children}</SessionChecker>
    </Suspense>
   </SessionProvider>

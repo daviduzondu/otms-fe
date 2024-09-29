@@ -7,11 +7,12 @@ import { Link } from "next-view-transitions"
 import { useForm } from "react-hook-form"
 import { LoginSchema, LoginSchemaProps } from "../../../../validation/auth.validation"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { signIn } from "next-auth/react"
+import { signIn, signOut } from "next-auth/react"
 import { errorToast, infoToast, successToast } from "../../../../helpers/show-toasts"
 import { useRouter } from "next/navigation"
 import { useContext, useEffect, useState } from "react"
 import { AuthContext } from "../../../../contexts/auth.context"
+import SignOutBeforeProceeding from "../../../../components/auth/sign-out-before-proceeding"
 
 
 export default function LoginClient({ callback }: { callback: string | null }) {
@@ -19,6 +20,8 @@ export default function LoginClient({ callback }: { callback: string | null }) {
  const { user } = useContext(AuthContext);
  const { register, formState: { errors }, getValues, handleSubmit } = useForm<LoginSchemaProps>({ resolver: zodResolver(LoginSchema) });
  const [submitting, setSubmitting] = useState(false)
+
+ if (user) return <SignOutBeforeProceeding />
 
  const loginHandler = async () => {
   setSubmitting(true)
@@ -29,10 +32,11 @@ export default function LoginClient({ callback }: { callback: string | null }) {
   });
 
   if (res?.error) {
+   console.log(res.error)
    errorToast("Invalid credentials")
   } else {
-   successToast("Welcome back " + getValues().email)
-   router.push(callback && callback !== location.href ? callback : "/dashboard");
+   successToast("Welcome back " + getValues().email);
+   router.push(callback && callback !== location.href && callback !== location.origin + '/auth/register' ? callback : "/dashboard");
   }
   setSubmitting(false)
  };

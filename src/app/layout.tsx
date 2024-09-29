@@ -11,7 +11,7 @@ export default function RootLayout({
 }>) {
  return (
   <html lang="en">
-   <body className={`${inter.className} overflow-x-hidden flex justify-center`}>
+   <body className={`${inter.className} overflow-x-hidden`}>
     {children}
    </body>
   </html>

@@ -12,26 +12,27 @@ import WYSIWYGLatexEditor from "./question-box";
 import EquationEditor from "./equation-editor"; // Importing the Equation Editor
 import ReactQuill from "react-quill";
 import { AuthContext } from "../../contexts/auth.context";
-import { errorToast } from "../../helpers/show-toasts";
+import { errorToast, successToast } from "../../helpers/show-toasts";
 
 type QuestionFormProps = {
- initialData?: (CreateQuestionSchemaProps & { id: number });
- onSubmit: (data: CreateQuestionSchemaProps & { id?: number }) => void;
+ initialData?: (CreateQuestionSchemaProps & { id: string, index?: number });
+ questions: Array<any>,
+ onSubmit: (data: CreateQuestionSchemaProps & { id?: string, index?: number }) => void;
  onCancel: () => void;
 };
 
-export default function QuestionForm({ initialData, onSubmit, onCancel }: QuestionFormProps) {
+export default function QuestionForm({ initialData, onSubmit, onCancel, questions }: QuestionFormProps) {
  const {
   register,
   control,
   setValue,
   watch,
-  handleSubmit,
   getValues,
   formState: { isSubmitting, errors },
  } = useForm<CreateQuestionSchemaProps>({
   resolver: zodResolver(CreateQuestionSchema),
   defaultValues: initialData,
+  shouldUnregister: true
  });
  const { user } = useContext(AuthContext);
  const [editorContent, setEditorContent] = useState(initialData?.body || "");
@@ -49,7 +50,8 @@ export default function QuestionForm({ initialData, onSubmit, onCancel }: Questi
  }, [editorContent, setValue]);
 
  const handleQuestionSubmit = (data: CreateQuestionSchemaProps) => {
-  onSubmit({ ...data, body: editorContent, id: initialData && initialData.id });
+  console.log(getValues('index'));
+  onSubmit({ ...data, body: editorContent, id: initialData && initialData.id, index: getValues('index') });
  };
 
  const handleOptionChange = (index: number, value: string) => {
@@ -80,15 +82,19 @@ export default function QuestionForm({ initialData, onSubmit, onCancel }: Questi
  return (
   <Form
    control={control}
-   action={`${process.env.NEXT_PUBLIC_API_URL}/api/questions/create`}
+   method={initialData ? 'put' : 'post'}
+   action={`${process.env.NEXT_PUBLIC_API_URL}/api/questions/${!initialData ? "create" : "edit/"}${initialData ? initialData.id : ""} `}
    headers={{
     "Content-Type": "application/json",
     "Authorization": `Bearer ${user.accessToken}`
    }}
-   onSuccess={() => handleQuestionSubmit(getValues())}
+   onSuccess={() => {
+    handleQuestionSubmit(getValues())
+   }}
    onError={async ({ response }) => { errorToast((await response?.json()).message) }}
    className="space-y-4 max-h-[75vh] overflow-y-auto">
    <Input type="hidden" {...register("testId", { value: location.pathname.split("/")[2] })} />
+   <Input type="hidden" {...register("index", { value: initialData ? initialData.index : questions.length > 0 ? questions.length - 1 : 0 })} />
    <div className="space-y-2">
     <Label htmlFor="questionText">Question Text</Label>
     <div className="flex flex-col items-start gap-12">
@@ -210,7 +216,6 @@ export default function QuestionForm({ initialData, onSubmit, onCancel }: Questi
      type="submit"
      disabled={isSubmitting || (questionType === "mcq" && options.length < 2)}
     >
-
      {!initialData ? "Save Question" : "Edit Question"}
     </Button>
    </div>

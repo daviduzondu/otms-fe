@@ -6,13 +6,16 @@ import { Link } from "next-view-transitions"
 import { RegSchema, RegSchemaProps } from '../../../../validation/auth.validation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, useForm } from "react-hook-form";
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { ZodError } from "zod"
-import { CheckCircle2Icon } from "lucide-react"
+import { CheckCircle2Icon, Info } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { errorToast, successToast } from "../../../../helpers/show-toasts"
+import { AuthContext } from "../../../../contexts/auth.context"
+import SignOutBeforeProceeding from "../../../../components/auth/sign-out-before-proceeding"
 
 export default function RegisterClient() {
+ const { user } = useContext(AuthContext);
  const {
   register,
   handleSubmit,
@@ -42,6 +45,8 @@ export default function RegisterClient() {
   });
   return () => subscription.unsubscribe();
  }, [watch]);
+
+ if (user) return <SignOutBeforeProceeding />
 
  return (
   <Form

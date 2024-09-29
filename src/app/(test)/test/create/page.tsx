@@ -8,5 +8,7 @@ export const metadata: Metadata = {
 
 export default function CreateTest() {
 
- return <CreateTestClient />
+ return <AuthGuard>
+  <CreateTestClient />
+ </AuthGuard>
 }
