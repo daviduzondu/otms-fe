@@ -21,7 +21,7 @@ export default function HeroSection(): React.JSX.Element {
     <span>Deliver</span> &{" "}
     <span>Grade</span><br />
    </span>
-   Tests For Students. Effectively.
+   Tests For Students, Effectively.
   </div>
 
   <ActionButtons />

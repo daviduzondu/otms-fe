@@ -5,7 +5,7 @@ import { Button } from "../ui/button";
 import Link from "next/link";
 import { ArrowLeft, RotateCw, TriangleAlert } from "lucide-react";
 
-export default function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
+export default function GlobalErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
 
  return (
   <div role="alert" className="flex items-center justify-center text-center h-screen flex-col space-y-4 w-1/3">

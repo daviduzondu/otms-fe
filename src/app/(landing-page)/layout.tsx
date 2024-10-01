@@ -5,14 +5,14 @@ import "../../app/globals.css"
 import { ibm } from "../fonts";
 import Navbar from "../../components/navbar/navbar";
 import { AuthProvider } from "../../contexts/auth.context";
-import AuthSessionProvider from "../../contexts/auth-session.provider";
+import AuthSessionProvider from "../../contexts/providers/auth-session.provider";
 import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
  title: "OTMS",
- description: "Your All-In-One Platform to Create, Deliver & Grade Tests For Students. Effectively.",
+ description: "Your All-In-One Platform to Create, Deliver & Grade Tests For Students, Effectively.",
 };
 
 export default function LandingLayout({

@@ -2,7 +2,7 @@
 
 import { SessionProvider, useSession } from "next-auth/react";
 import { ReactNode, useState, useEffect, Suspense } from "react";
-import Loader from "../components/loader/loader";
+import Loader from "../../components/loader/loader";
 
 interface AuthProviderProperties {
  children: ReactNode;

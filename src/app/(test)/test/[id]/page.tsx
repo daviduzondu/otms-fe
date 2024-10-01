@@ -107,8 +107,8 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
   const [reorderedItem] = newQuestions.splice(sourceIndex, 1);
   newQuestions.splice(destinationIndex, 0, reorderedItem);
 
-  const sourceId = newQuestions[sourceIndex].id;
-  const destinationId = newQuestions[destinationIndex].id;
+  const data = questions.map((q, index) => ({ id: q.id, index: index, testId: params.id }))
+  console.log(data);
 
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/questions/update-index`, {
    method: "PATCH",
@@ -117,11 +117,7 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
     'Content-Type': 'application/json',
    },
    body: JSON.stringify({
-    sourceId,
-    destinationId,
-    sourceIndex,
-    destinationIndex,
-    testId: params.id
+    questions: data
    }),
   });
 
