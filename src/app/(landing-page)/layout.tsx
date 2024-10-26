@@ -22,7 +22,7 @@ export default function LandingLayout({
 }>) {
  return (
   <>
-   <div className={`${inter.className} ${ibm.variable} overflow-x-hidden`}>
+   <div className={`${inter.className} ${ibm.variable}`}>
 
     <AuthSessionProvider>
      <AuthProvider>

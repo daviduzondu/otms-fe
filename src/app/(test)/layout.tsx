@@ -29,7 +29,7 @@ export default function TestLayout({
  return (
   <>
 
-   <div className={`${inter.className} ${ibm.variable} overflow-x-hidden min-h-screen flex justify-center bg-gray-100`}>
+   <div className={`${inter.className} ${ibm.variable} min-h-screen flex justify-center bg-gray-100`}>
 
     <AuthSessionProvider>
      <AuthProvider>

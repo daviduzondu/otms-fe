@@ -5,20 +5,11 @@ import * as z from 'zod'
 import { DragDropContext, Droppable, Draggable, DragUpdate } from '@hello-pangea/dnd'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import {
  PlusCircle,
  Edit,
- Trash2,
- Image,
- Music,
- Video,
- FileText,
- Lock,
- Clock,
  Printer,
- Link,
- Edit3,
  Settings,
  SendHorizonal,
  GripVertical
@@ -30,7 +21,7 @@ import QuestionForm from '../../../../components/test/question-form'
 import { useErrorBoundary } from 'react-error-boundary'
 import Loader from '../../../../components/loader/loader'
 import QuestionCard from '../../../../components/test/question-card'
-import { CreateQuestionSchemaProps } from '../../../../validation/create-question.validation'
+import { QuestionSchemaProps } from '../../../../validation/create-question.validation'
 import { Oval } from 'react-loader-spinner'
 
 const TestDetailsSchema = z.object({
@@ -50,15 +41,14 @@ const TestDetailsSchema = z.object({
 })
 
 type TestDetailsSchemaType = z.infer<typeof TestDetailsSchema>
-type TQuestion = CreateQuestionSchemaProps & { id: string, index?: number }
 
 export default function EnhancedTestQuestionManagement({ params }: { params: { id: string } }) {
  const { showBoundary } = useErrorBoundary();
  const { user } = useContext(AuthContext)
  const [testDetails, setTestDetails] = useState<TestDetailsSchemaType | Record<string, any>>({})
- const [questions, setQuestions] = useState<Array<TQuestion>>([])
+ const [questions, setQuestions] = useState<Array<QuestionSchemaProps>>([])
  const [isAddQuestionOpen, setIsAddQuestionOpen] = useState(false)
- const [editingQuestion, setEditingQuestion] = useState<TQuestion | null>(null)
+ const [editingQuestion, setEditingQuestion] = useState<QuestionSchemaProps | null>(null)
  const [isLoading, setIsLoading] = useState(true);
  const reqHeaders = { Authorization: `Bearer ${user.accessToken}` }
  const [isIndexUpdating, setIsIndexUpdating] = useState(false);
@@ -90,13 +80,12 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
  }, [params.id]);
 
 
- const handleAddQuestion = (question: TQuestion) => {
-  console.log(question)
+ const handleAddQuestion = (question: QuestionSchemaProps) => {
   setQuestions([...questions, {...question}])
   setIsAddQuestionOpen(false)
  }
 
- const handleEditQuestion = (question: TQuestion) => {
+ const handleEditQuestion = (question: QuestionSchemaProps) => {
   setQuestions(questions.map(q => q.id === question.id ? question : q))
   setEditingQuestion(null)
  }
@@ -143,7 +132,7 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
    return;
   }
 
-  const { message } = await res.json();
+  await res.json();
   setQuestions(newQuestions);
   setIsIndexUpdating(false);
  };
@@ -232,7 +221,7 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
            {(provided) => (
                <ul {...provided.droppableProps} ref={provided.innerRef} className="flex flex-col gap-2 w-[90%]">
                 {questions.map((question, index) => (
-                    <Draggable key={question.id} draggableId={question.id} index={index}>
+                    <Draggable key={question.id} draggableId={question.id as unknown as string} index={index}>
                      {(provided) => (
                          <li
                              {...provided.dragHandleProps}
@@ -291,7 +280,7 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
        </div>
       ) : (
        questions.map((question, index) => (
-        <QuestionCard question={question} setEditingQuestion={setEditingQuestion} handleDeleteQuestion={handleDeleteQuestion} index={index} />
+        <QuestionCard question={question} key={question.id} setEditingQuestion={setEditingQuestion} handleDeleteQuestion={handleDeleteQuestion} index={index} />
        ))
       )}
      </div>
