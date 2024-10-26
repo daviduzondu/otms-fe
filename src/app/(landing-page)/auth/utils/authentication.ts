@@ -4,7 +4,7 @@ import { LoginResponse } from "../../../../types/auth";
 
 export async function handleUserLogin(credentials: any) {
  try {
-  const res = await fetch(
+  const operation = await fetch(
    `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
    {
     method: "POST",
@@ -18,10 +18,10 @@ export async function handleUserLogin(credentials: any) {
    }
   );
 
-  const user = (await res.json()) as LoginResponse;
-
-  if (res.ok && user && user.accessToken) {
-   return user;
+  const data = (await operation.json()) as LoginResponse;
+  console.log(data);
+  if (operation.ok && data && data.accessToken) {
+   return data;
   }
 
   return null;

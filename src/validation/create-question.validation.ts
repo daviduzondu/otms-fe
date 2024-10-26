@@ -7,6 +7,8 @@ export const CreateQuestionSchema = z
 
   index: z.number().optional(),
 
+  id: z.string().optional(),
+
   body: z
    .string({ required_error: "Title cannot be empty" })
    .min(5, "Text cannot have fewer than 5 characters"),

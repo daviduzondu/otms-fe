@@ -7,7 +7,7 @@ import { useContext, useState } from "react";
 import { AuthContext } from "../../contexts/auth.context";
 import { errorToast, successToast } from "../../helpers/show-toasts";
 
-export default function QuestionCard({ question, setEditingQuestion, handleDeleteQuestion }) {
+export default function QuestionCard({ question, setEditingQuestion, handleDeleteQuestion, index }) {
  const { user } = useContext(AuthContext);
  const [isDeleting, setIsDeleting] = useState(false);
  
@@ -31,6 +31,7 @@ export default function QuestionCard({ question, setEditingQuestion, handleDelet
  }
  return <Card key={question.id} className="mb-4">
   <CardContent className="pt-6">
+   <span className={"text-sm text-muted-foreground"}>Question {index + 1}</span>
    <span className="mb-2" dangerouslySetInnerHTML={{ __html: question.body }}></span>
    <p className="text-sm text-muted-foreground mb-2">{question.type}</p>
    {(question.type === 'multiple-choice' || question.type === 'true-false') && (

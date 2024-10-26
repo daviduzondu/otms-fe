@@ -32,8 +32,7 @@ export default function LoginClient({ callback }: { callback: string | null }) {
   });
 
   if (res?.error) {
-   console.log(res.error)
-   errorToast("Invalid credentials")
+   errorToast("Invalid credentials. Failed to Login")
   } else {
    successToast("Welcome back " + getValues().email);
    router.push(callback && callback !== location.href && callback !== location.origin + '/auth/register' ? callback : "/dashboard");

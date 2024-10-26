@@ -9,29 +9,30 @@ import { AuthContext } from "../../contexts/auth.context";
 
 // Function to fetch tests
 const fetchTests = async (accessToken: string) => {
- const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests`, {
-  headers: {
-   'Authorization': `Bearer ${accessToken}`,
-  },
- });
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests`, {
+   headers: {
+    'Authorization': `Bearer ${accessToken}`,
+   },
+  });
 
- const { message, data } = await res.json();
- if (!res.ok) {
-  throw new Error(message || "Failed to fetch recent tests");
- }
+  const { message, data } = await res.json();
+  if (!res.ok) {
+   throw new Error(message || "Failed to fetch recent tests");
+  }
 
- return data;
+  return data;
 };
 
 export default function TestList() {
  const { user } = useContext(AuthContext);
 
  // Use React Query to fetch the tests
- const { data, error, isLoading } = useQuery({
+ const { data, isError, isLoading, error } = useQuery({
   queryKey: ['tests', user?.accessToken], // Unique key that includes accessToken
   queryFn: () => fetchTests(user.accessToken),
+  staleTime: 10000,
   enabled: !!user?.accessToken, // Only run if user has an accessToken
-  throwOnError: true,
+  // throwOnError: (error) => error.message,
   // onError: , // React Query's error handling
  });
 
@@ -41,8 +42,8 @@ export default function TestList() {
  }
 
  // If an error occurred, it will be handled by React Error Boundary
- if (error) {
-  return <div>Error loading tests...</div>;
+ if (isError) {
+    throw new Error("Failed to fetch tests. Check your network and try again.");
  }
 
  // Display the list of tests if available

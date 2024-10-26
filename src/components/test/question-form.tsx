@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Controller, Form, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateQuestionSchema, CreateQuestionSchemaProps } from "../../validation/create-question.validation";
-import WYSIWYGLatexEditor from "./question-box";
+import WYSIWYGLatexEditor from "./question-input";
 import EquationEditor from "./equation-editor"; // Importing the Equation Editor
 import ReactQuill from "react-quill";
 import { AuthContext } from "../../contexts/auth.context";
@@ -49,9 +49,9 @@ export default function QuestionForm({ initialData, onSubmit, onCancel, question
   setValue("body", editorContent);
  }, [editorContent, setValue]);
 
- const handleQuestionSubmit = (data: CreateQuestionSchemaProps) => {
-  console.log(getValues('index'));
-  onSubmit({ ...data, body: editorContent, id: initialData && initialData.id, index: getValues('index') });
+ const handleQuestionSubmit= (data: CreateQuestionSchemaProps) => {
+  // console.log(data)
+  onSubmit({ ...data, body: editorContent, id:initialData?.id || data.id, index: getValues('index') });
  };
 
  const handleOptionChange = (index: number, value: string) => {
@@ -88,8 +88,10 @@ export default function QuestionForm({ initialData, onSubmit, onCancel, question
     "Content-Type": "application/json",
     "Authorization": `Bearer ${user.accessToken}`
    }}
-   onSuccess={() => {
-    handleQuestionSubmit(getValues())
+   onSuccess={async ({ response }) => {
+    const {data: {id}} = await response.json();
+    console.log(id)
+    handleQuestionSubmit({...getValues(), id})
    }}
    onError={async ({ response }) => { errorToast((await response?.json()).message) }}
    className="space-y-4 max-h-[75vh] overflow-y-auto">

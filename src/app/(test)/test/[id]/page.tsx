@@ -6,7 +6,23 @@ import { DragDropContext, Droppable, Draggable, DragUpdate } from '@hello-pangea
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { PlusCircle, Edit, Trash2, Image, Music, Video, FileText, Lock, Clock, Printer, Link, Edit3, Settings, SendHorizonal } from 'lucide-react'
+import {
+ PlusCircle,
+ Edit,
+ Trash2,
+ Image,
+ Music,
+ Video,
+ FileText,
+ Lock,
+ Clock,
+ Printer,
+ Link,
+ Edit3,
+ Settings,
+ SendHorizonal,
+ GripVertical
+} from 'lucide-react'
 import { format, differenceInMinutes } from 'date-fns'
 import { AuthContext } from '../../../../contexts/auth.context'
 import { errorToast, successToast } from '../../../../helpers/show-toasts'
@@ -75,7 +91,8 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
 
 
  const handleAddQuestion = (question: TQuestion) => {
-  setQuestions([...questions, { ...question, id: Date.now().toString() }])
+  console.log(question)
+  setQuestions([...questions, {...question}])
   setIsAddQuestionOpen(false)
  }
 
@@ -91,12 +108,10 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
  const onDragEnd = async (result: DragUpdate) => {
   if (isIndexUpdating) return;
   if (!result.destination) return;
-  setIsIndexUpdating(true);
 
   const newQuestions = Array.from(questions);
   const sourceIndex = result.source.index;
   const destinationIndex = result.destination.index;
-
   if (sourceIndex === destinationIndex) return;
   // Validate indexes
   if (sourceIndex < 0 || sourceIndex >= newQuestions.length || destinationIndex < 0 || destinationIndex >= newQuestions.length) {
@@ -107,9 +122,9 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
   const [reorderedItem] = newQuestions.splice(sourceIndex, 1);
   newQuestions.splice(destinationIndex, 0, reorderedItem);
 
-  const data = questions.map((q, index) => ({ id: q.id, index: index, testId: params.id }))
-  console.log(data);
+  const data = newQuestions.map((q, index) => ({ id: q.id, index: index, testId: params.id, body: q.body }))
 
+  setIsIndexUpdating(true);
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/questions/update-index`, {
    method: "PATCH",
    headers: {
@@ -197,42 +212,69 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
          </div>
          <div className='text-muted-foreground text-sm pt-1'>{questions.length ? `${questions.length} questions in total` : "No questions yet"}</div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex gap-2">
+         <div className={"w-[10%] flex flex-col -ml-2"} style={{justifyContent: "space-between", height:"inherit", padding:"8px 0px 8px 0px"}} >
+          {questions.map((item, index) => (
+              <li
+                  key = {item.id}
+                  className="flex justify-center items-center p-2"
+              >
+               <div>
+                {/*<span className={"h-9 rounded-md px-3"}></span>*/}
+                <span>{index + 1}.</span>
+                {/*<span className={"h-9 rounded-md px-3"}></span>*/}
+               </div>
+              </li>
+          ))}
+         </div>
          <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="questions">
            {(provided) => (
-            <ul {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
-             {questions.map((question, index) => (
-              <Draggable key={question.id} draggableId={question.id} index={index}>
-               {(provided) => (
-                <li
-                 ref={provided.innerRef}
-                 {...provided.draggableProps}
-                 {...provided.dragHandleProps}
-                 className="flex justify-between items-center bg-muted p-2 rounded"
-                >
-                 <div className='whitespace-nowrap'>
-                  <span>Question {index + 1}:</span>
-                  <span style={{
-                   whiteSpace: 'nowrap',
-                   overflow: 'hidden',
-                   textOverflow: 'ellipsis',
-                   maxWidth: '250px',
-                   display: 'block',
-                  }}>{new DOMParser().parseFromString(question.body, 'text/html').children[0].textContent}</span>
-                 </div>
-                 <Button variant="ghost" size="sm" onClick={() => setEditingQuestion(question)}>
-                  <Edit className="w-4 h-4" />
-                 </Button>
-                </li>
-               )}
-              </Draggable>
-             ))}
-             {provided.placeholder}
-            </ul>
+               <ul {...provided.droppableProps} ref={provided.innerRef} className="flex flex-col gap-2 w-[90%]">
+                {questions.map((question, index) => (
+                    <Draggable key={question.id} draggableId={question.id} index={index}>
+                     {(provided) => (
+                         <li
+                             {...provided.dragHandleProps}
+                             ref={provided.innerRef}
+                             {...provided.draggableProps}
+                             className="flex items-center bg-muted p-2 rounded border"
+                         >
+                          {/* Drag handle on the GripVertical icon */}
+                          <Button
+                              variant="ghost"
+                              size="sm"
+                          >
+                           <GripVertical className="w-4 h-4" />
+                          </Button>
+
+                          <div className="whitespace-nowrap text-left flex-1 w-[70%] px-2">
+                  <span
+                      style={{
+                       whiteSpace: "nowrap",
+                       overflow: "hidden",
+                       textOverflow: "ellipsis",
+                       maxWidth: "200px",
+                       display: "block",
+                      }}
+                  >
+                    {new DOMParser().parseFromString(question.body, "text/html").body.textContent}
+                  </span>
+                          </div>
+
+                          <Button variant="ghost" size="sm" onClick={() => setEditingQuestion(question)}>
+                           <Edit className="w-4 h-4" />
+                          </Button>
+                         </li>
+                     )}
+                    </Draggable>
+                ))}
+                {provided.placeholder}
+               </ul>
            )}
           </Droppable>
          </DragDropContext>
+
         </CardContent>
        </Card>
        <Button className="w-full mt-4" onClick={() => setIsAddQuestionOpen(true)}>
@@ -249,7 +291,7 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
        </div>
       ) : (
        questions.map((question, index) => (
-        <QuestionCard question={question} setEditingQuestion={setEditingQuestion} handleDeleteQuestion={handleDeleteQuestion} />
+        <QuestionCard question={question} setEditingQuestion={setEditingQuestion} handleDeleteQuestion={handleDeleteQuestion} index={index} />
        ))
       )}
      </div>
