@@ -41,7 +41,7 @@ export default function TestLayout({
           Return to dashboard</Button>
         </Link>
         <UserProfileBtn />
-        <div className="mt-4 flex justify-center">
+        <div className="flex justify-center">
          {children}
          <Toaster richColors position="top-center" theme="light" closeButton />
         </div>

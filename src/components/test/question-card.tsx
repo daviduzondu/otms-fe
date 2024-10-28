@@ -43,7 +43,7 @@ export default function QuestionCard({question, setEditingQuestion, handleDelete
         }
     }
 
-    return <Card key={question.id} className="mb-4">
+    return <Card key={question.id} className="mb-4 last-of-type:-mb-0">
         <CardContent className="pt-6 flex flex-col gap-2">
             <div className={"flex gap-2 items-center "}>
                 <span className={"text-base text-muted-foreground"}>Question {index + 1}</span>
@@ -78,7 +78,7 @@ export default function QuestionCard({question, setEditingQuestion, handleDelete
                 <Button size="sm" variant={'link'} onClick={() => handleDelete(question.id!)} disabled={isDeleting}
                         className="text-red-500">
                     <Trash2 className="w-4 h-4 mr-2 text-red-500"/>
-                    {(!isDeleting) ? "Delete" : "Deleted"}
+                    {(!isDeleting) ? "Delete" : "Deleting"}
                 </Button>
             </div>
         </CardContent>
