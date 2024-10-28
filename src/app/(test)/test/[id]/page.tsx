@@ -107,27 +107,33 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
         const data = newQuestions.map((q, index) => ({id: q.id, index: index, testId: params.id, body: q.body}))
 
         setIsIndexUpdating(true);
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/questions/update-index`, {
-            method: "PATCH",
-            headers: {
-                ...reqHeaders,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                questions: data
-            }),
-        });
+        const previousQuestions = questions;
+        try {
+            setQuestions(newQuestions);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/questions/update-index`, {
+                method: "PATCH",
+                headers: {
+                    ...reqHeaders,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    questions: data
+                }),
+            });
 
-        if (!res.ok) {
-            const {message} = await res.json();
-            errorToast(message);
+            if (!res.ok) {
+                const {message} = await res.json();
+                throw new Error(message);
+            }
+
+            await res.json();
+        } catch (e: any) {
+            errorToast(e.message);
+            setQuestions(previousQuestions);
+        } finally {
             setIsIndexUpdating(false);
-            return;
         }
 
-        await res.json();
-        setQuestions(newQuestions);
-        setIsIndexUpdating(false);
     };
 
 
@@ -233,7 +239,8 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
                                                                     className="flex items-center bg-muted p-2 rounded border gap-4"
                                                                 >
                                                                     {/* Drag handle button */}
-                                                                    <Button variant="ghost" size="sm" className={"cursor-grab active:cursor-grabbing"}>
+                                                                    <Button variant="ghost" size="sm"
+                                                                            className={"cursor-grab active:cursor-grabbing"}>
                                                                         <GripVertical className="w-4 h-4"/>
                                                                     </Button>
 
