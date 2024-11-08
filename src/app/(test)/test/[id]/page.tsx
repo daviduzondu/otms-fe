@@ -16,6 +16,7 @@ import Loader from '../../../../components/loader/loader'
 import QuestionCard from '../../../../components/test/question-card'
 import {QuestionSchemaProps} from '../../../../validation/create-question.validation'
 import {Oval} from 'react-loader-spinner'
+import {SendTest} from "@/components/test/send-test-dialog";
 
 const TestDetailsSchema = z.object({
     title: z.string().min(1, "Title is required"),
@@ -176,15 +177,7 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
                                 <Settings className="w-4 h-4 mr-2"/>
                                 Test Settings
                             </Button>
-                            <Button
-                                variant="default"
-                                size="sm"
-                                className="bg-gradient-to-b from-blue-300 via-blue-500 to-blue-700 text-white hover:from-blue-400 transition-all"
-                            >
-                                <SendHorizonal className="w-4 h-4 mr-2"/>
-                                Send
-                            </Button>
-
+                         <SendTest />
                         </div>
                     </div>
                 </header>
