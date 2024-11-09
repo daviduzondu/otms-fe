@@ -21,6 +21,7 @@ import {ScrollArea} from "@/components/ui/scroll-area"
 import {Copy, Info, Mail, SendHorizonal, UserPlus, Users} from 'lucide-react'
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip"
 import {Badge} from "@/components/ui/badge"
+import AddStudentToClass from "@/components/test/add-student-to-class";
 
 interface Class {
     id: string;
@@ -284,99 +285,8 @@ export function SendTest() {
                 </DialogContent>
             </Dialog>
 
-            <Dialog open={isAddStudentOpen} onOpenChange={setIsAddStudentOpen}>
-                <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                        <DialogTitle>Add Student to Class</DialogTitle>
-                        <DialogDescription>
-                            Enter the details of the new student.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        <div className="flex flex-col gap-4">
-                            <Label htmlFor="email" className="text-left">
-                                Email
-                            </Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                value={newStudent.email}
-                                onChange={(e) => setNewStudent({...newStudent, email: e.target.value})}
-                                placeholder="student@example.com"
-                                className="col-span-3"
-                            />
-                        </div>
-                        {newStudent.email && (
-                            <>
-                                <div className="flex flex-col gap-4">
-                                    <Label htmlFor="firstName" className="text-left">
-                                        First Name
-                                    </Label>
-                                    <Input
-                                        id="firstName"
-                                        value={newStudent.firstName}
-                                        onChange={(e) => setNewStudent({...newStudent, firstName: e.target.value})}
-                                        className="col-span-3"
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-4">
-                                    <Label htmlFor="middleName" className="text-left">
-                                        Middle Name
-                                    </Label>
-                                    <Input
-                                        id="middleName"
-                                        value={newStudent.middleName}
-                                        onChange={(e) => setNewStudent({...newStudent, middleName: e.target.value})}
-                                        className="col-span-3"
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-4">
-                                    <Label htmlFor="lastName" className="text-left">
-                                        Last Name
-                                    </Label>
-                                    <Input
-                                        id="lastName"
-                                        value={newStudent.lastName}
-                                        onChange={(e) => setNewStudent({...newStudent, lastName: e.target.value})}
-                                        className="col-span-3"
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-4">
-                                    <Label htmlFor="registrationNumber" className="text-left">
-                                        Registration Number (Optional)
-                                    </Label>
-                                    <Input
-                                        id="registrationNumber"
-                                        value={newStudent.registrationNumber}
-                                        onChange={(e) => setNewStudent({
-                                            ...newStudent,
-                                            registrationNumber: e.target.value
-                                        })}
-                                        className="col-span-3"
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-4">
-                                    <Label htmlFor="removeAfter" className="text-left">
-                                        Remove student from class after
-                                    </Label>
-                                    <Input
-                                        id="removeAfter"
-                                        type="date"
-                                        value={newStudent.removeAfter || getDefaultRemoveAfterDate()}
-                                        onChange={(e) => setNewStudent({...newStudent, removeAfter: e.target.value})}
-                                        className="col-span-3"
-                                    />
-                                </div>
-                            </>
-                        )}
-                    </div>
-                    <DialogFooter>
-                        <Button type="submit" onClick={handleAddStudent}
-                                disabled={!newStudent.email || !newStudent.firstName || !newStudent.lastName}>Add
-                            Student</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+
+            <AddStudentToClass setIsAddStudentOpen={setIsAddStudentOpen} isAddStudentOpen={isAddStudentOpen} />
         </>
     )
 }
