@@ -195,7 +195,7 @@ export function SendTest() {
                                     <SelectValue placeholder="Select a class"/>
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {classes.map((cls) => (
+                                    {classes?.map((cls) => (
                                         <SelectItem key={cls.id} value={cls.id}>
                                             <div className="flex items-center">
                                                 <Users className="mr-2 h-4 w-4"/>
@@ -225,7 +225,7 @@ export function SendTest() {
                                 </div>
                                 <ScrollArea className="h-[250px] border rounded-md p-2">
                                     {classes.find(c => c.id === selectedClass)!.students?.length > 0 ? (
-                                        classes.find(c => c.id === selectedClass)?.students.map((student) => (
+                                        classes.find(c => c.id === selectedClass)?.students?.map((student) => (
                                             <div
                                                 key={student.id}
                                                 className="flex items-center space-x-2 py-2 px-2 rounded-md hover:bg-accent"
