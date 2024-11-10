@@ -3,7 +3,7 @@ import {z} from 'zod';
 export const AddStudentToClassSchema = z.object({
     studentId: z.string().uuid({message: "studentId must be a valid UUID"}),
     classId: z.string().uuid({message: "classId must be a valid UUID"}),
-    removeAfter: z.date(),  // Change this line
+    removeAfter:  z.string().pipe(z.coerce.date()).optional()
 });
 
 export const StudentSchema = z.object({
@@ -12,6 +12,8 @@ export const StudentSchema = z.object({
     lastName: z.string().min(5),
     regNumber: z.string(),
     email: z.string().email(),
+    removeAfter: z.string().pipe(z.coerce.date()).optional(),
+    classId: z.string().optional(),
 })
 
 export type StudentSchemaProps = z.infer<typeof StudentSchema>

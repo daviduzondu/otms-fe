@@ -40,6 +40,7 @@
     "date-fns": "^4.0.0-beta.1",
     "firebase": "^10.13.1",
     "googleapis": "^144.0.0",
+    "ldrs": "^1.0.2",
     "lexical": "^0.17.1",
     "lucide-react": "^0.429.0",
     "next": "14.2.5",

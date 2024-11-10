@@ -6,21 +6,24 @@ import {
     DialogHeader,
     DialogTitle
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import React, { useContext, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { StudentSchema, StudentSchemaProps } from "@/validation/student.validation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Search, UserCheck, UserX } from "lucide-react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { AuthContext } from "@/contexts/auth.context";
+import {Label} from "@/components/ui/label";
+import {Input} from "@/components/ui/input";
+import {Button} from "@/components/ui/button";
+import React, {useContext, useEffect, useState} from "react";
+import {useForm} from "react-hook-form";
+import {StudentSchema, StudentSchemaProps} from "@/validation/student.validation";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {Loader2, Search, UserCheck, UserX} from "lucide-react";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {AuthContext} from "@/contexts/auth.context";
 // Import the ScrollArea component
-import { ScrollArea } from "@/components/ui/scroll-area";
+import {ScrollArea} from "@/components/ui/scroll-area";
+import {DatePicker} from "@/components/ui/date-picker";
+import {format} from "date-fns";
 
-export default function AddStudentToClass({ isAddStudentOpen, setIsAddStudentOpen }) {
-    const { user } = useContext(AuthContext);
+let lastEmail: undefined | string = undefined;
+export default function AddStudentToClass({isAddStudentOpen, setIsAddStudentOpen}) {
+    const {user} = useContext(AuthContext);
     const {
         register,
         watch,
@@ -28,7 +31,7 @@ export default function AddStudentToClass({ isAddStudentOpen, setIsAddStudentOpe
         getValues,
         setValue,
         setFocus,
-        formState: { errors, isValid },
+        formState: {errors, isValid},
         handleSubmit,
         trigger,
     } = useForm<StudentSchemaProps>({
@@ -39,12 +42,13 @@ export default function AddStudentToClass({ isAddStudentOpen, setIsAddStudentOpe
     const [studentExists, setStudentExists] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
+    const [removeAfter, setRemoveAfter] = useState<Date>();
 
     const searchStudent = async (email) => {
         setIsLoading(true);
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/find-student?email=${email}`, {
-                headers: { Authorization: `Bearer ${user.accessToken}` }
+                headers: {Authorization: `Bearer ${user.accessToken}`}
             });
             const result = await response.json();
 
@@ -59,7 +63,7 @@ export default function AddStudentToClass({ isAddStudentOpen, setIsAddStudentOpe
                 });
             }
         } catch (error) {
-            setError("email", { type: "manual", message: "Server error, try again" });
+            setError("email", {type: "manual", message: "Server error, try again"});
         } finally {
             setIsLoading(false);
             setIsLoaded(true);
@@ -67,6 +71,7 @@ export default function AddStudentToClass({ isAddStudentOpen, setIsAddStudentOpe
     };
 
     useEffect(() => {
+        console.log(errors);
         const email = getValues("email");
 
         if (!email) {
@@ -79,7 +84,8 @@ export default function AddStudentToClass({ isAddStudentOpen, setIsAddStudentOpe
                 const isEmailValid = await trigger("email"); // Validate email
 
                 if (isEmailValid) {
-                    searchStudent(email);
+                    await searchStudent(email);
+                    lastEmail = email;
                 }
             }, 500);
 
@@ -101,8 +107,8 @@ export default function AddStudentToClass({ isAddStudentOpen, setIsAddStudentOpe
                 </DialogHeader>
 
                 {/* Add ScrollArea wrapper around the form */}
-                <ScrollArea className="max-h-[70vh] px-4 -mx-3">
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                <ScrollArea className="max-h-[70vh] -mx-3">
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 px-3">
                         {/* Show "Student Not Found" card only when search is complete and student is not found */}
                         {isLoaded && !studentExists && !isLoading && (
                             <Card className="border-red-200 bg-red-50 shadow-card ">
@@ -114,7 +120,7 @@ export default function AddStudentToClass({ isAddStudentOpen, setIsAddStudentOpe
                                 </CardHeader>
                                 <CardContent>
                                     <p className="text-red-700 text-sm">
-                                        We could not find student with email <strong>{getValues("email")}</strong> in our
+                                        We could not find student with email <strong>{lastEmail}</strong> in our
                                         system. Please enter the student&apos;s details below to add them to
                                         the system.</p>
                                 </CardContent>
@@ -193,6 +199,8 @@ export default function AddStudentToClass({ isAddStudentOpen, setIsAddStudentOpe
                                         <div className="space-y-2">
                                             <Label htmlFor="registrationNumber">Registration Number (Optional)</Label>
                                             <Input id="registrationNumber" {...register("regNumber")} />
+                                            {errors.regNumber &&
+                                                <p className="text-red-500 text-sm">{errors.regNumber.message}</p>}
                                         </div>
                                     </div>
                                 )}
@@ -201,23 +209,20 @@ export default function AddStudentToClass({ isAddStudentOpen, setIsAddStudentOpe
 
                         {/* Render "removeAfter" field only after search is complete and student is found or not found */}
                         {!isLoading && isLoaded && (
-                            <div className="space-y-2">
-                                <Label htmlFor="removeAfter">Remove student from class after</Label>
-                                <Input
-                                    id="removeAfter"
-                                    type="date"
-                                    {...register("removeAfter")}
-                                    onChange={(e) => {
-                                        setValue("removeAfter", e.target.value);
-                                        trigger("removeAfter");
-                                    }}
-                                />
-                                {errors.removeAfter && <p className="text-sm text-red-500">{errors.removeAfter.message}</p>}
-                            </div>
+                            <>
+                                <div className="space-y-2 flex flex-col">
+                                    <Label htmlFor="removeAfter">Remove student from this class on</Label>
+                                    <DatePicker date={removeAfter} setDate={setRemoveAfter}/>
+                                    {removeAfter ? <input value={removeAfter.toString()}
+                                                          type='hidden' {...register("removeAfter")} /> : null}
+                                    {errors.removeAfter &&
+                                        <p className="text-red-500 text-sm">{errors.removeAfter.message}</p>}
+                                </div>
+                            </>
                         )}
 
                         <DialogFooter>
-                            <Button type="submit" disabled={!isValid || isLoading}>
+                            <Button type="submit" disabled={isLoading}>
                                 {isLoading ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin"/>

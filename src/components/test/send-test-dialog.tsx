@@ -1,6 +1,6 @@
 'use client'
 
-import React, {useEffect, useState} from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import {Button} from "@/components/ui/button"
 import {
     Dialog,
@@ -12,7 +12,6 @@ import {
     DialogTrigger
 } from "@/components/ui/dialog"
 import {Label} from "@/components/ui/label"
-import {Input} from "@/components/ui/input"
 import {Textarea} from "@/components/ui/textarea"
 import {toast} from "@/hooks/use-toast"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
@@ -22,53 +21,69 @@ import {Copy, Info, Mail, SendHorizonal, UserPlus, Users} from 'lucide-react'
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip"
 import {Badge} from "@/components/ui/badge"
 import AddStudentToClass from "@/components/test/add-student-to-class";
+import {AuthContext} from "@/contexts/auth.context";
+import {errorToast} from "@/helpers/show-toasts";
+import {ring2} from 'ldrs'
 
-interface Class {
+ring2.register()
+
+interface IClass {
     id: string;
     name: string;
-    studentCount: number;
+    students: IStudent[];
 }
 
-interface Student {
+
+interface IStudent {
     id: string;
     firstName: string;
     middleName?: string;
     lastName: string;
     email: string;
-    registrationNumber?: string;
+    regNumber?: string;
     removeAfter: string;
 }
 
-const classes: Class[] = [
-    {id: '1', name: 'Class A', studentCount: 3},
-    {id: '2', name: 'Class B', studentCount: 0},
-    {id: '3', name: 'Advanced Math', studentCount: 2},
-]
-
-const students: { [key: string]: Student[] } = {
-    '1': [
-        {id: '1', firstName: 'John', lastName: 'Doe', email: 'john@example.com', removeAfter: '2024-12-31'},
-        {id: '2', firstName: 'Jane', lastName: 'Smith', email: 'jane@example.com', removeAfter: '2024-12-31'},
-        {id: '3', firstName: 'Alice', lastName: 'Johnson', email: 'alice@example.com', removeAfter: '2024-12-31'},
-    ],
-    '3': [
-        {id: '4', firstName: 'Bob', lastName: 'Williams', email: 'bob@example.com', removeAfter: '2024-12-31'},
-        {id: '5', firstName: 'Charlie', lastName: 'Brown', email: 'charlie@example.com', removeAfter: '2024-12-31'},
-    ],
-}
 
 export function SendTest() {
+
+    const {user} = useContext(AuthContext);
+    const [classes, setClasses] = useState<IClass[]>([]);
     const [isOpen, setIsOpen] = useState(false)
-    const [selectedClass, setSelectedClass] = useState<string>('')
+    const [selectedClass, setSelectedClass] = useState<string>('');
     const [selectedStudents, setSelectedStudents] = useState<string[]>([])
     const [generatedLink, setGeneratedLink] = useState('')
     const [isAllSelected, setIsAllSelected] = useState(true)
     const [isAddStudentOpen, setIsAddStudentOpen] = useState(false)
-    const [newStudent, setNewStudent] = useState<Partial<Student>>({email: ''})
+    const [newStudent, setNewStudent] = useState<Partial<IStudent>>({email: ''})
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchClasses() {
+            setIsLoading(true);
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/class/`, {
+                    headers: {Authorization: `Bearer ${user.accessToken}`}
+                });
+                const result = await response.json();
+                setClasses(result.data);
+                if (!response.ok) {
+                    throw new Error(response.status === 404 ? result.message : "Something went wrong. Please try again!")
+                }
+                // setClasses(data.data);
+            } catch (e) {
+                errorToast(e);
+                console.error("Error fetching classes", e);
+            }
+            setIsLoading(false);
+        }
+
+        fetchClasses();
+    }, [user.accessToken]);
 
     useEffect(() => {
         if (selectedClass) {
-            setSelectedStudents(students[selectedClass]?.map(student => student.id) || [])
+            setSelectedStudents(classes.find(c => c.id === selectedClass)?.students?.map(student => student.id) || [])
             setIsAllSelected(true)
         } else {
             setSelectedStudents([])
@@ -86,7 +101,7 @@ export function SendTest() {
             const newSelection = prev.includes(studentId)
                 ? prev.filter(id => id !== studentId)
                 : [...prev, studentId]
-            setIsAllSelected(newSelection.length === (students[selectedClass]?.length || 0))
+            setIsAllSelected(newSelection.length === (classes.find(c => c.id === selectedClass)?.students?.length || 0))
             return newSelection
         })
     }
@@ -95,7 +110,7 @@ export function SendTest() {
         if (isAllSelected) {
             setSelectedStudents([])
         } else {
-            setSelectedStudents(students[selectedClass]?.map(student => student.id) || [])
+            setSelectedStudents(classes.find(c => c.id === selectedClass)?.students?.map(student => student.id) || [])
         }
         setIsAllSelected(!isAllSelected)
     }
@@ -126,13 +141,11 @@ export function SendTest() {
 
     const handleAddStudent = () => {
         if (selectedClass && newStudent.email && newStudent.firstName && newStudent.lastName) {
-            const updatedStudents = [...(students[selectedClass] || []), {
-                // @ts-ignore
-                id: Math.random().toString(36).substr(2, 9),
-                ...newStudent as Student
+            const updatedStudents = [...(classes.find(c => c.id === selectedClass)!.students || []), {
+                ...newStudent as IStudent
             }]
-            students[selectedClass] = updatedStudents
-            classes.find(c => c.id === selectedClass)!.studentCount = updatedStudents.length
+            classes.find(c => c.id === selectedClass)!.students = updatedStudents
+            classes.find(c => c.id === selectedClass)!.students.length = updatedStudents.length
 
             toast({
                 title: "Student Added",
@@ -149,6 +162,10 @@ export function SendTest() {
         return date.toISOString().split('T')[0]
     }
 
+
+    // if (isLoading) {
+    //     return <div>Loading...</div>
+    // }
     return (
         <>
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -160,7 +177,7 @@ export function SendTest() {
                         className="bg-gradient-to-b from-blue-300 via-blue-500 to-blue-700 text-white hover:from-blue-400 transition-all"
                     >
                         <SendHorizonal className="w-4 h-4 mr-2"/>
-                        Send
+                        <span>Send</span>
                     </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-3xl">
@@ -171,7 +188,7 @@ export function SendTest() {
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
-                        <div className="grid gap-2">
+                        {!isLoading ? <div className="grid gap-2">
                             <Label htmlFor="class-select">Select Class</Label>
                             <Select onValueChange={handleClassSelect} value={selectedClass}>
                                 <SelectTrigger>
@@ -184,14 +201,14 @@ export function SendTest() {
                                                 <Users className="mr-2 h-4 w-4"/>
                                                 {cls.name}
                                                 <Badge variant="secondary" className="ml-2">
-                                                    {cls.studentCount} students
+                                                    {cls.students.length} students
                                                 </Badge>
                                             </div>
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
-                        </div>
+                        </div> : null}
                         {selectedClass && (
                             <div className="grid gap-2">
                                 <div className="flex justify-between items-center">
@@ -207,8 +224,8 @@ export function SendTest() {
                                     </div>
                                 </div>
                                 <ScrollArea className="h-[250px] border rounded-md p-2">
-                                    {students[selectedClass]?.length > 0 ? (
-                                        students[selectedClass].map((student) => (
+                                    {classes.find(c => c.id === selectedClass)!.students?.length > 0 ? (
+                                        classes.find(c => c.id === selectedClass)?.students.map((student) => (
                                             <div
                                                 key={student.id}
                                                 className="flex items-center space-x-2 py-2 px-2 rounded-md hover:bg-accent"
@@ -222,7 +239,7 @@ export function SendTest() {
                                                     <Label htmlFor={`student-${student.id}`} className="font-medium">
                                                         {student.firstName} {student.middleName} {student.lastName}
                                                     </Label>
-                                                    <p className="text-sm text-muted-foreground">{student.email}</p>
+                                                    <p className="text-sm text-muted-foreground">{student.email} • {student.regNumber}</p>
                                                 </div>
                                             </div>
                                         ))
@@ -237,7 +254,10 @@ export function SendTest() {
                         {!selectedClass && (
                             <ScrollArea className="h-[250px] border rounded-md p-2">
                                 <div className="flex items-center justify-center h-full text-muted-foreground">
-                                    Please select a class to view students
+                                    <div className={"flex items-center justify-center gap-2"}>
+                                        {isLoading ? <LoadingSpinner/> : null}
+                                        {!isLoading ? "Please select a class to view students" : "Fetching your classes..."}
+                                    </div>
                                 </div>
                             </ScrollArea>
                         )}
@@ -286,7 +306,18 @@ export function SendTest() {
             </Dialog>
 
 
-            <AddStudentToClass setIsAddStudentOpen={setIsAddStudentOpen} isAddStudentOpen={isAddStudentOpen} />
+            <AddStudentToClass setIsAddStudentOpen={setIsAddStudentOpen} isAddStudentOpen={isAddStudentOpen}/>
         </>
     )
+}
+
+export function LoadingSpinner() {
+    return <l-ring-2
+        size="17"
+        stroke="2"
+        stroke-length="0.25"
+        bg-opacity="0.1"
+        speed="0.8"
+        color="black"
+    ></l-ring-2>
 }
