@@ -51,7 +51,7 @@ export function SendTest() {
     const [selectedStudents, setSelectedStudents] = useState<string[]>([])
     const [generatedLink, setGeneratedLink] = useState('')
     const [isAllSelected, setIsAllSelected] = useState(true)
-    const [isAddStudentOpen, setIsAddStudentOpen] = useState(false)
+    const [isAddStudentOpen, setIsAddStudentOpen] = useState<boolean>(false)
     const [newStudent, setNewStudent] = useState<Partial<IStudent>>({email: ''})
     const [isLoading, setIsLoading] = useState(true);
 
@@ -69,6 +69,7 @@ export function SendTest() {
                 }
                 // setClasses(data.data);
             } catch (e) {
+                // @ts-ignore
                 errorToast(e);
                 console.error("Error fetching classes", e);
             }
@@ -309,21 +310,14 @@ export function SendTest() {
 }
 
 export function LoadingSpinner() {
-    useEffect(() => {
-        async function getLoader() {
-            const {ring2} = await import('ldrs')
-            ring2.register()
-        }
+    // useEffect(() => {
+    //     async function getLoader() {
+    //         const {ring2} = await import('ldrs')
+    //         ring2.register()
+    //     }
+    //
+    //     getLoader();
+    // }, []);
 
-        getLoader()
-    }, []);
-
-    return <l-ring-2
-        size="17"
-        stroke="2"
-        stroke-length="0.25"
-        bg-opacity="0.1"
-        speed="0.8"
-        color="black"
-    ></l-ring-2>
+    return <div>Loading...</div>
 }
