@@ -177,7 +177,7 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
                                 <Settings className="w-4 h-4 mr-2"/>
                                 Test Settings
                             </Button>
-                         {/*<SendTest />*/}
+                         <SendTest />
                         </div>
                     </div>
                 </header>
