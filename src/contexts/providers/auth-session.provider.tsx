@@ -31,8 +31,9 @@ function SessionChecker({children}: AuthProviderProperties) {
 export default function AuthSessionProvider({children}: AuthProviderProperties) {
     return (
         <SessionProvider>
-            <Suspense fallback={<div className={"h-[100vh] w-[100vw] flex items-center justify-center"}><Loader size={'40'}/>
-            </div>}>
+            <Suspense
+                fallback={<div className={"h-[100vh] w-[100vw] flex items-center justify-center"}><Loader size={'40'}/> Loading...
+                </div>}>
                 <SessionChecker>{children}</SessionChecker>
             </Suspense>
         </SessionProvider>
