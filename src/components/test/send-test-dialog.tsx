@@ -23,9 +23,6 @@ import {Badge} from "@/components/ui/badge"
 import AddStudentToClass from "@/components/test/add-student-to-class";
 import {AuthContext} from "@/contexts/auth.context";
 import {errorToast} from "@/helpers/show-toasts";
-import {ring2} from 'ldrs'
-
-ring2.register()
 
 interface IClass {
     id: string;
@@ -312,6 +309,15 @@ export function SendTest() {
 }
 
 export function LoadingSpinner() {
+    useEffect(() => {
+        async function getLoader() {
+            const {ring2} = await import('ldrs')
+            ring2.register()
+        }
+
+        getLoader()
+    }, []);
+
     return <l-ring-2
         size="17"
         stroke="2"

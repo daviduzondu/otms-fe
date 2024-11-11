@@ -36,8 +36,8 @@ const formats = [
 
 function Component({value, onChange}: ReactQuillProps, ref: LegacyRef<ReactQuill>) {
     useEffect(() => {
-        document.querySelector(".ql-container")!.setAttribute("style", "border-radius: 0px 0px  calc(var(--radius) - 2px) calc(var(--radius) - 2px)")
-        document.querySelector(".ql-toolbar")!.setAttribute("style", "border-radius: calc(var(--radius) - 2px) calc(var(--radius) - 2px) 0px 0px")
+        document?.querySelector(".ql-container")!.setAttribute("style", "border-radius: 0px 0px  calc(var(--radius) - 2px) calc(var(--radius) - 2px)")
+        document?.querySelector(".ql-toolbar")!.setAttribute("style", "border-radius: calc(var(--radius) - 2px) calc(var(--radius) - 2px) 0px 0px")
     }, []);
 
     return (
