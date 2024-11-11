@@ -156,7 +156,7 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
 
     const RequiredAsterisk = () => <span className="text-red-500">*</span>
 
-    if (isLoading) return <Loader/>
+    // if (isLoading) return <Loader/>
 
     if (!isLoading) {
         return (

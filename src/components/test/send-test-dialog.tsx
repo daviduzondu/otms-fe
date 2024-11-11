@@ -24,6 +24,7 @@ import AddStudentToClass from "@/components/test/add-student-to-class";
 import {AuthContext} from "@/contexts/auth.context";
 import {errorToast, successToast} from "@/helpers/show-toasts";
 import {useParams} from "next/navigation";
+import Loader from "@/components/loader/loader";
 
 interface IClass {
     id: string;
@@ -44,7 +45,7 @@ interface IStudent {
 
 
 export function SendTest() {
-
+    const {id} = useParams();
     const {user} = useContext(AuthContext);
     const [classes, setClasses] = useState<IClass[]>([]);
     const [isOpen, setIsOpen] = useState(false)
@@ -55,7 +56,7 @@ export function SendTest() {
     const [isAddStudentOpen, setIsAddStudentOpen] = useState<boolean>(false)
     const [newStudent, setNewStudent] = useState<Partial<IStudent>>({email: ''})
     const [isLoading, setIsLoading] = useState(true);
-    const {id} = useParams();
+    const [isTestMailSending, setIsTestMailSending] = useState(false);
 
     useEffect(() => {
         async function fetchClasses() {
@@ -119,8 +120,8 @@ export function SendTest() {
 
     const handleSendInvitation = async () => {
         try {
+            setIsTestMailSending(true);
             const data = {testId: id, students: selectedStudents};
-
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/send-test/`, {
                 method: "POST",
                 headers: {
@@ -140,6 +141,8 @@ export function SendTest() {
             errorToast("Failed to send invitations", {
                 description: e.message || "Unknown error occurred.",
             });
+        } finally {
+            setIsTestMailSending(false)
         }
     };
 
@@ -277,7 +280,7 @@ export function SendTest() {
                             <ScrollArea className="h-[250px] border rounded-md p-2">
                                 <div className="flex items-center justify-center h-full text-muted-foreground">
                                     <div className={"flex items-center justify-center gap-2"}>
-                                        {isLoading ? <LoadingSpinner/> : null}
+                                        {isLoading ? <Loader/> : null}
                                         {!isLoading ? "Please select a class to view students" : "Fetching your classes..."}
                                     </div>
                                 </div>
@@ -312,9 +315,11 @@ export function SendTest() {
                         </div>
                     )}
                     <DialogFooter className="flex-col sm:flex-row gap-2">
-                        <Button onClick={handleSendInvitation} disabled={selectedStudents.length === 0}>
-                            <Mail className="mr-2 h-4 w-4"/>
-                            Send Invitation Email
+                        <Button onClick={handleSendInvitation}
+                                className={'flex items-center gap-2'}
+                                disabled={selectedStudents.length === 0 || isTestMailSending}>
+                            {isTestMailSending ? <Loader color={'white'} size={'15'}/> : <Mail className="h-4 w-4"/>}
+                            {isTestMailSending ? "Sending..." : "Send Invitation Email"}
                         </Button>
                         <Button
                             onClick={handleGenerateAndCopyLink}
@@ -331,17 +336,4 @@ export function SendTest() {
             <AddStudentToClass setIsAddStudentOpen={setIsAddStudentOpen} isAddStudentOpen={isAddStudentOpen}/>
         </>
     )
-}
-
-export function LoadingSpinner() {
-    // useEffect(() => {
-    //     async function getLoader() {
-    //         const {ring2} = await import('ldrs')
-    //         ring2.register()
-    //     }
-    //
-    //     getLoader();
-    // }, []);
-
-    return <div>Loading...</div>
 }
