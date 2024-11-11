@@ -22,7 +22,8 @@ import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/compon
 import {Badge} from "@/components/ui/badge"
 import AddStudentToClass from "@/components/test/add-student-to-class";
 import {AuthContext} from "@/contexts/auth.context";
-import {errorToast} from "@/helpers/show-toasts";
+import {errorToast, successToast} from "@/helpers/show-toasts";
+import {useParams} from "next/navigation";
 
 interface IClass {
     id: string;
@@ -54,6 +55,7 @@ export function SendTest() {
     const [isAddStudentOpen, setIsAddStudentOpen] = useState<boolean>(false)
     const [newStudent, setNewStudent] = useState<Partial<IStudent>>({email: ''})
     const [isLoading, setIsLoading] = useState(true);
+    const {id} = useParams();
 
     useEffect(() => {
         async function fetchClasses() {
@@ -115,12 +117,32 @@ export function SendTest() {
         setIsAllSelected(!isAllSelected)
     }
 
-    const handleSendInvitation = () => {
-        toast({
-            title: "Invitations Sent",
-            description: `Sent invitations to ${selectedStudents.length} students.`,
-        })
-    }
+    const handleSendInvitation = async () => {
+        try {
+            const data = {testId: id, students: selectedStudents};
+
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/send-test/`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${user.accessToken}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message || "An error occurred.");
+
+            successToast('Invitations Sent', {
+                description: `Sent invitations to ${selectedStudents.length} students.`,
+            });
+        } catch (e) {
+            errorToast("Failed to send invitations", {
+                description: e.message || "Unknown error occurred.",
+            });
+        }
+    };
+
 
     const handleGenerateAndCopyLink = () => {
         const link = `https://example.com/test/${Math.random().toString(36).substr(2, 9)}`
