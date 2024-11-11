@@ -11,27 +11,27 @@ import {
     DialogTitle,
     DialogTrigger
 } from "@/components/ui/dialog"
+import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
 import {Textarea} from "@/components/ui/textarea"
 import {toast} from "@/hooks/use-toast"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 import {Checkbox} from "@/components/ui/checkbox"
 import {ScrollArea} from "@/components/ui/scroll-area"
-import {Copy, Info, Mail, SendHorizonal, UserPlus, Users} from 'lucide-react'
+import {Copy, Info, Mail, PlusCircle, SendHorizonal, UserPlus, Users} from 'lucide-react'
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip"
 import {Badge} from "@/components/ui/badge"
-import AddStudentToClass from "@/components/test/add-student-to-class";
-import {AuthContext} from "@/contexts/auth.context";
-import {errorToast, successToast} from "@/helpers/show-toasts";
-import {useParams} from "next/navigation";
-import Loader from "@/components/loader/loader";
+import AddStudentToClass from "@/components/test/add-student-to-class"
+import {AuthContext} from "@/contexts/auth.context"
+import {errorToast, successToast} from "@/helpers/show-toasts"
+import {useParams} from "next/navigation"
+import Loader from "@/components/loader/loader"
 
 interface IClass {
     id: string;
     name: string;
     students: IStudent[];
 }
-
 
 interface IStudent {
     id: string;
@@ -42,7 +42,6 @@ interface IStudent {
     regNumber?: string;
     removeAfter: string;
 }
-
 
 export function SendTest() {
     const {id} = useParams();
@@ -57,6 +56,8 @@ export function SendTest() {
     const [newStudent, setNewStudent] = useState<Partial<IStudent>>({email: ''})
     const [isLoading, setIsLoading] = useState(true);
     const [isTestMailSending, setIsTestMailSending] = useState(false);
+    const [isCreateClassOpen, setIsCreateClassOpen] = useState(false);
+    const [newClassName, setNewClassName] = useState('');
 
     useEffect(() => {
         async function fetchClasses() {
@@ -66,15 +67,11 @@ export function SendTest() {
                     headers: {Authorization: `Bearer ${user.accessToken}`}
                 });
                 const result = await response.json();
-                console.log(response)
-                console.log(result)
-                setClasses(result.data);
                 if (!response.ok) {
                     throw new Error(response.status === 404 ? result.message : "Something went wrong. Please try again!")
                 }
-                // setClasses(data.data);
+                setClasses(result.data);
             } catch (e) {
-                // @ts-ignore
                 errorToast(e);
                 console.error("Error fetching classes", e);
             }
@@ -92,7 +89,7 @@ export function SendTest() {
             setSelectedStudents([])
             setIsAllSelected(false)
         }
-    }, [selectedClass])
+    }, [selectedClass, classes])
 
     const handleClassSelect = (classId: string) => {
         setSelectedClass(classId)
@@ -146,7 +143,6 @@ export function SendTest() {
         }
     };
 
-
     const handleGenerateAndCopyLink = () => {
         const link = `https://example.com/test/${Math.random().toString(36).substr(2, 9)}`
         setGeneratedLink(link)
@@ -169,8 +165,9 @@ export function SendTest() {
             const updatedStudents = [...(classes.find(c => c.id === selectedClass)!.students || []), {
                 ...newStudent as IStudent
             }]
-            classes.find(c => c.id === selectedClass)!.students = updatedStudents
-            classes.find(c => c.id === selectedClass)!.students.length = updatedStudents.length
+            setClasses(prevClasses => prevClasses.map(c =>
+                c.id === selectedClass ? {...c, students: updatedStudents} : c
+            ))
 
             toast({
                 title: "Student Added",
@@ -181,20 +178,40 @@ export function SendTest() {
         }
     }
 
-    const getDefaultRemoveAfterDate = () => {
-        const date = new Date()
-        date.setMonth(date.getMonth() + 6)
-        return date.toISOString().split('T')[0]
+    const handleCreateClass = async () => {
+        if (newClassName) {
+            setIsLoading(true);
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/class/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${user.accessToken}`
+                    },
+                    body: JSON.stringify({name: newClassName})
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.message || "An error occurred.");
+                setClasses(prevClasses => [...prevClasses, result.data]);
+                setSelectedClass(result.data.id);
+                successToast('Class Created', {
+                    description: `Successfully created class: ${newClassName}`,
+                });
+                setNewClassName('');
+                setIsCreateClassOpen(false);
+            } catch (e) {
+                errorToast("Failed to create class", {
+                    description: e.message || "Unknown error occurred.",
+                });
+            } finally {
+                setIsLoading(false);
+            }
+        }
     }
 
-
-    // if (isLoading) {
-    //     return <div>Loading...</div>
-    // }
     return (
         <>
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
-
                 <DialogTrigger asChild>
                     <Button
                         variant="default"
@@ -213,27 +230,36 @@ export function SendTest() {
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
-                        {!isLoading ? <div className="grid gap-2">
-                            <Label htmlFor="class-select">Select Class</Label>
-                            <Select onValueChange={handleClassSelect} value={selectedClass}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select a class"/>
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {classes?.map((cls) => (
-                                        <SelectItem key={cls.id} value={cls.id}>
-                                            <div className="flex items-center">
-                                                <Users className="mr-2 h-4 w-4"/>
-                                                {cls.name}
-                                                <Badge variant="secondary" className="ml-2">
-                                                    {cls.students.length} students
-                                                </Badge>
-                                            </div>
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div> : null}
+                        {!isLoading && (
+                            classes.length > 0 ? (
+                                <div className="grid gap-2">
+                                    <div className="flex justify-between items-center">
+                                        <Label htmlFor="class-select">Select Class</Label>
+                                        <Button variant="outline" size="sm" onClick={() => setIsCreateClassOpen(true)}>
+                                            <PlusCircle className="mr-2 h-4 w-4"/>
+                                            Create Class
+                                        </Button>
+                                    </div>
+                                    <Select onValueChange={handleClassSelect} value={selectedClass}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a class"/>
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {classes?.map((cls) => (
+                                                <SelectItem key={cls.id} value={cls.id}>
+                                                    <div className="flex items-center">
+                                                        <Users className="mr-2 h-4 w-4"/>
+                                                        {cls.name}
+                                                        <Badge variant="secondary" className="ml-2">
+                                                            {cls.students.length} students
+                                                        </Badge>
+                                                    </div>
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            ) : null)}
                         {selectedClass && (
                             <div className="grid gap-2">
                                 <div className="flex justify-between items-center">
@@ -276,17 +302,28 @@ export function SendTest() {
                                 </ScrollArea>
                             </div>
                         )}
-                        {!selectedClass && (
+                        {!selectedClass ? (
                             <ScrollArea className="h-[250px] border rounded-md p-2">
                                 <div className="flex items-center justify-center h-full text-muted-foreground">
-                                    <div className={"flex items-center justify-center gap-2"}>
-                                        {isLoading ? <Loader/> : null}
-                                        {!isLoading ? "Please select a class to view students" : "Fetching your classes..."}
+                                    <div className="flex items-center justify-center gap-2">
+                                        {isLoading ? (
+                                            <Loader/>
+                                        ) : classes.length > 0 ? (
+                                            "Please select a class to view students"
+                                        ) : (
+                                            <div className="text-center">
+                                                <p className="mb-4">You haven&apos;t created any classes yet.</p>
+                                                <Button onClick={() => setIsCreateClassOpen(true)}>
+                                                    <PlusCircle className="mr-2 h-4 w-4"/>
+                                                    Create Your First Class
+                                                </Button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </ScrollArea>
-                        )}
-                        <div className="flex items-center space-x-2 mt-2">
+                        ) : null}
+                        {classes.length > 0 && <div className="flex items-center space-x-2 mt-2">
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
@@ -301,7 +338,7 @@ export function SendTest() {
                             <p className="text-sm text-muted-foreground">
                                 Only students in this list will be able to access the test.
                             </p>
-                        </div>
+                        </div>}
                     </div>
                     {generatedLink && (
                         <div className="grid gap-2 mt-4">
@@ -314,7 +351,7 @@ export function SendTest() {
                             />
                         </div>
                     )}
-                    <DialogFooter className="flex-col sm:flex-row gap-2">
+                    {classes.length > 0 && <DialogFooter className="flex-col sm:flex-row gap-2">
                         <Button onClick={handleSendInvitation}
                                 className={'flex items-center gap-2'}
                                 disabled={selectedStudents.length === 0 || isTestMailSending}>
@@ -328,12 +365,42 @@ export function SendTest() {
                             <Copy className="mr-2 h-4 w-4"/>
                             Generate and Copy Test Link
                         </Button>
-                    </DialogFooter>
+                    </DialogFooter>}
                 </DialogContent>
             </Dialog>
 
+            <Dialog open={isCreateClassOpen} onOpenChange={setIsCreateClassOpen}>
+                <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                        <DialogTitle>Create New Class</DialogTitle>
+                        <DialogDescription>
+                            Enter a name for your new class.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={(e) => {
+                        e.preventDefault();
+                        handleCreateClass();
+                    }} className="flex flex-col gap-4 py-4">
+                        <div className="flex flex-col gap-4 items-start">
+                            <Label htmlFor="className" className="text-right">
+                                Class Name
+                            </Label>
+                            <Input
+                                id="className"
+                                value={newClassName}
+                                onChange={(e) => setNewClassName(e.target.value)}
+                                className="col-span-3"
+                            />
+                        </div>
+                        <Button disabled={!newClassName || isLoading} type={'submit'}>
+                            {isLoading ? <Loader color={'white'} size={'15'}/> : null}
+                            Create Class
+                        </Button>
+                    </form>
+                </DialogContent>
+            </Dialog>
 
-            <AddStudentToClass setIsAddStudentOpen={setIsAddStudentOpen} isAddStudentOpen={isAddStudentOpen}/>
+            <AddStudentToClass setIsAddStudentOpen={setIsAddStudentOpen} isAddStudentOpen={isAddStudentOpen} classId={selectedClass}/>
         </>
     )
 }
