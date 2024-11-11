@@ -63,6 +63,8 @@ export function SendTest() {
                     headers: {Authorization: `Bearer ${user.accessToken}`}
                 });
                 const result = await response.json();
+                console.log(response)
+                console.log(result)
                 setClasses(result.data);
                 if (!response.ok) {
                     throw new Error(response.status === 404 ? result.message : "Something went wrong. Please try again!")
