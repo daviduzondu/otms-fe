@@ -13,8 +13,10 @@ import {DatePicker} from "@/components/ui/date-picker"
 import {Loader2, Search, UserCheck, UserX} from "lucide-react"
 import {AuthContext} from "@/contexts/auth.context"
 import {AddStudentToClassSchema, StudentSchema, StudentSchemaProps} from '@/validation/student.validation'
+import Loader from "@/components/loader/loader";
+import {errorToast} from "@/helpers/show-toasts";
 
-export default function AddStudentToClass({isAddStudentOpen, setIsAddStudentOpen, classId}) {
+export default function AddStudentToClass({isAddStudentOpen, setIsAddStudentOpen, classId, handleAddStudent}) {
     const {user} = useContext(AuthContext)
     const {
         register,
@@ -85,7 +87,7 @@ export default function AddStudentToClass({isAddStudentOpen, setIsAddStudentOpen
                 const addStudentData = AddStudentToClassSchema.parse({
                     studentId: data.id,
                     classId,
-                    removeAfter: data.removeAfter
+                    removeAfter: data.removeAfter.toString()
                 })
                 response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/class/add-student`, {
                     method: 'POST',
@@ -98,7 +100,8 @@ export default function AddStudentToClass({isAddStudentOpen, setIsAddStudentOpen
             } else {
                 const newStudentData = StudentSchema.parse({
                     ...data,
-                    classId
+                    classId,
+                    removeAfter: data.removeAfter.toString()
                 })
                 response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/add-student`, {
                     method: 'POST',
@@ -112,30 +115,33 @@ export default function AddStudentToClass({isAddStudentOpen, setIsAddStudentOpen
             const result = await response.json();
             if (!response.ok) {
                 console.log(result);
-                throw new Error('Failed to add student')
+                errorToast("Failed to add student", {description: result?.message || "Something went wrong. Please try again!"});
+            } else {
+                handleAddStudent(data);
             }
 
-            setIsAddStudentOpen(false)
-            reset()
         } catch (error) {
+            console.log(error)
             setError("root", {type: "manual", message: "Failed to add student. Please try again."})
         } finally {
             setIsLoading(false)
+            reset({email: ''})
+            setRemoveAfter(undefined)
         }
     }
 
     return (
         <Dialog open={isAddStudentOpen} onOpenChange={setIsAddStudentOpen}>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-xl">
                 <DialogHeader>
                     <DialogTitle>Add Student to Class</DialogTitle>
-                    <DialogDescription>Let's find your student and add them to the class.</DialogDescription>
+                    <DialogDescription>Let&apos;s find your student and add them to the class.</DialogDescription>
                 </DialogHeader>
 
                 <ScrollArea className="max-h-[70vh] -mx-3">
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 px-3">
                         <div className="space-y-2">
-                            <Label htmlFor="email">Student's Email</Label>
+                            <Label htmlFor="email">Student&apos;s Email</Label>
                             <div className="relative">
                                 <Input
                                     id="email"
@@ -236,8 +242,12 @@ export default function AddStudentToClass({isAddStudentOpen, setIsAddStudentOpen
                                 <DatePicker
                                     date={removeAfter}
                                     setDate={(date) => {
-                                        setRemoveAfter(date)
-                                        setValue("removeAfter", date ? new Date(date).toISOString() : undefined)
+                                        if (date) {
+                                            const isoString = new Date(date.toString()).toISOString();
+                                            setRemoveAfter(date);
+                                            setValue("removeAfter", isoString); // Ensure it's a string
+                                            trigger("removeAfter");
+                                        }
                                     }}
                                 />
                                 {errors.removeAfter &&
@@ -251,7 +261,7 @@ export default function AddStudentToClass({isAddStudentOpen, setIsAddStudentOpen
                             <Button type="submit" disabled={isLoading || !isValid}>
                                 {isLoading ? (
                                     <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
+                                        <Loader/>
                                         Please wait
                                     </>
                                 ) : (

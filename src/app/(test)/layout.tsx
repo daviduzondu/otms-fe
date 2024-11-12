@@ -43,7 +43,7 @@ export default function TestLayout({
         <UserProfileBtn />
         <div className="flex justify-center">
          {children}
-         <Toaster richColors position="top-center" theme="light" closeButton />
+         <Toaster richColors position="top-center" theme="light" />
         </div>
        </ErrorBoundary>
       </AuthGuard>

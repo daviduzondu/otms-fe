@@ -14,11 +14,10 @@ import {
 import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
 import {Textarea} from "@/components/ui/textarea"
-import {toast} from "@/hooks/use-toast"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 import {Checkbox} from "@/components/ui/checkbox"
 import {ScrollArea} from "@/components/ui/scroll-area"
-import {Copy, Info, Mail, PlusCircle, SendHorizonal, UserPlus, Users} from 'lucide-react'
+import {Copy, Info, Mail, Plus, PlusCircle, SendHorizonal, UserPlus, Users} from 'lucide-react'
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip"
 import {Badge} from "@/components/ui/badge"
 import AddStudentToClass from "@/components/test/add-student-to-class"
@@ -26,6 +25,7 @@ import {AuthContext} from "@/contexts/auth.context"
 import {errorToast, successToast} from "@/helpers/show-toasts"
 import {useParams} from "next/navigation"
 import Loader from "@/components/loader/loader"
+import {cn} from "@/lib/utils";
 
 interface IClass {
     id: string;
@@ -43,7 +43,7 @@ interface IStudent {
     removeAfter: string;
 }
 
-export function SendTest() {
+export function SendTest({test}) {
     const {id} = useParams();
     const {user} = useContext(AuthContext);
     const [classes, setClasses] = useState<IClass[]>([]);
@@ -53,11 +53,17 @@ export function SendTest() {
     const [generatedLink, setGeneratedLink] = useState('')
     const [isAllSelected, setIsAllSelected] = useState(true)
     const [isAddStudentOpen, setIsAddStudentOpen] = useState<boolean>(false)
-    const [newStudent, setNewStudent] = useState<Partial<IStudent>>({email: ''})
     const [isLoading, setIsLoading] = useState(true);
     const [isTestMailSending, setIsTestMailSending] = useState(false);
     const [isCreateClassOpen, setIsCreateClassOpen] = useState(false);
     const [newClassName, setNewClassName] = useState('');
+
+    useEffect(() => {
+        if (isOpen) {
+            const link = `https://otms.ng/t/${test.code}`
+            setGeneratedLink(link)
+        }
+    }, [isOpen]);
 
     useEffect(() => {
         async function fetchClasses() {
@@ -93,7 +99,6 @@ export function SendTest() {
 
     const handleClassSelect = (classId: string) => {
         setSelectedClass(classId)
-        setGeneratedLink('')
     }
 
     const handleStudentSelect = (studentId: string) => {
@@ -143,24 +148,13 @@ export function SendTest() {
         }
     };
 
-    const handleGenerateAndCopyLink = () => {
-        const link = `https://example.com/test/${Math.random().toString(36).substr(2, 9)}`
-        setGeneratedLink(link)
-        navigator.clipboard.writeText(link)
-        toast({
-            title: "Link Generated and Copied",
-            description: (
-                <div className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                    <p className="text-white">Test link:</p>
-                    <p className="mt-2 w-[300px] rounded-md bg-slate-800 p-2 text-xs text-white">
-                        {link}
-                    </p>
-                </div>
-            ),
-        })
-    }
+    // const handleGenerateAndCopyLink = () => {
+    //
+    //     navigator.clipboard.writeText(link)
+    //     successToast("Link Generated and Copied")
+    // }
 
-    const handleAddStudent = () => {
+    const handleAddStudent = (newStudent: IStudent) => {
         if (selectedClass && newStudent.email && newStudent.firstName && newStudent.lastName) {
             const updatedStudents = [...(classes.find(c => c.id === selectedClass)!.students || []), {
                 ...newStudent as IStudent
@@ -169,12 +163,8 @@ export function SendTest() {
                 c.id === selectedClass ? {...c, students: updatedStudents} : c
             ))
 
-            toast({
-                title: "Student Added",
-                description: `Added ${newStudent.firstName} ${newStudent.lastName} to the class.`,
-            })
+            successToast("Student added", {description: `${newStudent.firstName} ${newStudent.lastName} has been added to this class.`})
             setIsAddStudentOpen(false)
-            setNewStudent({email: ''})
         }
     }
 
@@ -235,8 +225,9 @@ export function SendTest() {
                                 <div className="grid gap-2">
                                     <div className="flex justify-between items-center">
                                         <Label htmlFor="class-select">Select Class</Label>
-                                        <Button variant="outline" size="sm" onClick={() => setIsCreateClassOpen(true)}>
-                                            <PlusCircle className="mr-2 h-4 w-4"/>
+                                        <Button variant="secondary" size="sm"
+                                                onClick={() => setIsCreateClassOpen(true)}>
+                                            <Plus className="mr-2 h-4 w-4"/>
                                             Create Class
                                         </Button>
                                     </div>
@@ -290,7 +281,7 @@ export function SendTest() {
                                                     <Label htmlFor={`student-${student.id}`} className="font-medium">
                                                         {student.firstName} {student.middleName} {student.lastName}
                                                     </Label>
-                                                    <p className="text-sm text-muted-foreground">{student.email} • {student.regNumber}</p>
+                                                    <p className="text-sm text-muted-foreground">{student.email} {student.regNumber && `• ${student.regNumber}`}</p>
                                                 </div>
                                             </div>
                                         ))
@@ -307,7 +298,7 @@ export function SendTest() {
                                 <div className="flex items-center justify-center h-full text-muted-foreground">
                                     <div className="flex items-center justify-center gap-2">
                                         {isLoading ? (
-                                            <Loader/>
+                                            <><Loader/> Fetching your classes...</>
                                         ) : classes.length > 0 ? (
                                             "Please select a class to view students"
                                         ) : (
@@ -323,7 +314,7 @@ export function SendTest() {
                                 </div>
                             </ScrollArea>
                         ) : null}
-                        {classes.length > 0 && <div className="flex items-center space-x-2 mt-2">
+                        {(classes.length > 0 && selectedClass) && <div className="flex items-center space-x-2 mt-1">
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
@@ -340,37 +331,44 @@ export function SendTest() {
                             </p>
                         </div>}
                     </div>
-                    {generatedLink && (
-                        <div className="grid gap-2 mt-4">
-                            <Label htmlFor="generated-link">Generated Link</Label>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="generated-link">Text Link</Label>
+                        <div className={'flex items-center gap-2'}>
+
                             <Textarea
                                 id="generated-link"
                                 readOnly
                                 value={generatedLink}
-                                className="bg-muted"
+                                rows={1}
+                                className={cn("bg-gray-100 font-mono text-gray-800 text-sm rounded-md focus:outline-none overflow-hidden resize-none min-h-0 ")}
                             />
+
+                            <Button
+                                onClick={() => {
+                                    navigator.clipboard.writeText(generatedLink)
+                                    successToast("Link Generated and Copied")
+                                }}
+                                variant="outline"
+                            >
+                                <Copy className="h-4 w-4 mr-2"/>
+                                Copy Link
+                            </Button>
                         </div>
-                    )}
-                    {classes.length > 0 && <DialogFooter className="flex-col sm:flex-row gap-2">
+                    </div>
+                    {classes.length > 0 && <DialogFooter className="flex-col sm:flex-row gap-2 mt-4">
                         <Button onClick={handleSendInvitation}
                                 className={'flex items-center gap-2'}
                                 disabled={selectedStudents.length === 0 || isTestMailSending}>
                             {isTestMailSending ? <Loader color={'white'} size={'15'}/> : <Mail className="h-4 w-4"/>}
                             {isTestMailSending ? "Sending..." : "Send Invitation Email"}
                         </Button>
-                        <Button
-                            onClick={handleGenerateAndCopyLink}
-                            disabled={selectedStudents.length === 0}
-                        >
-                            <Copy className="mr-2 h-4 w-4"/>
-                            Generate and Copy Test Link
-                        </Button>
                     </DialogFooter>}
                 </DialogContent>
             </Dialog>
 
             <Dialog open={isCreateClassOpen} onOpenChange={setIsCreateClassOpen}>
-                <DialogContent className="max-w-2xl">
+                <DialogContent className="max-w-xl">
                     <DialogHeader>
                         <DialogTitle>Create New Class</DialogTitle>
                         <DialogDescription>
@@ -392,15 +390,18 @@ export function SendTest() {
                                 className="col-span-3"
                             />
                         </div>
-                        <Button disabled={!newClassName || isLoading} type={'submit'}>
-                            {isLoading ? <Loader color={'white'} size={'15'}/> : null}
-                            Create Class
-                        </Button>
+                        <div className="flex justify-end">
+                            <Button disabled={!newClassName || isLoading} type={'submit'} className={'w-fit'}>
+                                {isLoading ? <Loader color={'white'} size={'15'}/> : null}
+                                Create Class
+                            </Button>
+                        </div>
                     </form>
                 </DialogContent>
             </Dialog>
 
-            <AddStudentToClass setIsAddStudentOpen={setIsAddStudentOpen} isAddStudentOpen={isAddStudentOpen} classId={selectedClass}/>
+            <AddStudentToClass setIsAddStudentOpen={setIsAddStudentOpen} isAddStudentOpen={isAddStudentOpen}
+                               classId={selectedClass} handleAddStudent={handleAddStudent}/>
         </>
     )
 }
