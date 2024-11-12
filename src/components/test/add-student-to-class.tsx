@@ -35,12 +35,13 @@ export default function AddStudentToClass({isAddStudentOpen, setIsAddStudentOpen
     })
 
     const [studentExists, setStudentExists] = useState(false)
-    const [isLoading, setIsLoading] = useState(false)
+    const [isSearching, setIsSearching] = useState(false)
     const [isLoaded, setIsLoaded] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
     const [removeAfter, setRemoveAfter] = useState<Date | undefined>(undefined)
 
     const searchStudent = async (email: string) => {
-        setIsLoading(true)
+        setIsSearching(true)
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/find-student?email=${email}`, {
                 headers: {Authorization: `Bearer ${user.accessToken}`}
@@ -58,7 +59,7 @@ export default function AddStudentToClass({isAddStudentOpen, setIsAddStudentOpen
         } catch (error) {
             setError("email", {type: "manual", message: "Server error, try again"})
         } finally {
-            setIsLoading(false)
+            setIsSearching(false)
             setIsLoaded(true)
         }
     }
@@ -117,7 +118,7 @@ export default function AddStudentToClass({isAddStudentOpen, setIsAddStudentOpen
                 console.log(result);
                 errorToast("Failed to add student", {description: result?.message || "Something went wrong. Please try again!"});
             } else {
-                handleAddStudent(data);
+                handleAddStudent(Object.assign(data, {...result.data}));
             }
 
         } catch (error) {
@@ -155,7 +156,7 @@ export default function AddStudentToClass({isAddStudentOpen, setIsAddStudentOpen
                             {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
                         </div>
 
-                        {isLoading ? (
+                        {isSearching ? (
                             <div className="flex items-center justify-center space-x-2 py-4">
                                 <Loader2 className="h-6 w-6 animate-spin text-primary"/>
                                 <p className="text-lg font-medium text-muted-foreground">Searching for student...</p>
@@ -236,7 +237,7 @@ export default function AddStudentToClass({isAddStudentOpen, setIsAddStudentOpen
                             </>
                         )}
 
-                        {!isLoading && isLoaded && (
+                        {!isSearching && isLoaded && (
                             <div className="space-y-2 flex flex-col">
                                 <Label htmlFor="removeAfter">Remove student from this class on</Label>
                                 <DatePicker
@@ -258,10 +259,10 @@ export default function AddStudentToClass({isAddStudentOpen, setIsAddStudentOpen
                         {errors.root && <p className="text-red-500 text-sm">{errors.root.message}</p>}
 
                         <DialogFooter>
-                            <Button type="submit" disabled={isLoading || !isValid}>
-                                {isLoading ? (
+                            <Button type="submit" disabled={isSearching || isLoading || !isValid}>
+                                {(isSearching || isLoading) ? (
                                     <>
-                                        <Loader/>
+                                        <Loader color={'white'}/>
                                         Please wait
                                     </>
                                 ) : (

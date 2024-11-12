@@ -1,6 +1,6 @@
 import React, {useEffect} from "react";
 
-export default function Loader({size = "20", color = "black", ...rest}) {
+export default function Loader({size = "15", color = "black", ...rest}) {
     useEffect(() => {
         async function getLoader() {
             const {ring2} = await import('ldrs');
@@ -10,12 +10,12 @@ export default function Loader({size = "20", color = "black", ...rest}) {
         getLoader();
     }, []);
 
-    const baseSize = 20; // Set the base size for scaling
+    const baseSize = 15; // Set the base size for scaling
     const calculatedSize = parseFloat(size);
     const scale = calculatedSize / baseSize;
 
     // Adjust stroke and stroke-length based on the scale
-    const stroke = 2.5 * scale; // Scale stroke size
+    const stroke = 2.0 * scale; // Scale stroke size
     const strokeLength = 0.25 * scale; // Scale stroke-length
 
     return (

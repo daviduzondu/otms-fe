@@ -137,7 +137,7 @@ export function SendTest({test}) {
             if (!response.ok) throw new Error(result.message || "An error occurred.");
 
             successToast('Invitations Sent', {
-                description: `Sent invitations to ${selectedStudents.length} students.`,
+                description: `Sent invitations to ${selectedStudents.length} student${selectedStudents.length > 1 ? "s" : ""}.`,
             });
         } catch (e) {
             errorToast("Failed to send invitations", {
@@ -393,7 +393,7 @@ export function SendTest({test}) {
                         <div className="flex justify-end">
                             <Button disabled={!newClassName || isLoading} type={'submit'} className={'w-fit'}>
                                 {isLoading ? <Loader color={'white'} size={'15'}/> : null}
-                                Create Class
+                                {isLoading ? "Creating" : "Create Class"}
                             </Button>
                         </div>
                     </form>
