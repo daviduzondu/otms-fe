@@ -18,6 +18,8 @@ import {errorToast} from "@/helpers/show-toasts";
 
 export default function AddStudentToClass({isAddStudentOpen, setIsAddStudentOpen, classId, handleAddStudent}) {
     const {user} = useContext(AuthContext)
+    const defaultRemoveAfter = new Date(new Date().getFullYear(), new Date().getMonth() + 6)
+
     const {
         register,
         watch,
@@ -31,17 +33,22 @@ export default function AddStudentToClass({isAddStudentOpen, setIsAddStudentOpen
         reset
     } = useForm<StudentSchemaProps>({
         resolver: zodResolver(StudentSchema),
-        mode: "onChange",
+        mode: "all",
+        defaultValues: {
+            removeAfter: defaultRemoveAfter.toISOString()
+        }
     })
 
     const [studentExists, setStudentExists] = useState(false)
     const [isSearching, setIsSearching] = useState(false)
     const [isLoaded, setIsLoaded] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
-    const [removeAfter, setRemoveAfter] = useState<Date | undefined>(undefined)
+    const [removeAfter, setRemoveAfter] = useState<Date>(defaultRemoveAfter)
 
     const searchStudent = async (email: string) => {
         setIsSearching(true)
+        setValue("removeAfter", new Date(removeAfter!.toString()).toISOString());
+
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/find-student?email=${email}`, {
                 headers: {Authorization: `Bearer ${user.accessToken}`}
@@ -49,7 +56,7 @@ export default function AddStudentToClass({isAddStudentOpen, setIsAddStudentOpen
             const result = await response.json()
 
             if (response.ok) {
-                Object.entries(result.data).forEach(([key, value]) => setValue(key as keyof StudentSchemaProps, value))
+                Object.entries(result.data).forEach(([key, value]) => setValue(key as keyof StudentSchemaProps, value, {shouldValidate: true}))
                 setStudentExists(true)
             } else if (response.status === 404) {
                 setStudentExists(false)
@@ -65,7 +72,14 @@ export default function AddStudentToClass({isAddStudentOpen, setIsAddStudentOpen
     }
 
     useEffect(() => {
+        // Trigger validation for removeAfter field on component mount
+        trigger("removeAfter")
+    }, [trigger])
+
+
+    useEffect(() => {
         const email = watch("email")
+
         if (email) {
             const debounceTimer = setTimeout(async () => {
                 const isEmailValid = await trigger("email")
@@ -127,7 +141,6 @@ export default function AddStudentToClass({isAddStudentOpen, setIsAddStudentOpen
         } finally {
             setIsLoading(false)
             reset({email: ''})
-            setRemoveAfter(undefined)
         }
     }
 
@@ -246,8 +259,8 @@ export default function AddStudentToClass({isAddStudentOpen, setIsAddStudentOpen
                                         if (date) {
                                             const isoString = new Date(date.toString()).toISOString();
                                             setRemoveAfter(date);
-                                            setValue("removeAfter", isoString); // Ensure it's a string
-                                            trigger("removeAfter");
+                                            setValue("removeAfter", isoString, {shouldValidate: true}); // Ensure it's a string
+                                            // trigger("removeAfter");
                                         }
                                     }}
                                 />
