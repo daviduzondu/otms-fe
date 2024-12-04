@@ -7,14 +7,14 @@ import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {Controller, Form, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {QuestionSchema, QuestionSchemaProps} from "../../validation/create-question.validation";
+import {QuestionSchema, QuestionSchemaProps} from "@/validation/create-question.validation";
 import WYSIWYGLatexEditor from "./question-input";
 import EquationEditor from "./equation-editor";
 import ReactQuill from "react-quill";
-import {AuthContext} from "../../contexts/auth.context";
-import {errorToast} from "../../helpers/show-toasts";
+import {AuthContext} from "@/contexts/auth.context";
+import {errorToast} from "@/helpers/show-toasts";
 import {Trash2} from "lucide-react";
-import {RefObject} from "preact-compat";
+import {RefObject} from "react";
 
 type QuestionFormProps = {
     initialData?: QuestionSchemaProps;

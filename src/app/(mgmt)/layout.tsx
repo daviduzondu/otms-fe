@@ -12,7 +12,7 @@ import UserProfileBtn from "../../components/user-profile-btn";
 import AuthGuard from "../../components/guards/auth-guard";
 import {ErrorBoundary} from "react-error-boundary";
 import GlobalErrorFallback from "../../components/errors/global-error-fallback";
-import { headers } from "next/headers";
+import {headers} from "next/headers";
 
 const inter = Inter({subsets: ["latin"]});
 
@@ -38,12 +38,12 @@ export default function TestLayout({
                         <AuthGuard next={pathname}>
                             <ErrorBoundary FallbackComponent={GlobalErrorFallback}>
                                 <Link href="/dashboard">
-                                    <Button className="fixed top-4 left-4 h-fit flex gap-2" variant={"outline"}>
+                                    <Button className="lg:fixed absolute top-4 left-4 h-fit flex gap-2 z-50" variant={"outline"}>
                                         <ArrowLeft size={'18'}/>
                                         Return to dashboard</Button>
                                 </Link>
-                                <UserProfileBtn/>
-                                <div className="flex justify-center">
+                                <UserProfileBtn className={"z-50 lg:fixed absolute"}/>
+                                <div className="flex justify-center mt-20 lg:mt-4">
                                     {children}
                                     <Toaster richColors position="top-center" theme="light"/>
                                 </div>

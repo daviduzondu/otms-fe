@@ -78,7 +78,9 @@ export function SendTest({test}) {
                 }
                 setClasses(result.data);
             } catch (e) {
-                errorToast(e);
+                rrorToast("Failed to fetch classes", {
+                    description: (e as Error).message || "Unknown error occurred.",
+                });
                 console.error("Error fetching classes", e);
             }
             setIsLoading(false);
@@ -141,7 +143,7 @@ export function SendTest({test}) {
             });
         } catch (e) {
             errorToast("Failed to send invitations", {
-                description: e.message || "Unknown error occurred.",
+                description: (e as Error).message || "Unknown error occurred.",
             });
         } finally {
             setIsTestMailSending(false)
@@ -191,7 +193,7 @@ export function SendTest({test}) {
                 setIsCreateClassOpen(false);
             } catch (e) {
                 errorToast("Failed to create class", {
-                    description: e.message || "Unknown error occurred.",
+                    description: (e as Error).message || "Unknown error occurred.",
                 });
             } finally {
                 setIsLoading(false);
@@ -206,9 +208,9 @@ export function SendTest({test}) {
                     <Button
                         variant="default"
                         size="sm"
-                        className="bg-gradient-to-b from-blue-300 via-blue-500 to-blue-700 text-white hover:from-blue-400 transition-all"
+                        className="bg-gradient-to-b from-blue-300 via-blue-500 to-blue-700 text-white hover:from-blue-400 transition-all flex gap-2"
                     >
-                        <SendHorizonal className="w-4 h-4 mr-2"/>
+                        <SendHorizonal className="w-4 h-4"/>
                         <span>Send</span>
                     </Button>
                 </DialogTrigger>
