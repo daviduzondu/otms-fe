@@ -1,23 +1,22 @@
 'use client'
 
-import React, { createContext, useContext } from "react";
-import { AuthContext } from "../../contexts/auth.context";
-import { redirect } from "next/navigation";
-import { useRouter } from "next/navigation";
-import { infoToast } from "../../helpers/show-toasts";
+import React, {useContext} from "react";
+import {AuthContext} from "../../contexts/auth.context";
+import {useRouter} from "next/navigation";
 
 
-export default function AuthGuard({ children, callback = null }: { children: React.JSX.Element, callback?: string | null }) {
- const { user } = useContext(AuthContext);
+export default function AuthGuard({children, next = null}: { children: React.JSX.Element, next?: string | null }) {
+    const {user} = useContext(AuthContext);
+    const router = useRouter();
 
- if (!user) {
-  const url = '/auth/login';
-  redirect(url);
- } else {
-  return (
-   <>
-    {children}
-   </>
-  );
- }
+    if (!user) {
+        const url = `/auth/login/${next ? `?next=${next}` : ''}`;
+        router.push(url);
+    } else {
+        return (
+            <>
+                {children}
+            </>
+        );
+    }
 }

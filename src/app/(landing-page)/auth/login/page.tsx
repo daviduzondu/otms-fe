@@ -1,6 +1,5 @@
 import { Metadata } from "next"
 import LoginClient from "./login.client"
-import { headers } from "next/headers";
 
 export const metadata: Metadata = {
  title: 'Login',
@@ -8,7 +7,6 @@ export const metadata: Metadata = {
 };
 
 export default function Login() {
- const referer = headers().get('referer');
 
- return <LoginClient callback={referer} />
+ return <LoginClient />
 }
