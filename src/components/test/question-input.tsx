@@ -1,18 +1,19 @@
 'use client';
 
-import React, {forwardRef, ForwardRefRenderFunction, LegacyRef, RefObject, useEffect} from 'react';
+import React, {forwardRef, ForwardRefRenderFunction, RefObject, useEffect} from 'react';
 import dynamic from 'next/dynamic';
-import 'react-quill/dist/quill.snow.css';
 import katex from 'katex';
+import 'react-quill/dist/quill.snow.css';
 import 'katex/dist/katex.min.css';
 import "@/app/globals.css";
 import ReactQuill, {ReactQuillProps} from "react-quill";
+import {LoaderPinwheel} from "lucide-react";
 
 const ReactQuillComponent = dynamic(
     async () => {
-        const { default: RQ } = await import('react-quill');
+        const {default: RQ} = await import('react-quill');
 
-        const Component = ({ forwardedRef, ...props }: { forwardedRef: RefObject<ReactQuill> } & ReactQuillProps) => (
+        const Component = ({forwardedRef, ...props}: { forwardedRef: RefObject<ReactQuill> } & ReactQuillProps) => (
             <RQ ref={forwardedRef} {...props} />
         );
 
@@ -20,7 +21,9 @@ const ReactQuillComponent = dynamic(
         return Component;
     },
     {
-        ssr: false,
+        ssr: true,
+
+        loading: () => <div className={"flex gap-2 items-center h-full w-full justify-center"}><LoaderPinwheel className={'animate-spin'} strokeWidth={1} size={'25'}/> Loading editor...</div>
     }
 );
 ReactQuillComponent.displayName = 'ReactQuillComponent';
@@ -61,12 +64,12 @@ function Component({value, onChange}: ReactQuillProps, ref: RefObject<ReactQuill
         }
     }, []);
 
-
     return (
         <ReactQuillComponent
             className='w-full h-full'
             forwardedRef={ref}
             value={value}
+
             onChange={onChange}
             modules={modules}
             formats={formats}
