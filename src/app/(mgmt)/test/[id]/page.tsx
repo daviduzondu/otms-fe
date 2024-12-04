@@ -335,8 +335,7 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
                             <Card className='overflow-y-auto max-h-[75vh] h-auto'>
                                 <CardHeader>
                                     <div className='flex justify-between items-center'>
-                                        <CardTitle className={'text-lg flex gap-2 items-center'}><List/> Question
-                                            List</CardTitle>
+                                        <CardTitle className={'text-lg flex gap-2 items-center'}><List/> Questions</CardTitle>
                                         {isIndexUpdating ?
                                             <Oval width={20} height={20} color='black' strokeWidth={5}
                                                   secondaryColor='gray'/> : null}
@@ -374,7 +373,7 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
                 <Dialog open={isAddQuestionOpen} onOpenChange={setIsAddQuestionOpen}>
                     <DialogContent className="max-w-3xl">
                         <DialogHeader>
-                            <CardTitle>Add New Question</CardTitle>
+                            <DialogTitle>Add New Question</DialogTitle>
                         </DialogHeader>
                         <QuestionForm onSubmit={(q) => handleAddQuestion(q)} questions={questions}
                                       onCancel={() => setIsAddQuestionOpen(false)}/>
@@ -384,7 +383,7 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
                 <Dialog open={editingQuestion !== null} onOpenChange={() => setEditingQuestion(null)}>
                     <DialogContent className="max-w-3xl">
                         <DialogHeader>
-                            <CardTitle>Edit Question</CardTitle>
+                            <DialogTitle>Edit Question</DialogTitle>
                         </DialogHeader>
                         {editingQuestion && (
                             <QuestionForm
