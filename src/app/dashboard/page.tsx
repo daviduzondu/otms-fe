@@ -22,7 +22,6 @@ export const metadata: Metadata = {
 
 export default function TeacherDashboard() {
  return (
-  <AuthGuard>
    <div className="flex h-screen bg-gray-100">
     {/* Sidebar */}
     <Sidebar />
@@ -118,7 +117,6 @@ export default function TeacherDashboard() {
      </div>
     </main>
    </div>
-  </AuthGuard>
  )
 }
 
