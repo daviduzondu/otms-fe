@@ -279,7 +279,7 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
         return (
             <div className="lg:w-[60vw] w-screen px-6">
                 <header className="mb-6 flex items-center justify-between flex-wrap gap-3">
-                    <h1 className="lg:text-3xl text-2xl font-bold">{testDetails.title}some super long</h1>
+                    <h1 className="lg:text-3xl text-2xl font-bold">{testDetails.title}</h1>
                     {/*<div className="text-sm text-muted-foreground invisible">*/}
                     {/*    Duration: {calculateDuration()} | Start: {format(testDetails.startsAt, "PPP p")} |*/}
                     {/*    End: {format(testDetails.endsAt, "PPP p")}*/}
