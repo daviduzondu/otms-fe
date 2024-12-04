@@ -2,11 +2,10 @@
 
 import React, {useContext, useEffect, useState} from 'react'
 import * as z from 'zod'
-import {DragUpdate} from '@hello-pangea/dnd'
 import {Button} from "@/components/ui/button"
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog"
-import {Edit, GripVertical, List, PlusCircle, PlusIcon, Printer, Settings} from 'lucide-react'
+import {Edit, GripVertical, List, PlusIcon, Printer, Settings} from 'lucide-react'
 import {differenceInMinutes} from 'date-fns'
 import {AuthContext} from '../../../../contexts/auth.context'
 import {errorToast, successToast} from '../../../../helpers/show-toasts'
@@ -17,8 +16,8 @@ import {QuestionSchemaProps} from '../../../../validation/create-question.valida
 import {Oval} from 'react-loader-spinner'
 import {SendTest} from "@/components/test/send-test-dialog";
 import {closestCenter, DndContext, DragEndEvent} from "@dnd-kit/core";
-import {arrayMove, SortableContext, useSortable} from "@dnd-kit/sortable";
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import {SortableContext, useSortable} from "@dnd-kit/sortable";
+import {restrictToVerticalAxis} from "@dnd-kit/modifiers";
 import {CSS} from "@dnd-kit/utilities";
 
 const TestDetailsSchema = z.object({
@@ -93,7 +92,7 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
     const onDragEnd = async (event: DragEndEvent) => {
         if (isIndexUpdating) return;
 
-        const { active, over } = event;
+        const {active, over} = event;
 
         // Ensure we have valid active and over IDs
         if (!over || active.id === over.id) return;
@@ -136,7 +135,7 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
             });
 
             if (!res.ok) {
-                const { message } = await res.json();
+                const {message} = await res.json();
                 throw new Error(message);
             }
 
@@ -148,7 +147,6 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
             setIsIndexUpdating(false);
         }
     };
-
 
 
     const calculateDuration = () => {
@@ -173,7 +171,25 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
         return (
             <DndContext collisionDetection={closestCenter} onDragEnd={onDragEnd} modifiers={[restrictToVerticalAxis]}>
                 <SortableContext items={questions.map((q) => q.id)}>
-                    <ul className="flex flex-col gap-2 w-full">
+                    <div className={"flex flex-col -ml-2"} style={{
+                        justifyContent: "space-between",
+                        height: "inherit",
+                        padding: "8px 0px 8px 0px"
+                    }}>
+                        {questions.map((item, index) => (
+                            <li
+                                key={item.id}
+                                className="flex justify-center items-center p-2"
+                            >
+                                <div>
+                                    {/*<span className={"h-9 rounded-md px-3"}></span>*/}
+                                    <span>{index + 1}.</span>
+                                    {/*<span className={"h-9 rounded-md px-3"}></span>*/}
+                                </div>
+                            </li>
+                        ))}
+                    </div>
+                    <ul className="flex flex-col gap-2 overflow-hidden">
                         {questions.map((question) => (
                             <SortableItem
                                 key={question.id}
@@ -181,50 +197,75 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
                             />
                         ))}
                     </ul>
+                    <div className={"flex flex-col -ml-2"} style={{
+                        justifyContent: "space-between",
+                        height: "inherit",
+                        padding: "8px 0px 8px 0px"
+                    }}>
+                        {/*{questions.map((item, index) => (*/}
+                        {/*    <li*/}
+                        {/*        key={item.id}*/}
+                        {/*        className="flex justify-center items-center"*/}
+                        {/*    >*/}
+                        {/*        <Edit className="w-5 h-5" onClick={() => setEditingQuestion(item)}/>*/}
+
+                        {/*        <Button*/}
+                        {/*            variant="ghost"*/}
+                        {/*            size="sm"*/}
+                        {/*            className={'-pr-[8px]'}*/}
+                        {/*            onClick={() => setEditingQuestion(item)}*/}
+                        {/*        >*/}
+                        {/*        </Button>*/}
+                        {/*    </li>*/}
+                        {/*))}*/}
+                    </div>
                 </SortableContext>
             </DndContext>
         );
     };
 
-    const SortableItem = ({question}) => {
-        const {attributes, listeners, setNodeRef, transform, transition} =
-            useSortable({id: question.id});
+    const SortableItem = ({
+                              question
+                          }) => {
+        const {attributes, listeners, setNodeRef, transform, transition, setDraggableNodeRef} =
+            useSortable({id: question.id,});
 
         const style = {
             transform: CSS.Transform.toString(transform),
             transition,
+
         };
+
 
         return (
             <li
                 ref={setNodeRef}
                 style={style}
-                {...attributes}
-                {...listeners}
-                className="flex items-center bg-muted p-2 rounded border gap-4 w-full"
+                className="flex items-center bg-muted p-2 rounded border gap-4"
             >
                 {/* Drag handle */}
                 <Button
+                    {...attributes}
+                    {...listeners}
                     variant="ghost"
+                    ref={setDraggableNodeRef}
                     size="sm"
-                    className="cursor-grab active:cursor-grabbing"
+                    className="cursor-grab active:cursor-grabbing drag-handle"
                 >
                     <GripVertical className="w-4 h-4"/>
                 </Button>
 
                 {/* Question text */}
-                <span className="flex-1 truncate">
-        {new DOMParser().parseFromString(question.body, "text/html").body
-            .textContent}
-      </span>
+                <span
+                    className="truncate flex-1">{new DOMParser().parseFromString(question.body, "text/html").body.textContent}</span>
 
-                {/* Edit button */}
                 <Button
                     variant="ghost"
                     size="sm"
+                    className={'-pr-[8px]'}
                     onClick={() => setEditingQuestion(question)}
                 >
-                    <Edit className="w-4 h-4"/>
+                    <Edit className="w-5 h-5"/>
                 </Button>
             </li>
         );
@@ -259,14 +300,13 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
                                 <DialogTrigger asChild>
                                     <Button variant="default" size="sm" className={'flex gap-2 lg:hidden'}>
                                         <List className="w-4 h-4"/>
-                                        <span>Question List</span>
+                                        <span>Questions</span>
                                     </Button>
                                 </DialogTrigger>
                                 <DialogContent>
                                     <DialogHeader>
                                         <div className='flex justify-between items-center'>
-                                            <DialogTitle className={'text-lg flex gap-2 items-center'}><List/> Question
-                                                List</DialogTitle>
+                                            <DialogTitle className={'text-lg flex gap-2 items-center'}><List/> Questions</DialogTitle>
                                             {isIndexUpdating ?
                                                 <Oval width={20} height={20} color='black' strokeWidth={5}
                                                       secondaryColor='gray'/> : null}
@@ -305,8 +345,7 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
                                     <div
                                         className='text-muted-foreground text-sm pt-1'>{questions.length ? `${questions.length} questions in total` : "No questions yet"}</div>
                                 </CardHeader>
-                                <CardContent className="flex gap-2">
-
+                                <CardContent className={"flex w-full"}>
                                     {QuestionList()}
                                 </CardContent>
                             </Card>

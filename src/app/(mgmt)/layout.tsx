@@ -31,19 +31,25 @@ export default function TestLayout({
     return (
         <>
 
-            <div className={`${inter.className} ${ibm.variable} min-h-screen flex justify-center bg-gray-100`}>
+            <div className={`${inter.className} ${ibm.variable} min-h-screen flex justify-center bg-gray-100`} style={{
+                'backgroundImage': 'radial-gradient(#80808048 0.8px, transparent 0)',
+                'backgroundSize': '20px 20px',
+                'backgroundPosition': '-19px -19px',
+                'backgroundAttachment': 'fixed',
+            }}>
 
                 <AuthSessionProvider>
                     <AuthProvider>
                         <AuthGuard next={pathname}>
                             <ErrorBoundary FallbackComponent={GlobalErrorFallback}>
                                 <Link href="/dashboard">
-                                    <Button className="lg:fixed absolute top-4 left-4 h-fit flex gap-2 z-50" variant={"outline"}>
+                                    <Button className="lg:fixed absolute top-4 left-4 h-fit flex gap-2 z-50"
+                                            variant={"outline"}>
                                         <ArrowLeft size={'18'}/>
                                         Return to dashboard</Button>
                                 </Link>
                                 <UserProfileBtn className={"z-50 lg:fixed absolute"}/>
-                                <div className="flex justify-center mt-20 lg:mt-4">
+                                <div className="flex justify-center mt-20 lg:mt-4" >
                                     {children}
                                     <Toaster richColors position="top-center" theme="light"/>
                                 </div>
