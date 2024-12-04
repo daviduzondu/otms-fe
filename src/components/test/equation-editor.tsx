@@ -2,7 +2,7 @@
 
 'use client';
 
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import dynamic from 'next/dynamic';
 import {Button} from "@/components/ui/button";
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog";
@@ -134,6 +134,7 @@ export default function EquationEditor({onInsert}: EquationEditorProps) {
     const [latex, setLatex] = useState('')
     const [mathFieldRef, setMathFieldRef] = useState<MathField | null>(null)
     const [isOpen, setIsOpen] = useState(false)
+    const insertRef = useRef();
 
     const handleSymbolClick = useCallback((symbolLatex: string) => {
         if (mathFieldRef) {
@@ -165,13 +166,14 @@ export default function EquationEditor({onInsert}: EquationEditorProps) {
     }, []);
 
     const handleInsert = useCallback(() => {
+        // console.log(latex)
         onInsert(latex)
         setIsOpen(false)
         setLatex('')
     }, [latex, onInsert])
 
     return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
                 <Button type="button" className="flex gap-1 text-blue-600 p-0 m-0 outline-none" variant={'link'}>
                     <FunctionSquare/>
@@ -179,7 +181,8 @@ export default function EquationEditor({onInsert}: EquationEditorProps) {
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[800px] max-h-[80vh] overflow-y-auto"
-                           onKeyDown={() => mathFieldRef?.focus()}>
+                           // onKeyDown={() => mathFieldRef?.focus()}
+            >
                 <DialogHeader>
                     <DialogTitle>Equation Editor</DialogTitle>
                 </DialogHeader>
@@ -187,6 +190,12 @@ export default function EquationEditor({onInsert}: EquationEditorProps) {
                     <div className="border p-4 rounded-lg text-2xl relative">
                         <span className='absolute text-muted-foreground text-xs right-2 top-2'>Input</span>
                         <EditableMathField
+                            // onKeyUp={(e) => {
+                            //     if (e.key === "Enter") {
+                            //         e.preventDefault(); // Prevent default behavior to avoid unintended triggers
+                            //         handleInsert();
+                            //     }
+                            // }}
                             latex={latex}
                             onChange={(mathField) => {
                                 setLatex(mathField.latex())
@@ -216,7 +225,7 @@ export default function EquationEditor({onInsert}: EquationEditorProps) {
                     </Tabs>
                     <div className="flex justify-end space-x-2 bg-white w-full">
                         <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-                        <Button onClick={handleInsert}>Insert</Button>
+                        <Button onClick={handleInsert} className={"insert-btn"}>Insert</Button>
                     </div>
                 </div>
             </DialogContent>
