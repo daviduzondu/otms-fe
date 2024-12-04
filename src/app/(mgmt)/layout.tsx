@@ -49,7 +49,7 @@ export default function TestLayout({
                                         Return to dashboard</Button>
                                 </Link>
                                 <UserProfileBtn className={"z-50 lg:fixed absolute"}/>
-                                <div className="flex justify-center mt-20 lg:mt-4" >
+                                <div className="flex justify-center mt-16 lg:mt-4" >
                                     {children}
                                     <Toaster richColors position="top-center" theme="light"/>
                                 </div>

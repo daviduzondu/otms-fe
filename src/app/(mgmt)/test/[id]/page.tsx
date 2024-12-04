@@ -19,6 +19,7 @@ import {closestCenter, DndContext, DragEndEvent} from "@dnd-kit/core";
 import {SortableContext, useSortable} from "@dnd-kit/sortable";
 import {restrictToVerticalAxis} from "@dnd-kit/modifiers";
 import {CSS} from "@dnd-kit/utilities";
+import { cn } from '@/lib/utils'
 
 const TestDetailsSchema = z.object({
     title: z.string().min(1, "Title is required"),
@@ -278,53 +279,51 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
     if (!isLoading) {
         return (
             <div className="lg:w-[60vw] w-screen px-6">
-                <header className="mb-6 flex items-center justify-between flex-wrap gap-3">
-                    <h1 className="lg:text-3xl text-2xl font-bold">{testDetails.title}</h1>
-                    {/*<div className="text-sm text-muted-foreground invisible">*/}
-                    {/*    Duration: {calculateDuration()} | Start: {format(testDetails.startsAt, "PPP p")} |*/}
-                    {/*    End: {format(testDetails.endsAt, "PPP p")}*/}
-                    {/*</div>*/}
-                    <div className="flex justify-between w-full">
-                        <div className={"flex gap-2"}>
-                            <Button variant="outline" size="sm" onClick={handlePrintTest} className={"flex gap-2"}>
-                                <Printer className="w-4 h-4"/>
-                                <span className={"hidden lg:block"}>Print test</span>
-                            </Button>
-                            <Button variant="outline" size="sm" className={'flex gap-2'}>
-                                <Settings className="w-4 h-4"/>
-                                <span className={"hidden lg:block"}>Test Settings</span>
-                            </Button>
-                        </div>
-                        <div className={"flex gap-2"}>
-                            <Dialog>
-                                <DialogTrigger asChild>
-                                    <Button variant="default" size="sm" className={'flex gap-2 lg:hidden'}>
-                                        <List className="w-4 h-4"/>
-                                        <span>Overview</span>
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                    <DialogHeader>
-                                        <div className='flex justify-between items-center'>
-                                            <DialogTitle className={'text-lg flex gap-2 items-center'}><List/>Overview</DialogTitle>
-                                            {isIndexUpdating ?
-                                                <Oval width={20} height={20} color='black' strokeWidth={5}
-                                                      secondaryColor='gray'/> : null}
-                                            {/* <div className='w-4 h-4 bg-black'></div> */}
+                <Card className={cn('p-0 mb-4')}>
+                    <CardHeader className="flex justify-between flex-wrap gap-3">
+                        <h1 className="lg:text-3xl text-2xl font-bold">{testDetails.title}</h1>
+                        <div className="flex justify-between w-full">
+                            <div className={"flex gap-2"}>
+                                <Button variant="outline" size="sm" onClick={handlePrintTest} className={"flex gap-2"}>
+                                    <Printer className="w-4 h-4"/>
+                                    <span className={"hidden lg:block"}>Print test</span>
+                                </Button>
+                                <Button variant="outline" size="sm" className={'flex gap-2'}>
+                                    <Settings className="w-4 h-4"/>
+                                    <span className={"hidden lg:block"}>Test Settings</span>
+                                </Button>
+                            </div>
+                            <div className={"flex gap-2"}>
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <Button variant="default" size="sm" className={'flex gap-2 lg:hidden'}>
+                                            <List className="w-4 h-4"/>
+                                            <span>Overview</span>
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                        <DialogHeader>
+                                            <div className='flex justify-between items-center'>
+                                                <DialogTitle className={'text-lg flex gap-2 items-center'}><List/>Overview</DialogTitle>
+                                                {isIndexUpdating ?
+                                                    <Oval width={20} height={20} color='black' strokeWidth={5}
+                                                          secondaryColor='gray'/> : null}
+                                                {/* <div className='w-4 h-4 bg-black'></div> */}
+                                            </div>
+                                            <div
+                                                className='text-muted-foreground text-sm pt-1 text-left'>{questions.length ? `${questions.length} questions in total` : "No questions yet"}</div>
+                                        </DialogHeader>
+                                        <div className="flex gap-2">
+                                            {QuestionList()}
                                         </div>
-                                        <div
-                                            className='text-muted-foreground text-sm pt-1 text-left'>{questions.length ? `${questions.length} questions in total` : "No questions yet"}</div>
-                                    </DialogHeader>
-                                    <div className="flex gap-2">
-                                        {QuestionList()}
-                                    </div>
 
-                                </DialogContent>
-                            </Dialog>
-                            <SendTest test={testDetails}/>
+                                    </DialogContent>
+                                </Dialog>
+                                <SendTest test={testDetails}/>
+                            </div>
                         </div>
-                    </div>
-                </header>
+                    </CardHeader>
+                </Card>
                 <Button className={"fixed lg:hidden bottom-4 right-4"} onClick={() => setIsAddQuestionOpen(true)}>
                     <PlusIcon className="w-6 h-4 mr-2"/>
                     Add Question
@@ -335,7 +334,8 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
                             <Card className='overflow-y-auto max-h-[75vh] h-auto'>
                                 <CardHeader>
                                     <div className='flex justify-between items-center'>
-                                        <CardTitle className={'text-lg flex gap-2 items-center'}><List/> Questions</CardTitle>
+                                        <CardTitle
+                                            className={'text-lg flex gap-2 items-center'}><List/> Overview</CardTitle>
                                         {isIndexUpdating ?
                                             <Oval width={20} height={20} color='black' strokeWidth={5}
                                                   secondaryColor='gray'/> : null}
