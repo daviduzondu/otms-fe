@@ -300,13 +300,13 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
                                 <DialogTrigger asChild>
                                     <Button variant="default" size="sm" className={'flex gap-2 lg:hidden'}>
                                         <List className="w-4 h-4"/>
-                                        <span>Questions</span>
+                                        <span>Overview</span>
                                     </Button>
                                 </DialogTrigger>
                                 <DialogContent>
                                     <DialogHeader>
                                         <div className='flex justify-between items-center'>
-                                            <DialogTitle className={'text-lg flex gap-2 items-center'}><List/> Questions</DialogTitle>
+                                            <DialogTitle className={'text-lg flex gap-2 items-center'}><List/>Overview</DialogTitle>
                                             {isIndexUpdating ?
                                                 <Oval width={20} height={20} color='black' strokeWidth={5}
                                                       secondaryColor='gray'/> : null}
