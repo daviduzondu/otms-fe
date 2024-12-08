@@ -26,6 +26,7 @@ import {errorToast, successToast} from "@/helpers/show-toasts"
 import {useParams} from "next/navigation"
 import Loader from "@/components/loader/loader"
 import {cn} from "@/lib/utils";
+import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 
 interface IClass {
     id: string;
@@ -43,7 +44,7 @@ interface IStudent {
     removeAfter: string;
 }
 
-export function SendTest({test}) {
+export function SendTest({test, questions}) {
     const {id} = useParams();
     const {user} = useContext(AuthContext);
     const [classes, setClasses] = useState<IClass[]>([]);
@@ -78,7 +79,7 @@ export function SendTest({test}) {
                 }
                 setClasses(result.data);
             } catch (e) {
-                rrorToast("Failed to fetch classes", {
+                errorToast("Failed to fetch classes", {
                     description: (e as Error).message || "Unknown error occurred.",
                 });
                 console.error("Error fetching classes", e);
@@ -204,16 +205,31 @@ export function SendTest({test}) {
     return (
         <>
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogTrigger asChild>
-                    <Button
-                        variant="default"
-                        size="sm"
-                        className="bg-gradient-to-b from-blue-300 via-blue-500 to-blue-700 text-white hover:from-blue-400 transition-all flex gap-2"
-                    >
-                        <SendHorizonal className="w-4 h-4"/>
-                        <span>Send</span>
-                    </Button>
-                </DialogTrigger>
+                <TooltipProvider delayDuration={0}>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <div className="inline-flex">
+                                <DialogTrigger asChild disabled={questions.length === 0}>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className={`bg-gradient-to-tr from-blue-300 via-blue-500 to-blue-700 text-white hover:from-blue-700 hover:drop-shadow-2xl transition-all flex gap-2 ${
+                                            questions.length === 0 ? "opacity-50 cursor-not-allowed" : ""
+                                        }`}
+                                    >
+                                        <SendHorizonal className="w-4 h-4"/>
+                                        <span>Send</span>
+                                    </Button>
+                                </DialogTrigger>
+                                {questions.length === 0 && (
+                                    <TooltipContent>
+                                        <p>You must add questions to your test first</p>
+                                    </TooltipContent>
+                                )}
+                            </div>
+                        </TooltipTrigger>
+                    </Tooltip>
+                </TooltipProvider>
                 <DialogContent className="max-w-3xl">
                     <DialogHeader>
                         <DialogTitle>Send Test</DialogTitle>

@@ -8,7 +8,7 @@ import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@
 import {Edit, GripVertical, List, PlusIcon, Printer, Settings} from 'lucide-react'
 import {differenceInMinutes} from 'date-fns'
 import {AuthContext} from '../../../../contexts/auth.context'
-import {errorToast, successToast} from '../../../../helpers/show-toasts'
+import {errorToast} from '../../../../helpers/show-toasts'
 import QuestionForm from '../../../../components/test/question-form'
 import {useErrorBoundary} from 'react-error-boundary'
 import QuestionCard from '../../../../components/test/question-card'
@@ -19,12 +19,13 @@ import {closestCenter, DndContext, DragEndEvent} from "@dnd-kit/core";
 import {SortableContext, useSortable} from "@dnd-kit/sortable";
 import {restrictToVerticalAxis} from "@dnd-kit/modifiers";
 import {CSS} from "@dnd-kit/utilities";
-import { cn } from '@/lib/utils'
+import {cn} from '@/lib/utils'
 
 const TestDetailsSchema = z.object({
     title: z.string().min(1, "Title is required"),
     instructions: z.string().optional(),
     startsAt: z.date(),
+    durationMin: z.number(),
     endsAt: z.date(),
     code: z.string(),
     passingScore: z.number().min(0).max(100),
@@ -43,7 +44,7 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
     const {showBoundary} = useErrorBoundary();
     const {user} = useContext(AuthContext)
     const [testDetails, setTestDetails] = useState<TestDetailsSchemaType | Record<string, any>>({})
-    const [questions, setQuestions] = useState<Array<QuestionSchemaProps>>([])
+    const [questions, setQuestions] = useState<Array<QuestionSchemaProps>>([]);
     const [isAddQuestionOpen, setIsAddQuestionOpen] = useState(false)
     const [editingQuestion, setEditingQuestion] = useState<QuestionSchemaProps | null>(null)
     const [isLoading, setIsLoading] = useState(true);
@@ -161,11 +162,6 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
         window.print()
     }
 
-    const handleGenerateTestLink = () => {
-        const testLink = `${location.origin}/t/${testDetails.code}`
-        successToast(`Test link generated: ${testLink}`)
-    }
-
 
     const QuestionList = () => {
 
@@ -190,7 +186,7 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
                             </li>
                         ))}
                     </div>
-                    <ul className="flex flex-col gap-2 overflow-hidden">
+                    <ul className="flex flex-col gap-2 overflow-hidden inherit flex-1">
                         {questions.map((question) => (
                             <SortableItem
                                 key={question.id}
@@ -319,7 +315,7 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
 
                                     </DialogContent>
                                 </Dialog>
-                                <SendTest test={testDetails}/>
+                                <SendTest test={testDetails} questions={questions}/>
                             </div>
                         </div>
                     </CardHeader>
@@ -376,7 +372,10 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
                             <DialogTitle>Add New Question</DialogTitle>
                         </DialogHeader>
                         <QuestionForm onSubmit={(q) => handleAddQuestion(q)} questions={questions}
-                                      onCancel={() => setIsAddQuestionOpen(false)}/>
+                                      onCancel={() => setIsAddQuestionOpen(false)}
+                                      minLeft={(testDetails.durationMin - questions.filter(q => q.timeLimit).reduce((a, c) => a + c!.timeLimit, 0))}
+
+                        />
                     </DialogContent>
                 </Dialog>
 
@@ -391,6 +390,7 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
                                 questions={questions}
                                 onSubmit={(q) => handleEditQuestion(q)}
                                 onCancel={() => setEditingQuestion(null)}
+                                minLeft={(testDetails.durationMin - questions.filter(q => q.timeLimit).reduce((a, c) => a + c!.timeLimit, 0))}
                             />
                         )}
                     </DialogContent>

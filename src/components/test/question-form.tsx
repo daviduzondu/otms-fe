@@ -1,6 +1,6 @@
 'use client'
 
-import {useContext, useEffect, useRef, useState} from "react";
+import {RefObject, useContext, useEffect, useRef, useState} from "react";
 import {Label} from "@/components/ui/label";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {Input} from "@/components/ui/input";
@@ -13,17 +13,20 @@ import EquationEditor from "./equation-editor";
 import ReactQuill from "react-quill";
 import {AuthContext} from "@/contexts/auth.context";
 import {errorToast} from "@/helpers/show-toasts";
-import {Trash2} from "lucide-react";
-import {RefObject} from "react";
+import {AlertTriangleIcon, Trash2} from "lucide-react";
+import {Slider} from "@/components/ui/slider";
+import {Checkbox} from "../ui/checkbox";
+import {CheckedState} from "@radix-ui/react-checkbox";
 
 type QuestionFormProps = {
     initialData?: QuestionSchemaProps;
     questions: Array<any>,
     onSubmit: (data: QuestionSchemaProps) => void;
     onCancel: () => void;
+    minLeft: number;
 };
 
-export default function QuestionForm({initialData, onSubmit, onCancel}: QuestionFormProps) {
+export default function QuestionForm({initialData, onSubmit, onCancel, minLeft}: QuestionFormProps) {
     const {
         register,
         control,
@@ -42,6 +45,7 @@ export default function QuestionForm({initialData, onSubmit, onCancel}: Question
     const [options, setOptions] = useState(initialData?.options || ["", ""]); // Initialize options with initial data or two empty fields
     const quillRef = useRef<RefObject<ReactQuill>>(null);
     const questionType = watch("type");
+    const [timed, setTimed] = useState<CheckedState>(!!initialData?.timeLimit);
 
 
     useEffect(() => {
@@ -232,7 +236,69 @@ export default function QuestionForm({initialData, onSubmit, onCancel}: Question
                 {errors.points && <p className="text-red-500 text-sm">{errors.points.message}</p>}
             </div>
 
-            {/* Action Buttons */}
+            {(minLeft <= 0 && !initialData) ?
+                <div
+                    className="text-sm text-yellow-800 bg-yellow-200 p-3 rounded-lg border-2 border-yellow-500 flex flex-col gap-2 relative h-fit">
+                    <AlertTriangleIcon
+                        className="absolute top-1/2 right-3  transform -translate-y-1/2 opacity-10"
+                        size={100}
+                    />
+                    <div>
+                        <p className={"font-semibold"}>Setting a time limit has been disabled because:</p>
+                        <ul className="list-disc list-inside">
+                            <li>You&apos;ve used up all available minutes.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <p className={"font-semibold"}>To free up time, you can:</p>
+                        <ul className="list-disc list-inside">
+                            <li>Increase the test duration in this test&apos;s settings.</li>
+                            <li>Reduce the time allocated to other questions.</li>
+                        </ul>
+                    </div>
+                    <p>If you click <span className={"font-semibold"}>Save Question</span> this question will be saved without a time limit.</p>
+                </div>
+                : null}
+
+            {(timed && (minLeft > 0 || initialData?.timeLimit)) ?
+                <div className="flex flex-col gap-4">
+                    <Controller
+                        name="timeLimit"
+                        control={control}
+                        render={({field}) => (
+                            <>
+                                <Label htmlFor="timeLimit">Time limit
+                                    {/*<span>({minLeft + (initialData?.timeLimit || 0) - (field?.value || 0)} minutes available)</span>*/}
+                                </Label>
+                                <div className={'flex gap-2'}>
+                                    <Slider
+                                        defaultValue={[initialData?.timeLimit || 1]}
+                                        min={1}
+                                        max={minLeft + (initialData?.timeLimit || 0)}
+                                        step={1}
+                                        onValueChange={(value) => field.onChange(value[0])}
+                                    />
+                                    <span
+                                        className="flex-1 text-sm block text-nowrap">{(field.value ?? initialData?.timeLimit ?? 1)} minute{(field.value ?? initialData?.timeLimit ?? 1) === 1 ? "" : "s"}</span>
+                                </div>
+                            </>
+                        )}
+
+                    />
+                    {errors.timeLimit && <p className="text-red-500 text-sm">{errors.timeLimit.message}</p>}
+                </div> : null}
+
+            {(minLeft > 0 || initialData?.timeLimit) ? <div className="flex items-center space-x-2">
+                <Checkbox id="timedQuestion" onCheckedChange={setTimed} checked={timed}
+                          disabled={minLeft <= 0 && !initialData}/>
+                <label
+                    htmlFor="timedQuestion"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                    Add time limit
+                </label>
+            </div> : null}
+
             <div className="flex justify-end space-x-2">
                 <Button type="button" variant="outline" onClick={onCancel}>
                     Cancel
@@ -251,5 +317,10 @@ export default function QuestionForm({initialData, onSubmit, onCancel}: Question
                 </Button>
             </div>
         </Form>
-    );
+    )
+        ;
+}
+
+function calculateTimeRemaining() {
+
 }

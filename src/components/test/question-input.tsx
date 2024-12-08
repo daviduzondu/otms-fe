@@ -7,10 +7,11 @@ import 'react-quill/dist/quill.snow.css';
 import 'katex/dist/katex.min.css';
 import "@/app/globals.css";
 import ReactQuill, {ReactQuillProps} from "react-quill";
-import {LoaderPinwheel} from "lucide-react";
+import {LoaderCircleIcon, LoaderPinwheel, LoaderPinwheelIcon} from "lucide-react";
 
 const ReactQuillComponent = dynamic(
     async () => {
+
         const {default: RQ} = await import('react-quill');
 
         const Component = ({forwardedRef, ...props}: { forwardedRef: RefObject<ReactQuill> } & ReactQuillProps) => (
@@ -23,7 +24,7 @@ const ReactQuillComponent = dynamic(
     {
         ssr: true,
 
-        loading: () => <div className={"flex gap-2 items-center h-full w-full justify-center"}><LoaderPinwheel className={'animate-spin'} strokeWidth={1} size={'25'}/> Loading editor...</div>
+        loading: () => <div className={"flex gap-2 items-center h-full w-full justify-center"}><LoaderPinwheelIcon className={'animate-spin'} strokeWidth={1} size={'25'}/> Loading editor...</div>
     }
 );
 ReactQuillComponent.displayName = 'ReactQuillComponent';

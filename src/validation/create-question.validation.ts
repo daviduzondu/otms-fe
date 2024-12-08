@@ -27,6 +27,8 @@ export const QuestionSchema = z
                 .min(0, {message: "Points for this question cannot be lower than 0"})
         ),
 
+        timeLimit: z.number({required_error: "You must enter a time limit"}).int().optional(),
+        
         // Options validation only if it's an MCQ
         options: z
             .array(z.string().min(1, "None of the options can be empty"))
