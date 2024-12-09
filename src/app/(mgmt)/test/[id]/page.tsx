@@ -12,7 +12,6 @@ import {errorToast} from '../../../../helpers/show-toasts'
 import QuestionForm from '../../../../components/test/question-form'
 import {useErrorBoundary} from 'react-error-boundary'
 import QuestionCard from '../../../../components/test/question-card'
-import {QuestionSchemaProps} from '../../../../validation/create-question.validation'
 import {Oval} from 'react-loader-spinner'
 import {SendTest} from "@/components/test/send-test-dialog";
 import {closestCenter, DndContext, DragEndEvent} from "@dnd-kit/core";
@@ -20,6 +19,7 @@ import {SortableContext, useSortable} from "@dnd-kit/sortable";
 import {restrictToVerticalAxis} from "@dnd-kit/modifiers";
 import {CSS} from "@dnd-kit/utilities";
 import {cn} from '@/lib/utils'
+import {CreateQuestionSchema, QuestionSchemaProps} from "@/validation/create-question.validation";
 
 const TestDetailsSchema = z.object({
     title: z.string().min(1, "Title is required"),
@@ -38,7 +38,9 @@ const TestDetailsSchema = z.object({
     requireFullScreen: z.boolean(),
 })
 
-type TestDetailsSchemaType = z.infer<typeof TestDetailsSchema>
+type TestDetailsSchemaType = z.infer<typeof TestDetailsSchema>;
+
+
 
 export default function EnhancedTestQuestionManagement({params}: { params: { id: string } }) {
     const {showBoundary} = useErrorBoundary();
@@ -373,8 +375,7 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
                         </DialogHeader>
                         <QuestionForm onSubmit={(q) => handleAddQuestion(q)} questions={questions}
                                       onCancel={() => setIsAddQuestionOpen(false)}
-                                      minLeft={(testDetails.durationMin - questions.filter(q => q.timeLimit).reduce((a, c) => a + c!.timeLimit, 0))}
-
+                                      minLeft={Math.max(0, testDetails.durationMin - questions.filter(q => q.timeLimit).reduce((a, c) => a + c!.timeLimit, 0))}
                         />
                     </DialogContent>
                 </Dialog>
@@ -390,7 +391,7 @@ export default function EnhancedTestQuestionManagement({params}: { params: { id:
                                 questions={questions}
                                 onSubmit={(q) => handleEditQuestion(q)}
                                 onCancel={() => setEditingQuestion(null)}
-                                minLeft={(testDetails.durationMin - questions.filter(q => q.timeLimit).reduce((a, c) => a + c!.timeLimit, 0))}
+                                minLeft={Math.max(0, testDetails.durationMin - questions.filter(q => q.timeLimit).reduce((a, c) => a + c!.timeLimit, 0))}
                             />
                         )}
                     </DialogContent>

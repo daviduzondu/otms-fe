@@ -7,14 +7,13 @@ import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {Controller, Form, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {QuestionSchema, QuestionSchemaProps} from "@/validation/create-question.validation";
+import {CreateQuestionSchema, QuestionSchemaProps} from "@/validation/create-question.validation";
 import WYSIWYGLatexEditor from "./question-input";
 import EquationEditor from "./equation-editor";
 import ReactQuill from "react-quill";
 import {AuthContext} from "@/contexts/auth.context";
 import {errorToast} from "@/helpers/show-toasts";
 import {AlertTriangleIcon, Trash2} from "lucide-react";
-import {Slider} from "@/components/ui/slider";
 import {Checkbox} from "../ui/checkbox";
 import {CheckedState} from "@radix-ui/react-checkbox";
 
@@ -27,16 +26,20 @@ type QuestionFormProps = {
 };
 
 export default function QuestionForm({initialData, onSubmit, onCancel, minLeft}: QuestionFormProps) {
+
+    const [maxValue, setMaxValue] = useState<number>(initialData?.timeLimit ? minLeft + initialData.timeLimit : minLeft);
+
     const {
         register,
         control,
         setValue,
+        setError,
         watch,
         getValues,
         trigger,
         formState: {isSubmitting, errors},
     } = useForm<QuestionSchemaProps>({
-        resolver: zodResolver(QuestionSchema),
+        resolver: zodResolver(CreateQuestionSchema(maxValue)),
         defaultValues: Object.assign(initialData ? initialData : {}, {points: initialData?.points ?? 10}),
         shouldUnregister: true
     });
@@ -224,16 +227,53 @@ export default function QuestionForm({initialData, onSubmit, onCancel, minLeft}:
                 </div>
             )}
 
-            {/* Points Input */}
-            <div className="space-y-2">
-                <Label htmlFor="points">Points</Label>
-                <Input
-                    id="points"
-                    type="number"
-                    defaultValue={initialData?.points}
-                    {...register("points")}
-                />
-                {errors.points && <p className="text-red-500 text-sm">{errors.points.message}</p>}
+
+            <div className={'grid lg:grid-cols-2 gap-2 items-center'}>
+                {/* Points Input */}
+                <div className="space-y-2">
+                    <Label htmlFor="points">Points</Label>
+                    <Input
+                        id="points"
+                        type="number"
+                        defaultValue={initialData?.points}
+                        {...register("points")}
+                    />
+                    {errors.points && <p className="text-red-500 text-sm">{errors.points.message}</p>}
+                </div>
+                {(timed && (minLeft > 0 || initialData?.timeLimit)) ?
+                    <div className="space-y-2 w-full">
+                        <Controller
+                            name="timeLimit"
+                            control={control}
+                            render={({field}) => (
+                                <>
+                                    <Label htmlFor="timeLimit">
+                                        Time limit
+                                        {/*<span>({minLeft + (initialData?.timeLimit || 0) - (field.value || 0)} minutes available)</span>*/}
+                                    </Label>
+                                    <div className="flex gap-2 items-center w-full">
+                                        <Input
+                                            type="number"
+                                            value={field.value ?? initialData?.timeLimit ?? 1}
+                                            min={1}
+                                            max={initialData?.timeLimit ? minLeft + initialData.timeLimit : minLeft}
+                                            step={1}
+                                            onChange={(e) => {
+                                                const value = parseInt(e.target.value, 10);
+                                                field.onChange(value > 0 ? value : 1);
+                                                // setE
+                                            }}
+                                            className="w-full"
+                                        />
+                                        <span
+                                            className=" text-sm block text-nowrap">minute{(field.value ?? initialData?.timeLimit ?? 1) === 1 ? "" : "s"}</span>
+                                    </div>
+                                </>
+                            )}
+                        />
+
+                        {errors.timeLimit && <p className="text-red-500 text-sm">{errors.timeLimit.message}</p>}
+                    </div> : null}
             </div>
 
             {(minLeft <= 0 && !initialData) ?
@@ -256,37 +296,11 @@ export default function QuestionForm({initialData, onSubmit, onCancel, minLeft}:
                             <li>Reduce the time allocated to other questions.</li>
                         </ul>
                     </div>
-                    <p>If you click <span className={"font-semibold"}>Save Question</span> this question will be saved without a time limit.</p>
+                    <p>If you click <span className={"font-semibold"}>Save Question</span> this question will be saved
+                        without a time limit.</p>
                 </div>
                 : null}
 
-            {(timed && (minLeft > 0 || initialData?.timeLimit)) ?
-                <div className="flex flex-col gap-4">
-                    <Controller
-                        name="timeLimit"
-                        control={control}
-                        render={({field}) => (
-                            <>
-                                <Label htmlFor="timeLimit">Time limit
-                                    {/*<span>({minLeft + (initialData?.timeLimit || 0) - (field?.value || 0)} minutes available)</span>*/}
-                                </Label>
-                                <div className={'flex gap-2'}>
-                                    <Slider
-                                        defaultValue={[initialData?.timeLimit || 1]}
-                                        min={1}
-                                        max={minLeft + (initialData?.timeLimit || 0)}
-                                        step={1}
-                                        onValueChange={(value) => field.onChange(value[0])}
-                                    />
-                                    <span
-                                        className="flex-1 text-sm block text-nowrap">{(field.value ?? initialData?.timeLimit ?? 1)} minute{(field.value ?? initialData?.timeLimit ?? 1) === 1 ? "" : "s"}</span>
-                                </div>
-                            </>
-                        )}
-
-                    />
-                    {errors.timeLimit && <p className="text-red-500 text-sm">{errors.timeLimit.message}</p>}
-                </div> : null}
 
             {(minLeft > 0 || initialData?.timeLimit) ? <div className="flex items-center space-x-2">
                 <Checkbox id="timedQuestion" onCheckedChange={setTimed} checked={timed}
