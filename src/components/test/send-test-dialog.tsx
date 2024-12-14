@@ -15,9 +15,8 @@ import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
 import {Textarea} from "@/components/ui/textarea"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
-import {Checkbox} from "@/components/ui/checkbox"
 import {ScrollArea} from "@/components/ui/scroll-area"
-import {Copy, Info, Mail, Plus, PlusCircle, SendHorizonal, UserPlus, Users} from 'lucide-react'
+import {Check, CircleHelp, Copy, Mail, Plus, PlusCircle, SendHorizonal, UserPlus, Users, X} from 'lucide-react'
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip"
 import {Badge} from "@/components/ui/badge"
 import AddStudentToClass from "@/components/test/add-student-to-class"
@@ -25,8 +24,7 @@ import {AuthContext} from "@/contexts/auth.context"
 import {errorToast, successToast} from "@/helpers/show-toasts"
 import {useParams} from "next/navigation"
 import Loader from "@/components/loader/loader"
-import {cn} from "@/lib/utils";
-import * as TooltipPrimitive from "@radix-ui/react-tooltip";
+import {cn} from "@/lib/utils"
 
 interface IClass {
     id: string;
@@ -42,7 +40,10 @@ interface IStudent {
     email: string;
     regNumber?: string;
     removeAfter: string;
+    isParticipant?: boolean;
+    origin?: string
 }
+
 
 export function SendTest({test, questions}) {
     const {id} = useParams();
@@ -50,9 +51,8 @@ export function SendTest({test, questions}) {
     const [classes, setClasses] = useState<IClass[]>([]);
     const [isOpen, setIsOpen] = useState(false)
     const [selectedClass, setSelectedClass] = useState<string>('');
-    const [selectedStudents, setSelectedStudents] = useState<string[]>([])
+    const [participants, setParticipants] = useState<IStudent[]>([])
     const [generatedLink, setGeneratedLink] = useState('')
-    const [isAllSelected, setIsAllSelected] = useState(true)
     const [isAddStudentOpen, setIsAddStudentOpen] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState(true);
     const [isTestMailSending, setIsTestMailSending] = useState(false);
@@ -70,7 +70,7 @@ export function SendTest({test, questions}) {
         async function fetchClasses() {
             setIsLoading(true);
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/class/`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/class/?showTestParticipationStatus=${test.id}`, {
                     headers: {Authorization: `Bearer ${user.accessToken}`}
                 });
                 const result = await response.json();
@@ -78,6 +78,11 @@ export function SendTest({test, questions}) {
                     throw new Error(response.status === 404 ? result.message : "Something went wrong. Please try again!")
                 }
                 setClasses(result.data);
+                setParticipants(result.data.flatMap((course: IClass) =>
+                    course.students.filter((student) => student.isParticipant)
+                ).filter((student, index, self) =>
+                    index === self.findIndex((s) => s.id === student.id)
+                ));
             } catch (e) {
                 errorToast("Failed to fetch classes", {
                     description: (e as Error).message || "Unknown error occurred.",
@@ -90,43 +95,56 @@ export function SendTest({test, questions}) {
         fetchClasses();
     }, [user.accessToken]);
 
-    useEffect(() => {
-        if (selectedClass) {
-            setSelectedStudents(classes.find(c => c.id === selectedClass)?.students?.map(student => student.id) || [])
-            setIsAllSelected(true)
-        } else {
-            setSelectedStudents([])
-            setIsAllSelected(false)
-        }
-    }, [selectedClass, classes])
-
     const handleClassSelect = (classId: string) => {
         setSelectedClass(classId)
     }
 
-    const handleStudentSelect = (studentId: string) => {
-        setSelectedStudents(prev => {
-            const newSelection = prev.includes(studentId)
-                ? prev.filter(id => id !== studentId)
-                : [...prev, studentId]
-            setIsAllSelected(newSelection.length === (classes.find(c => c.id === selectedClass)?.students?.length || 0))
-            return newSelection
-        })
-    }
+    const handleAddParticipants = async (students: IStudent[]) => {
+        let previousParticipants: IStudent[] = participants;
+        const updatedStudents = students.map(student => ({
+            ...student,
+            origin: selectedClass,
+        }));
 
-    const handleToggleAll = () => {
-        if (isAllSelected) {
-            setSelectedStudents([])
-        } else {
-            setSelectedStudents(classes.find(c => c.id === selectedClass)?.students?.map(student => student.id) || [])
+        try {
+            const data = updatedStudents.map(s => ({...s, studentId: s.id, id: undefined, testId: test.id}));
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/${test.id}/participants/add`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${user.accessToken}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({students: data})
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message || "An error occurred.");
+            setParticipants(prev => {
+                const newParticipants = updatedStudents.filter(
+                    student => !prev.some(p => p.id === student.id)
+                );
+                return [...prev, ...newParticipants].filter((student, index, self) =>
+                    index === self.findIndex((s) => s.id === student.id)
+                );
+            });
+
+        } catch (e) {
+            errorToast("Failed to add participant(s)", {description: (e as Error).message})
+            console.error("Something went wrong!")
+            setParticipants(previousParticipants)
         }
-        setIsAllSelected(!isAllSelected)
+
+    };
+
+    const handleRemoveParticipant = (studentId: string) => {
+        setParticipants(prev => prev.filter(p => p.id !== studentId).filter((student, index, self) =>
+            index === self.findIndex((s) => s.id === student.id)
+        ))
     }
 
     const handleSendInvitation = async () => {
         try {
             setIsTestMailSending(true);
-            const data = {testId: id, students: selectedStudents};
+            const data = {testId: id, students: participants.map(p => p.id)};
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/send-test/`, {
                 method: "POST",
                 headers: {
@@ -140,7 +158,7 @@ export function SendTest({test, questions}) {
             if (!response.ok) throw new Error(result.message || "An error occurred.");
 
             successToast('Invitations Sent', {
-                description: `Sent invitations to ${selectedStudents.length} student${selectedStudents.length > 1 ? "s" : ""}.`,
+                description: `Sent invitations to ${participants.length} student${participants.length > 1 ? "s" : ""}.`,
             });
         } catch (e) {
             errorToast("Failed to send invitations", {
@@ -150,12 +168,6 @@ export function SendTest({test, questions}) {
             setIsTestMailSending(false)
         }
     };
-
-    // const handleGenerateAndCopyLink = () => {
-    //
-    //     navigator.clipboard.writeText(link)
-    //     successToast("Link Generated and Copied")
-    // }
 
     const handleAddStudent = (newStudent: IStudent) => {
         if (selectedClass && newStudent.email && newStudent.firstName && newStudent.lastName) {
@@ -230,130 +242,176 @@ export function SendTest({test, questions}) {
                         </TooltipTrigger>
                     </Tooltip>
                 </TooltipProvider>
-                <DialogContent className="max-w-3xl">
+                <DialogContent className="max-w-6xl">
                     <DialogHeader>
                         <DialogTitle>Send Test</DialogTitle>
                         <DialogDescription>
                             Select a class and students to send the test to.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        {!isLoading && (
-                            classes.length > 0 ? (
-                                <div className="grid gap-2">
-                                    <div className="flex justify-between items-center">
-                                        <Label htmlFor="class-select">Select Class</Label>
-                                        <Button variant="secondary" size="sm"
-                                                onClick={() => setIsCreateClassOpen(true)}>
-                                            <Plus className="mr-2 h-4 w-4"/>
-                                            Create Class
-                                        </Button>
-                                    </div>
-                                    <Select onValueChange={handleClassSelect} value={selectedClass}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select a class"/>
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {classes?.map((cls) => (
-                                                <SelectItem key={cls.id} value={cls.id}>
-                                                    <div className="flex items-center">
-                                                        <Users className="mr-2 h-4 w-4"/>
-                                                        {cls.name}
-                                                        <Badge variant="secondary" className="ml-2">
-                                                            {cls.students.length} students
-                                                        </Badge>
-                                                    </div>
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            ) : null)}
-                        {selectedClass && (
-                            <div className="grid gap-2">
-                                <div className="flex justify-between items-center">
-                                    <Label>Select Students</Label>
-                                    <div className="space-x-2">
-                                        <Button variant="outline" size="sm" onClick={handleToggleAll}>
-                                            {isAllSelected ? 'Unselect All' : 'Select All'}
-                                        </Button>
-                                        <Button variant="outline" size="sm" onClick={() => setIsAddStudentOpen(true)}>
-                                            <UserPlus className="mr-2 h-4 w-4"/>
-                                            Add Student
-                                        </Button>
-                                    </div>
-                                </div>
-                                <ScrollArea className="h-[250px] border rounded-md p-2">
-                                    {classes.find(c => c.id === selectedClass)!.students?.length > 0 ? (
-                                        classes.find(c => c.id === selectedClass)?.students?.map((student) => (
-                                            <div
-                                                key={student.id}
-                                                className="flex items-center space-x-2 py-2 px-2 rounded-md hover:bg-accent"
-                                            >
-                                                <Checkbox
-                                                    id={`student-${student.id}`}
-                                                    checked={selectedStudents.includes(student.id)}
-                                                    onCheckedChange={() => handleStudentSelect(student.id)}
-                                                />
-                                                <div className="flex-grow">
-                                                    <Label htmlFor={`student-${student.id}`} className="font-medium">
-                                                        {student.firstName} {student.middleName} {student.lastName}
-                                                    </Label>
-                                                    <p className="text-sm text-muted-foreground">{student.email} {student.regNumber && `• ${student.regNumber}`}</p>
-                                                </div>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div className="flex items-center justify-center h-full text-muted-foreground">
-                                            No students in this class
+                    <div className="">
+                        <div className="space-y-4">
+                            {!isLoading && (
+                                classes.length > 0 ? (
+                                    <div className="grid gap-2">
+                                        <div className="flex justify-between items-center">
+                                            <Label htmlFor="class-select">Select Class</Label>
+                                            <Button variant="secondary" size="sm"
+                                                    onClick={() => setIsCreateClassOpen(true)}>
+                                                <Plus className="mr-2 h-4 w-4"/>
+                                                Create Class
+                                            </Button>
                                         </div>
-                                    )}
-                                </ScrollArea>
-                            </div>
-                        )}
-                        {!selectedClass ? (
-                            <ScrollArea className="h-[250px] border rounded-md p-2">
-                                <div className="flex items-center justify-center h-full text-muted-foreground">
-                                    <div className="flex items-center justify-center gap-2">
-                                        {isLoading ? (
-                                            <><Loader/> Fetching your classes...</>
-                                        ) : classes.length > 0 ? (
-                                            "Please select a class to view students"
-                                        ) : (
-                                            <div className="text-center">
-                                                <p className="mb-4">You haven&apos;t created any classes yet.</p>
-                                                <Button onClick={() => setIsCreateClassOpen(true)}>
-                                                    <PlusCircle className="mr-2 h-4 w-4"/>
-                                                    Create Your First Class
-                                                </Button>
-                                            </div>
-                                        )}
+                                        <Select onValueChange={handleClassSelect} value={selectedClass}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select a class"/>
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {classes?.map((cls) => (
+                                                    <SelectItem key={cls.id} value={cls.id}>
+                                                        <div className="flex items-center">
+                                                            <Users className="mr-2 h-4 w-4"/>
+                                                            {cls.name}
+                                                            <Badge variant="secondary" className="ml-2">
+                                                                {cls.students.length} students
+                                                            </Badge>
+                                                        </div>
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                ) : null)}
+
+                            {selectedClass ?
+                                <p className="text-sm text-muted-foreground flex items-center justify-center gap-2 py-2 bg-white border rounded-md">
+                                    <CircleHelp size={18}/>
+                                    Select a student to add them to the list of participants
+                                </p> : null}
+                            {selectedClass && (
+                                <div className="grid grid-cols-2 gap-2">
+                                    <div className="space-y-4">
+                                        <div className={"flex justify-between items-center"}>
+                                            <Label>Students in this class</Label>
+                                        </div>
+                                        <ScrollArea className="h-[250px] border rounded-md p-2">
+                                            {classes.find(c => c.id === selectedClass)!.students?.length > 0 ? (
+                                                classes.find(c => c.id === selectedClass)?.students?.map((student) => (
+                                                    <div
+                                                        key={student.id}
+                                                        className="flex flex-row-reverse items-center space-x-2 py-2 px-2 rounded-md hover:bg-accent"
+                                                    >
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className={`rounded-full w-fit h-fit p-2 ${participants.find(x => x.id === student.id) ? "bg-green-600 text-white pointer-events-none" : ""}`}
+                                                            onClick={() => handleAddParticipants([student])}
+                                                        >
+                                                            {!participants.find(x => x.id === student.id) ?
+                                                                <Plus className="h-4 w-4"/> :
+                                                                <Check className="h-4 w-4"/>}
+                                                        </Button>
+                                                        <div className="flex-grow">
+                                                            <Label htmlFor={`student-${student.id}`}
+                                                                   className="font-medium">
+                                                                {student.firstName} {student.middleName} {student.lastName}
+                                                            </Label>
+                                                            <p className="text-sm text-muted-foreground">{student.email} {student.regNumber && `• ${student.regNumber}`}</p>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div
+                                                    className="flex items-center justify-center h-full text-muted-foreground">
+                                                    No students in this class
+                                                </div>
+                                            )}
+                                        </ScrollArea>
+                                        <div className={'flex gap-2'}>
+                                            <Button variant="outline" size="sm"
+                                                    onClick={() => setIsAddStudentOpen(true)}>
+                                                <UserPlus className="mr-2 h-4 w-4"/>
+                                                Create student
+                                            </Button>
+                                            <Button variant="outline" size="sm"
+                                                    onClick={() => handleAddParticipants(classes.find(c => c.id === selectedClass).students)}>
+                                                <UserPlus className="mr-2 h-4 w-4"/>
+                                                Add all students
+                                            </Button>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <div className="flex justify-between items-center">
+                                            <Label>Participants of this test ({participants.length})</Label>
+                                        </div>
+                                        <ScrollArea className="h-[250px] border rounded-md p-2">
+                                            {participants.length > 0 ? (
+                                                participants.reverse().map((student) => (
+                                                    <div
+                                                        key={student.id}
+                                                        className="flex flex-row-reverse items-center space-x-2 py-2 px-2 rounded-md hover:bg-accent"
+                                                    >
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className={'rounded-full w-fit h-fit p-2 hover:bg-red-600 hover:text-white'}
+                                                            onClick={() => handleRemoveParticipant(student.id)}
+                                                        >
+                                                            <X className="h-4 w-4"/>
+                                                        </Button>
+                                                        <div className="flex-grow">
+                                                            <Label htmlFor={`participant-${student.id}`}
+                                                                   className="font-medium">
+                                                                {student.firstName} {student.middleName} {student.lastName}
+                                                            </Label>
+                                                            <p className="text-sm text-muted-foreground">{student.email} {student.regNumber && `• ${student.regNumber}`}</p>
+                                                            <Badge
+                                                                variant="secondary">{classes.find(x => x.id === student.origin)?.name}</Badge>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div
+                                                    className="flex items-center justify-center h-full text-muted-foreground">
+                                                    No participants selected
+                                                </div>
+                                            )}
+                                        </ScrollArea>
                                     </div>
                                 </div>
-                            </ScrollArea>
-                        ) : null}
-                        {(classes.length > 0 && selectedClass) && <div className="flex items-center space-x-2 mt-1">
-                            <TooltipProvider>
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <Info className="h-4 w-4 text-muted-foreground"/>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <p>The test link will only work for the selected students&apos; email
-                                            addresses.</p>
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
-                            <p className="text-sm text-muted-foreground">
-                                Only students in this list will be able to access the test.
-                            </p>
-                        </div>}
+                            )}
+                            {!selectedClass ? (
+                                <ScrollArea className="h-[250px] border rounded-md p-2">
+                                    <div className="flex items-center justify-center h-full text-muted-foreground">
+                                        <div className="flex items-center justify-center gap-2">
+                                            {isLoading ? (
+                                                <><Loader/> Fetching your classes...</>
+                                            ) : classes.length > 0 ? (
+                                                "Please select a class to view students"
+                                            ) : (
+                                                <div className="text-center">
+                                                    <p className="mb-4">You haven&apos;t created any classes yet.</p>
+                                                    <Button onClick={() => setIsCreateClassOpen(true)}>
+                                                        <PlusCircle className="mr-2 h-4 w-4"/>
+                                                        Create Your First Class
+                                                    </Button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </ScrollArea>
+                            ) : null}
+                        </div>
                     </div>
 
-                    <div className="grid gap-2">
-                        <Label htmlFor="generated-link">Text Link</Label>
-                        <div className={'flex items-center gap-2'}>
+                    {/*{(classes.length > 0 && selectedClass) && <div className="flex items-center space-x-2 mt-1">*/}
+                    {/*    <Info className="h-4 w-4 text-muted-foreground"/>*/}
+                    {/*    */}
+                    {/*</div>}*/}
 
+                    <div className="grid gap-2 mt-4">
+                        <Label htmlFor="generated-link">Test Link</Label>
+                        <div className={'flex items-center gap-2'}>
                             <Textarea
                                 id="generated-link"
                                 readOnly
@@ -361,7 +419,6 @@ export function SendTest({test, questions}) {
                                 rows={1}
                                 className={cn("bg-gray-100 font-mono text-gray-800 text-sm rounded-md focus:outline-none overflow-hidden resize-none min-h-0 ")}
                             />
-
                             <Button
                                 onClick={() => {
                                     navigator.clipboard.writeText(generatedLink)
@@ -374,14 +431,14 @@ export function SendTest({test, questions}) {
                             </Button>
                         </div>
                     </div>
-                    {classes.length > 0 && <DialogFooter className="flex-col sm:flex-row gap-2 mt-4">
+                    <DialogFooter className="flex-col sm:flex-row gap-2 mt-4">
                         <Button onClick={handleSendInvitation}
                                 className={'flex items-center gap-2'}
-                                disabled={selectedStudents.length === 0 || isTestMailSending}>
+                                disabled={participants.length === 0 || isTestMailSending}>
                             {isTestMailSending ? <Loader color={'white'} size={'15'}/> : <Mail className="h-4 w-4"/>}
                             {isTestMailSending ? "Sending..." : "Send Invitation Email"}
                         </Button>
-                    </DialogFooter>}
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
 

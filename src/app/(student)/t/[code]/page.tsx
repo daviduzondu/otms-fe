@@ -1,5 +1,5 @@
-import StudentAnswerPageClient from "./question-answer-page";
+import {QuestionAnswerPage} from "@/components/question-answer-page";
 
 export default function StudentAnswerPage() {
- return <StudentAnswerPageClient />
+ return <QuestionAnswerPage companyName={"David Uzondu"} />
 }

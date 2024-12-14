@@ -2,7 +2,7 @@
 
 import {Card, CardContent} from "../ui/card";
 import {Button} from "../ui/button";
-import {Clock1Icon, Clock2Icon, Edit, Trash2} from "lucide-react";
+import {Edit, Timer, TimerOff, Trash2} from "lucide-react";
 import {useContext, useState} from "react";
 import {AuthContext} from "../../contexts/auth.context";
 import {errorToast} from "../../helpers/show-toasts";
@@ -50,7 +50,11 @@ export default function QuestionCard({question, setEditingQuestion, handleDelete
                     <span className={"text-base text-muted-foreground"}>Question {index + 1}</span>
                     <p className="text-sm text-muted-foreground px-2 text-white rounded-full w-fit bg-muted-foreground select-none">{QuestionTypeMap[question.type].toLowerCase()}</p>
                 </div>
-                {question.timeLimit ? <p className="text-sm select-none flex gap-1 items-center"><Clock2Icon size={16}/> {question?.timeLimit} min</p> : null}
+                <p className="text-sm select-none flex gap-1 items-center">
+
+
+                    {question?.timeLimit ? <Timer size={16}/> : <TimerOff size={16}/>}
+                    {question?.timeLimit ? question.timeLimit + "min" : "No limit"} </p>
             </div>
             <span className="mb-2 text-lg" dangerouslySetInnerHTML={{__html: question.body}}></span>
             {question.type === "mcq" && (

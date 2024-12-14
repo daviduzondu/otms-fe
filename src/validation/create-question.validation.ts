@@ -29,7 +29,7 @@ export const CreateQuestionSchema = (maxValue?: number) => {
                     .min(0, {message: "Points for this question cannot be lower than 0"})
             ),
 
-            timeLimit: z.number({required_error: "You must enter a time limit"}).int().optional().refine((val) => val && maxValue && val <= (maxValue as number), () => ({message: `Time limit cannot exceed ${maxValue} minute${(maxValue as number) > 1 ? "s" : ""}`})),
+            timeLimit: z.number({required_error: "You must enter a time limit", invalid_type_error: "Please enter a valid number"}).int().optional(),
 
             // Options validation only if it's an MCQ
             options: z
@@ -61,6 +61,12 @@ export const CreateQuestionSchema = (maxValue?: number) => {
         }, {
             message: "Correct answer is required for Multiple Choice and True/False questions",
             path: ["correctAnswer"],
+        }).refine((data) => {
+            return !(data.timeLimit && maxValue && data.timeLimit > maxValue);
+
+        }, {
+            message: `Time limit cannot exceed ${maxValue} minute${(maxValue as number) > 1 ? "s" : ""}`,
+            path: ["timeLimit"]
         });
 }
 

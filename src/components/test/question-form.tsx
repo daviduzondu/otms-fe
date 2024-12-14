@@ -27,7 +27,7 @@ type QuestionFormProps = {
 
 export default function QuestionForm({initialData, onSubmit, onCancel, minLeft}: QuestionFormProps) {
 
-    const [maxValue, setMaxValue] = useState<number>(initialData?.timeLimit ? minLeft + initialData.timeLimit : minLeft);
+    const [maxValue] = useState<number>(initialData?.timeLimit ? minLeft + initialData.timeLimit : minLeft);
 
     const {
         register,
@@ -50,6 +50,10 @@ export default function QuestionForm({initialData, onSubmit, onCancel, minLeft}:
     const questionType = watch("type");
     const [timed, setTimed] = useState<CheckedState>(!!initialData?.timeLimit);
 
+
+    useEffect(() => {
+        console.log(errors)
+    }, [watch()]);
 
     useEffect(() => {
         if (questionType === "mcq") setValue("options", options)
@@ -258,11 +262,7 @@ export default function QuestionForm({initialData, onSubmit, onCancel, minLeft}:
                                             min={1}
                                             max={initialData?.timeLimit ? minLeft + initialData.timeLimit : minLeft}
                                             step={1}
-                                            onChange={(e) => {
-                                                const value = parseInt(e.target.value, 10);
-                                                field.onChange(value > 0 ? value : 1);
-                                                // setE
-                                            }}
+                                            {...register('timeLimit', {valueAsNumber: true})}
                                             className="w-full"
                                         />
                                         <span
