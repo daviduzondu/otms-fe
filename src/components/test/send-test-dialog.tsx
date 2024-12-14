@@ -370,7 +370,7 @@ export function SendTest({test, questions}) {
                                         </div>
                                         <ScrollArea className="h-[250px] border rounded-md p-2">
                                             {participants.length > 0 ? (
-                                                participants.reverse().map((student) => (
+                                                participants.map((student) => (
                                                     <div
                                                         key={student.id}
                                                         className="flex flex-row-reverse items-center space-x-2 py-2 px-2 rounded-md hover:bg-accent"
