@@ -135,11 +135,35 @@ export function SendTest({test, questions}) {
 
     };
 
-    const handleRemoveParticipant = (studentId: string) => {
-        setParticipants(prev => prev.filter(p => p.id !== studentId).filter((student, index, self) =>
-            index === self.findIndex((s) => s.id === student.id)
-        ))
-    }
+    const handleRemoveParticipants = async (studentsIds: string[]) => {
+
+        console.log(studentsIds)
+        try {
+            const data = studentsIds.map(s => ({studentId: s, testId: test.id}))
+            // API Request to remove participant
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/${test.id}/participants/remove`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${user.accessToken}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({students: data})
+            });
+
+
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message || "An error occurred.");
+
+            // On success, update the participants list
+            setParticipants(prev => prev.filter(p => !studentsIds.includes(p.id)));
+        } catch (e) {
+            // Error handling: rollback to the previous state if something fails
+            errorToast("Failed to remove participant", {description: (e as Error).message});
+            console.error("Something went wrong!");
+            setParticipants(participants);  // Rollback state
+        }
+    };
+
 
     const handleSendInvitation = async () => {
         try {
@@ -355,7 +379,7 @@ export function SendTest({test, questions}) {
                                                             variant="outline"
                                                             size="sm"
                                                             className={'rounded-full w-fit h-fit p-2 hover:bg-red-600 hover:text-white'}
-                                                            onClick={() => handleRemoveParticipant(student.id)}
+                                                            onClick={() => handleRemoveParticipants([student.id])}
                                                         >
                                                             <X className="h-4 w-4"/>
                                                         </Button>
@@ -366,7 +390,7 @@ export function SendTest({test, questions}) {
                                                             </Label>
                                                             <p className="text-sm text-muted-foreground">{student.email} {student.regNumber && `• ${student.regNumber}`}</p>
                                                             <Badge
-                                                                variant="secondary">{classes.find(x => x.id === student.origin)?.name}</Badge>
+                                                                variant="secondary">{classes.find(x => x.id === student?.origin)?.name}</Badge>
                                                         </div>
                                                     </div>
                                                 ))
