@@ -16,7 +16,7 @@ import {Label} from "@/components/ui/label"
 import {Textarea} from "@/components/ui/textarea"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 import {ScrollArea} from "@/components/ui/scroll-area"
-import {Check, CircleHelp, Copy, Mail, Plus, PlusCircle, SendHorizonal, UserPlus, Users, X} from 'lucide-react'
+import {Check, Copy, LoaderCircle, Mail, Plus, PlusCircle, SendHorizonal, UserPlus, Users, X} from 'lucide-react'
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip"
 import {Badge} from "@/components/ui/badge"
 import AddStudentToClass from "@/components/test/add-student-to-class"
@@ -58,6 +58,8 @@ export function SendTest({test, questions}) {
     const [isTestMailSending, setIsTestMailSending] = useState(false);
     const [isCreateClassOpen, setIsCreateClassOpen] = useState(false);
     const [newClassName, setNewClassName] = useState('');
+    const [addingParticipants, setAddingParticipants] = useState<string[]>([]);
+    const [removingParticipants, setRemovingParticipants] = useState<string[]>([]);
 
     useEffect(() => {
         if (isOpen) {
@@ -100,11 +102,13 @@ export function SendTest({test, questions}) {
     }
 
     const handleAddParticipants = async (students: IStudent[]) => {
+
         let previousParticipants: IStudent[] = participants;
         const updatedStudents = students.map(student => ({
             ...student,
             origin: selectedClass,
         }));
+        setAddingParticipants(students.map(s => s.id))
 
         try {
             const data = updatedStudents.map(s => ({...s, studentId: s.id, id: undefined, testId: test.id}));
@@ -132,12 +136,12 @@ export function SendTest({test, questions}) {
             console.error("Something went wrong!")
             setParticipants(previousParticipants)
         }
-
+        setAddingParticipants([])
     };
 
     const handleRemoveParticipants = async (studentsIds: string[]) => {
+        setRemovingParticipants(studentsIds);
 
-        console.log(studentsIds)
         try {
             const data = studentsIds.map(s => ({studentId: s, testId: test.id}))
             // API Request to remove participant
@@ -162,6 +166,8 @@ export function SendTest({test, questions}) {
             console.error("Something went wrong!");
             setParticipants(participants);  // Rollback state
         }
+
+        setRemovingParticipants([])
     };
 
 
@@ -306,19 +312,13 @@ export function SendTest({test, questions}) {
                                         </Select>
                                     </div>
                                 ) : null)}
-
-                            {selectedClass ?
-                                <p className="text-sm text-muted-foreground flex items-center justify-center gap-2 py-2 bg-white border rounded-md">
-                                    <CircleHelp size={18}/>
-                                    Select a student to add them to the list of participants
-                                </p> : null}
                             {selectedClass && (
                                 <div className="grid grid-cols-2 gap-2">
                                     <div className="space-y-4">
                                         <div className={"flex justify-between items-center"}>
                                             <Label>Students in this class</Label>
                                         </div>
-                                        <ScrollArea className="h-[250px] border rounded-md p-2">
+                                        <ScrollArea className="h-[350px] border rounded-md p-2">
                                             {classes.find(c => c.id === selectedClass)!.students?.length > 0 ? (
                                                 classes.find(c => c.id === selectedClass)?.students?.map((student) => (
                                                     <div
@@ -328,12 +328,14 @@ export function SendTest({test, questions}) {
                                                         <Button
                                                             variant="outline"
                                                             size="sm"
-                                                            className={`rounded-full w-fit h-fit p-2 ${participants.find(x => x.id === student.id) ? "bg-green-600 text-white pointer-events-none" : ""}`}
+                                                            className={`rounded-full w-fit h-fit p-2 ${participants.find(x => x.id === student.id) || addingParticipants.includes(student.id) ? "bg-blue-600 text-white pointer-events-none" : ""}`}
                                                             onClick={() => handleAddParticipants([student])}
                                                         >
-                                                            {!participants.find(x => x.id === student.id) ?
+                                                            {!participants.find(x => x.id === student.id) && !addingParticipants.includes(student.id) ?
                                                                 <Plus className="h-4 w-4"/> :
-                                                                <Check className="h-4 w-4"/>}
+                                                                addingParticipants.includes(student.id) ?
+                                                                    <LoaderCircle className={"h-4 w-4 animate-spin"}/> :
+                                                                    <Check className="h-4 w-4"/>}
                                                         </Button>
                                                         <div className="flex-grow">
                                                             <Label htmlFor={`student-${student.id}`}
@@ -358,7 +360,8 @@ export function SendTest({test, questions}) {
                                                 Create student
                                             </Button>
                                             <Button variant="outline" size="sm"
-                                                    onClick={() => handleAddParticipants(classes.find(c => c.id === selectedClass).students)}>
+                                                    disabled={addingParticipants.length > 0 || removingParticipants.length > 0}
+                                                    onClick={() => handleAddParticipants(classes.find(c => c.id === selectedClass)?.students)}>
                                                 <UserPlus className="mr-2 h-4 w-4"/>
                                                 Add all students
                                             </Button>
@@ -366,9 +369,10 @@ export function SendTest({test, questions}) {
                                     </div>
                                     <div className="space-y-4">
                                         <div className="flex justify-between items-center">
-                                            <Label>Participants of this test ({participants.length})</Label>
+                                            <Label>Participants of this test
+                                                ({addingParticipants.length > 0 || removingParticipants.length > 0 ? "Updating..." : participants.length}) </Label>
                                         </div>
-                                        <ScrollArea className="h-[250px] border rounded-md p-2">
+                                        <ScrollArea className="h-[350px] border rounded-md p-2">
                                             {participants.length > 0 ? (
                                                 participants.map((student) => (
                                                     <div
@@ -378,26 +382,29 @@ export function SendTest({test, questions}) {
                                                         <Button
                                                             variant="outline"
                                                             size="sm"
-                                                            className={'rounded-full w-fit h-fit p-2 hover:bg-red-600 hover:text-white'}
+                                                            className={`rounded-full w-fit h-fit p-2 hover:bg-red-600 hover:text-white ${removingParticipants.includes(student.id) ? "pointer-events-none" : ""}`}
                                                             onClick={() => handleRemoveParticipants([student.id])}
                                                         >
-                                                            <X className="h-4 w-4"/>
+                                                            {!removingParticipants.includes(student.id) ?
+                                                                <X className="h-4 w-4"/> :
+                                                                <LoaderCircle className={"h-4 w-4 animate-spin"}/>}
                                                         </Button>
                                                         <div className="flex-grow">
                                                             <Label htmlFor={`participant-${student.id}`}
                                                                    className="font-medium">
+                                                                <Badge
+                                                                    variant="secondary">{classes.find(x => x.id === student?.origin)?.name}</Badge>
                                                                 {student.firstName} {student.middleName} {student.lastName}
                                                             </Label>
                                                             <p className="text-sm text-muted-foreground">{student.email} {student.regNumber && `• ${student.regNumber}`}</p>
-                                                            <Badge
-                                                                variant="secondary">{classes.find(x => x.id === student?.origin)?.name}</Badge>
                                                         </div>
                                                     </div>
                                                 ))
                                             ) : (
                                                 <div
-                                                    className="flex items-center justify-center h-full text-muted-foreground">
-                                                    No participants selected
+                                                    className="flex flex-col gap-2 items-center justify-center h-full text-muted-foreground">
+                                                    <p>No participants selected</p>
+                                                    <span className={"text-sm w-3/4 text-center"}>Select the "+" icon next to a student to add them to the list of participants. <br/> OR <br/> Click the "Add all students" button to add all students at once.</span>
                                                 </div>
                                             )}
                                         </ScrollArea>
