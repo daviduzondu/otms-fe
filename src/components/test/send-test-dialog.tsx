@@ -130,17 +130,19 @@ export function SendTest({test, questions}) {
                     index === self.findIndex((s) => s.id === student.id)
                 );
             });
-
+            setAddingParticipants((prev)=> prev.filter(x=>!updatedStudents.map(s=>s.id).includes(x)));
+            return;
         } catch (e) {
             errorToast("Failed to add participant(s)", {description: (e as Error).message})
             console.error("Something went wrong!")
             setParticipants(previousParticipants)
         }
-        setAddingParticipants([])
+        setAddingParticipants([]);
     };
 
     const handleRemoveParticipants = async (studentsIds: string[]) => {
         setRemovingParticipants((prev)=>[...prev, ...studentsIds]);
+        let updatedParticipants: IStudent[];
 
         try {
             const data = studentsIds.map(s => ({studentId: s, testId: test.id}))
@@ -159,15 +161,20 @@ export function SendTest({test, questions}) {
             if (!response.ok) throw new Error(result.message || "An error occurred.");
 
             // On success, update the participants list
-            setParticipants(prev => prev.filter(p => !studentsIds.includes(p.id)));
+            setParticipants(prev => {
+             updatedParticipants = prev.filter(p => !studentsIds.includes(p.id))
+             return updatedParticipants;
+            });
+            setRemovingParticipants((prev)=> prev.filter(x=>updatedParticipants.map(p=>p.id).includes(x)));
+            return;
         } catch (e) {
             // Error handling: rollback to the previous state if something fails
             errorToast("Failed to remove participant", {description: (e as Error).message});
             console.error("Something went wrong!");
             setParticipants(participants);  // Rollback state
         }
-
         setRemovingParticipants([])
+
     };
 
 
@@ -333,7 +340,7 @@ export function SendTest({test, questions}) {
                                                         >
                                                             {!participants.find(x => x.id === student.id) && !addingParticipants.includes(student.id) ?
                                                                 <Plus className="h-4 w-4"/> :
-                                                                (addingParticipants.includes(student.id) && !participants.map(p=>p.id).includes(student.id)) ?
+                                                                (addingParticipants.includes(student.id)) ?
                                                                     <LoaderCircle className={"h-4 w-4 animate-spin"}/> :
                                                                     <Check className="h-4 w-4"/>}
                                                         </Button>
