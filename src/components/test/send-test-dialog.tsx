@@ -333,7 +333,7 @@ export function SendTest({test, questions}) {
                                                         >
                                                             {!participants.find(x => x.id === student.id) && !addingParticipants.includes(student.id) ?
                                                                 <Plus className="h-4 w-4"/> :
-                                                                addingParticipants.includes(student.id) ?
+                                                                (addingParticipants.includes(student.id) && !participants.map(p=>p.id).includes(student.id)) ?
                                                                     <LoaderCircle className={"h-4 w-4 animate-spin"}/> :
                                                                     <Check className="h-4 w-4"/>}
                                                         </Button>
