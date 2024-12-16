@@ -108,7 +108,7 @@ export function SendTest({test, questions}) {
             ...student,
             origin: selectedClass,
         }));
-        setAddingParticipants(students.map(s => s.id))
+        setAddingParticipants((prev) =>[...prev, ...students.map(s => s.id)])
 
         try {
             const data = updatedStudents.map(s => ({...s, studentId: s.id, id: undefined, testId: test.id}));
@@ -140,7 +140,7 @@ export function SendTest({test, questions}) {
     };
 
     const handleRemoveParticipants = async (studentsIds: string[]) => {
-        setRemovingParticipants(studentsIds);
+        setRemovingParticipants((prev)=>[...prev, ...studentsIds]);
 
         try {
             const data = studentsIds.map(s => ({studentId: s, testId: test.id}))
@@ -360,7 +360,7 @@ export function SendTest({test, questions}) {
                                                 Create student
                                             </Button>
                                             <Button variant="outline" size="sm"
-                                                    disabled={addingParticipants.length > 0 || removingParticipants.length > 0}
+                                                    disabled={addingParticipants.length > 0 || removingParticipants.length > 0 || classes.find(c => c.id === selectedClass)?.students.length === 0 || participants.map(p=>p.id).filter(x=>classes.find(c => c.id === selectedClass)?.students?.map(s=>s.id).includes(x)).length === classes.find(c => c.id === selectedClass)?.students.length}
                                                     onClick={() => handleAddParticipants(classes.find(c => c.id === selectedClass)?.students)}>
                                                 <UserPlus className="mr-2 h-4 w-4"/>
                                                 Add all students
@@ -374,7 +374,7 @@ export function SendTest({test, questions}) {
                                         </div>
                                         <ScrollArea className="h-[350px] border rounded-md p-2">
                                             {participants.length > 0 ? (
-                                                participants.map((student) => (
+                                                 participants.slice().reverse().map((student) => (
                                                     <div
                                                         key={student.id}
                                                         className="flex flex-row-reverse items-center space-x-2 py-2 px-2 rounded-md hover:bg-accent"
@@ -392,9 +392,9 @@ export function SendTest({test, questions}) {
                                                         <div className="flex-grow">
                                                             <Label htmlFor={`participant-${student.id}`}
                                                                    className="font-medium">
+                                                                    {student.firstName} {student.middleName} {student.lastName}
                                                                 <Badge
                                                                     variant="secondary">{classes.find(x => x.id === student?.origin)?.name}</Badge>
-                                                                {student.firstName} {student.middleName} {student.lastName}
                                                             </Label>
                                                             <p className="text-sm text-muted-foreground">{student.email} {student.regNumber && `• ${student.regNumber}`}</p>
                                                         </div>
@@ -404,10 +404,18 @@ export function SendTest({test, questions}) {
                                                 <div
                                                     className="flex flex-col gap-2 items-center justify-center h-full text-muted-foreground">
                                                     <p>No participants selected</p>
-                                                    <span className={"text-sm w-3/4 text-center"}>Select the "+" icon next to a student to add them to the list of participants. <br/> OR <br/> Click the "Add all students" button to add all students at once.</span>
+                                                    <span className={"text-sm w-3/4 text-center"}>Select the &quot;+&quot; icon next to a student to add them to the list of participants.</span>
                                                 </div>
                                             )}
                                         </ScrollArea>
+                                        <div className={'flex gap-2 justify-end'}>
+                                            <Button variant="outline" size="sm"
+                                                    disabled={addingParticipants.length > 0 || removingParticipants.length > 0 || participants.length === 0}
+                                                    onClick={() => handleRemoveParticipants(participants.map(p=>p.id))}>
+                                                <UserPlus className="mr-2 h-4 w-4"/>
+                                                Remove all participants
+                                            </Button>
+                                        </div>
                                     </div>
                                 </div>
                             )}
@@ -465,7 +473,7 @@ export function SendTest({test, questions}) {
                     <DialogFooter className="flex-col sm:flex-row gap-2 mt-4">
                         <Button onClick={handleSendInvitation}
                                 className={'flex items-center gap-2'}
-                                disabled={participants.length === 0 || isTestMailSending}>
+                                disabled={participants.length === 0 || isTestMailSending || addingParticipants.length > 0 || removingParticipants.length > 0}>
                             {isTestMailSending ? <Loader color={'white'} size={'15'}/> : <Mail className="h-4 w-4"/>}
                             {isTestMailSending ? "Sending..." : "Send Invitation Email"}
                         </Button>
