@@ -196,6 +196,11 @@ export default function QuestionForm({initialData, onSubmit, onCancel, minLeft}:
                 </div>
             )}
 
+{!['mcq', 'trueOrFalse'].includes(questionType) ?  <div className="bg-yellow-300 p-2 rounded-sm text-sm flex items-center gap-2"><AlertTriangleIcon size={"15"}/><span><strong>Instant grade reports</strong> is unavailable for tests that include <strong>Short Answer</strong> or <strong>Essay</strong> questions.
+</span>
+</div> : null}
+
+
             {/* Correct Answer Selection */}
             {(questionType === "mcq" || questionType === "trueOrFalse") && (
                 <div className="space-y-2">
@@ -230,7 +235,6 @@ export default function QuestionForm({initialData, onSubmit, onCancel, minLeft}:
                     {errors.correctAnswer && <p className="text-red-500 text-sm">{errors.correctAnswer.message}</p>}
                 </div>
             )}
-
 
             <div className={'grid lg:grid-cols-2 gap-2 items-center'}>
                 {/* Points Input */}

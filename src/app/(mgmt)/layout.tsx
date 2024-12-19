@@ -21,11 +21,7 @@ export const metadata: Metadata = {
     description: "Your All-In-One Platform to Create, Deliver & Grade Tests For Students. Effectively.",
 };
 
-export default function TestLayout({
-                                       children,
-                                   }: Readonly<{
-    children: React.ReactNode;
-}>) {
+export default function TestMgmtLayout({children}: Readonly<{children: React.ReactNode;}>) {
     const pathname = headers().get('x-pathname');
     // console.log(h.get('x-url'));
     return (

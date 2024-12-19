@@ -6,6 +6,7 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import Link from "next/link";
 import { useContext } from "react";
 import { AuthContext } from "../../contexts/auth.context";
+import { formatDistance, subDays } from "date-fns";
 
 // Function to fetch tests
 const fetchTests = async (accessToken: string) => {
@@ -53,7 +54,7 @@ export default function TestList() {
     <li key={index} className="flex items-center justify-between">
      <div>
       <h3 className="font-semibold">{test.title}</h3>
-      <p className="text-sm text-muted-foreground">{test.createdAt}</p>
+      <p className="text-sm text-muted-foreground" title={test.createdAt}>{formatDistance(test.createdAt, new Date(), { addSuffix: true })}</p>
      </div>
 
      <Link href={`/test/${test.id}`}>

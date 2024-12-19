@@ -336,6 +336,7 @@ export function SendTest({test, questions}) {
                                                             variant="outline"
                                                             size="sm"
                                                             className={`rounded-full w-fit h-fit p-2 ${participants.find(x => x.id === student.id) || addingParticipants.includes(student.id) ? "bg-blue-600 text-white pointer-events-none" : ""}`}
+                                                            disabled={isTestMailSending}
                                                             onClick={() => handleAddParticipants([student])}
                                                         >
                                                             {!participants.find(x => x.id === student.id) && !addingParticipants.includes(student.id) ?
@@ -367,7 +368,7 @@ export function SendTest({test, questions}) {
                                                 Create student
                                             </Button>
                                             <Button variant="outline" size="sm"
-                                                    disabled={addingParticipants.length > 0 || removingParticipants.length > 0 || classes.find(c => c.id === selectedClass)?.students.length === 0 || participants.map(p=>p.id).filter(x=>classes.find(c => c.id === selectedClass)?.students?.map(s=>s.id).includes(x)).length === classes.find(c => c.id === selectedClass)?.students.length}
+                                                    disabled={addingParticipants.length > 0 || removingParticipants.length > 0 || classes.find(c => c.id === selectedClass)?.students.length === 0 || participants.map(p=>p.id).filter(x=>classes.find(c => c.id === selectedClass)?.students?.map(s=>s.id).includes(x)).length === classes.find(c => c.id === selectedClass)?.students.length || isTestMailSending}
                                                     onClick={() => handleAddParticipants(classes.find(c => c.id === selectedClass)?.students)}>
                                                 <UserPlus className="mr-2 h-4 w-4"/>
                                                 Add all students
@@ -388,7 +389,8 @@ export function SendTest({test, questions}) {
                                                     >
                                                         <Button
                                                             variant="outline"
-                                                            size="sm"
+                                                            size="sm"                                                            
+                                                            disabled={isTestMailSending}
                                                             className={`rounded-full w-fit h-fit p-2 hover:bg-red-600 hover:text-white ${removingParticipants.includes(student.id) ? "pointer-events-none" : ""}`}
                                                             onClick={() => handleRemoveParticipants([student.id])}
                                                         >
@@ -417,7 +419,7 @@ export function SendTest({test, questions}) {
                                         </ScrollArea>
                                         <div className={'flex gap-2 justify-end'}>
                                             <Button variant="outline" size="sm"
-                                                    disabled={addingParticipants.length > 0 || removingParticipants.length > 0 || participants.length === 0}
+                                                    disabled={addingParticipants.length > 0 || removingParticipants.length > 0 || participants.length === 0 || isTestMailSending}
                                                     onClick={() => handleRemoveParticipants(participants.map(p=>p.id))}>
                                                 <UserPlus className="mr-2 h-4 w-4"/>
                                                 Remove all participants
@@ -480,7 +482,7 @@ export function SendTest({test, questions}) {
                     <DialogFooter className="flex-col sm:flex-row gap-2 mt-4">
                         <Button onClick={handleSendInvitation}
                                 className={'flex items-center gap-2'}
-                                disabled={participants.length === 0 || isTestMailSending || addingParticipants.length > 0 || removingParticipants.length > 0}>
+                                disabled={participants.length === 0 || isTestMailSending || addingParticipants.length > 0 || removingParticipants.length > 0 || !selectedClass}>
                             {isTestMailSending ? <Loader color={'white'} size={'15'}/> : <Mail className="h-4 w-4"/>}
                             {isTestMailSending ? "Sending..." : "Send Invitation Email"}
                         </Button>
