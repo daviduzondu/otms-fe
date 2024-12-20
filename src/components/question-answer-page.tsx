@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
@@ -16,14 +16,18 @@ import {
  DialogTitle,
  DialogTrigger,
 } from "@/components/ui/dialog"
+import { differenceInSeconds, addSeconds, isValid } from 'date-fns'
 
 interface Question {
+ id: string;
  body: string
  mediaId: string | null
  options: string[] | null
  points: number
  timeLimit: number
  type: 'mcq' | 'trueOrFalse' | 'essay' | 'shortAnswer'
+ startedAt: string
+ endAt?: string
 }
 
 interface QuestionPageProps {
@@ -36,62 +40,125 @@ interface QuestionPageProps {
   passingScore: number
   durationMin: number
   id: string
+  currentQuestionId: string
   questions: string[]
   startedAt: string
+  serverTime: string
  }
 }
 
 export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionPageProps) {
- const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
+ const [currentQuestionIndex, setCurrentQuestionIndex] = useState(data.questions.findIndex(q => q === data.currentQuestionId))
  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null)
- const [selectedAnswer, setSelectedAnswer] = useState<string>('')
+ const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null)
  const [questionTimeRemaining, setQuestionTimeRemaining] = useState<number>(0)
- const [testTimeRemaining, setTestTimeRemaining] = useState<number>(data.durationMin * 60)
- const [answers, setAnswers] = useState<Record<string, string>>({})
+ const [testTimeRemaining, setTestTimeRemaining] = useState<number>(0)
+ const [answers, setAnswers] = useState<Record<string, string>>(() => {
+  // Initialize with any existing answers
+  const initialAnswers: Record<string, string> = {};
+  data.questions.forEach((questionId, index) => {
+   initialAnswers[questionId] = '';
+  });
+  return initialAnswers;
+ })
  const [overallProgress, setOverallProgress] = useState<number>(100)
 
- useEffect(() => {
-  const testTimer = setInterval(() => {
-   setTestTimeRemaining((prev) => (prev > 0 ? prev - 1 : 0))
-  }, 1000)
+ const serverTimeRef = useRef<number>(new Date(data.serverTime).getTime())
+ const clientTimeRef = useRef<number>(Date.now())
 
-  return () => clearInterval(testTimer)
- }, [])
+ const getServerTime = () => {
+  const elapsed = Date.now() - clientTimeRef.current
+  return new Date(serverTimeRef.current + elapsed)
+ }
 
- useEffect(() => {
-  if (currentQuestion?.timeLimit) {
-   setQuestionTimeRemaining(currentQuestion.timeLimit)
-   const timer = setInterval(() => {
-    setQuestionTimeRemaining((prev) => {
-     if (prev <= 1) {
-      clearInterval(timer)
-      handleNext()
-      return 0
-     }
-     return prev - 1
-    })
-    setOverallProgress((prev) => {
-     const newProgress = (questionTimeRemaining / currentQuestion.timeLimit) * 100
-     return newProgress > prev ? prev : newProgress
-    })
-   }, 1000)
-   return () => clearInterval(timer)
-  } else {
-   setOverallProgress(100)
+ // Add new state
+ const [isSubmitting, setIsSubmitting] = useState(false);
+ const [isTestComplete, setIsTestComplete] = useState(false);
+
+ const handleNextOrSubmit = async () => {
+  if (!selectedAnswer || isSubmitting || isTestComplete) return;
+
+  try {
+   setIsSubmitting(true);
+
+   await submitAnswer();
+   setAnswers(prev => ({ ...prev, [currentQuestion.id]: selectedAnswer }));
+
+   if (currentQuestionIndex < data.questions.length - 1) {
+    setCurrentQuestionIndex(currentQuestionIndex + 1);
+    setSelectedAnswer(null);
+   } else {
+    await submitTest();
+    setIsTestComplete(true);
+   }
+  } finally {
+   setIsSubmitting(false);
   }
- }, [currentQuestion])
+ };
 
  useEffect(() => {
-  fetchQuestion(data.questions[currentQuestionIndex])
- }, [currentQuestionIndex])
+  const updateTimers = () => {
+   const currentServerTime = getServerTime()
+
+   // Update test timer
+   const testStartTime = new Date(data.startedAt)
+   const testEndTime = addSeconds(testStartTime, data.durationMin * 60)
+
+   if (isValid(testEndTime) && isValid(currentServerTime)) {
+    const testRemaining = Math.max(0, differenceInSeconds(testEndTime, currentServerTime))
+    setTestTimeRemaining(testRemaining)
+   } else {
+    console.error('Invalid test end time or current server time', { testEndTime, currentServerTime })
+   }
+
+   // Update question timer
+   if (currentQuestion?.timeLimit && currentQuestion.startedAt && currentQuestion.endAt) {
+    const questionStartTime = new Date(currentQuestion.startedAt)
+    const questionEndTime = new Date(currentQuestion.endAt)
+
+    if (isValid(questionEndTime) && isValid(currentServerTime)) {
+     const questionRemaining = Math.max(0, differenceInSeconds(questionEndTime, currentServerTime))
+     setQuestionTimeRemaining(questionRemaining)
+     setOverallProgress((questionRemaining / (currentQuestion.timeLimit * 60)) * 100)
+
+     if (questionRemaining <= 0) {
+      handleNextOrSubmit()
+     }
+    } else {
+     console.error('Invalid question end time or current server time', { questionEndTime, currentServerTime })
+    }
+   }
+  }
+
+  const timerInterval = setInterval(updateTimers, 1000)
+  return () => clearInterval(timerInterval)
+ }, [data.startedAt, data.durationMin, currentQuestion, handleNextOrSubmit])
+
+ useEffect(() => {
+  if (data.questions[currentQuestionIndex]) {
+   fetchQuestion(data.questions[currentQuestionIndex])
+  }
+ }, [currentQuestionIndex, data.questions])
 
  const fetchQuestion = async (questionId: string) => {
-  console.log(data.questions)
+  if (!questionId) {
+   console.error('Invalid questionId:', questionId);
+   return;
+  }
   try {
-   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/${data.id}/question/${questionId}`, { headers: { 'x-access-token': accessToken } })
+   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/${data.id}/question/${questionId}`, {
+    headers: { 'x-access-token': accessToken }
+   })
    const result = await response.json()
    if (response.ok) {
     setCurrentQuestion(result.data)
+    // Update server time reference with each API call
+    if (result.serverTime) {
+     serverTimeRef.current = new Date(result.serverTime).getTime()
+     clientTimeRef.current = Date.now()
+    } else {
+     console.error('Server time not provided in API response')
+    }
    } else {
     console.error('Failed to fetch question:', result.message)
    }
@@ -101,23 +168,30 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
  }
 
  const formatTime = (seconds: number) => {
+  if (!Number.isFinite(seconds)) {
+   console.error('Invalid time value:', seconds)
+   return '00:00:00'
+  }
   const hours = Math.floor(seconds / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
   const secs = seconds % 60
   return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
  }
 
- const progress = currentQuestion?.timeLimit ? (questionTimeRemaining / currentQuestion.timeLimit) * 100 : 100
-
  const renderQuestionContent = () => {
   if (!currentQuestion) return null
+
+  const currentAnswer = answers[currentQuestion.id] || '';
 
   switch (currentQuestion.type) {
    case 'mcq':
     return (
      <RadioGroup
-      value={selectedAnswer}
-      onValueChange={setSelectedAnswer}
+      value={currentAnswer}
+      onValueChange={(value) => {
+       setAnswers(prev => ({ ...prev, [currentQuestion.id]: value }));
+       setSelectedAnswer(value);
+      }}
       className="space-y-2"
      >
       {currentQuestion.options?.map((option, index) => (
@@ -133,8 +207,11 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
    case 'trueOrFalse':
     return (
      <RadioGroup
-      value={selectedAnswer}
-      onValueChange={setSelectedAnswer}
+      value={currentAnswer}
+      onValueChange={(value) => {
+       setAnswers(prev => ({ ...prev, [currentQuestion.id]: value }));
+       setSelectedAnswer(value);
+      }}
       className="space-y-2"
      >
       <div className="flex items-center space-x-2 rounded-md border p-4 hover:bg-gray-50 transition-colors">
@@ -156,16 +233,22 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
      <Textarea
       placeholder="Type your answer here..."
       className="min-h-[200px]"
-      value={selectedAnswer}
-      onChange={(e) => setSelectedAnswer(e.target.value)}
+      value={currentAnswer}
+      onChange={(e) => {
+       setAnswers(prev => ({ ...prev, [currentQuestion.id]: e.target.value }));
+       setSelectedAnswer(e.target.value);
+      }}
      />
     )
    case 'shortAnswer':
     return (
      <Input
       placeholder="Type your answer here..."
-      value={selectedAnswer}
-      onChange={(e) => setSelectedAnswer(e.target.value)}
+      value={currentAnswer}
+      onChange={(e) => {
+       setAnswers(prev => ({ ...prev, [currentQuestion.id]: e.target.value }));
+       setSelectedAnswer(e.target.value);
+      }}
      />
     )
    default:
@@ -173,22 +256,56 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
   }
  }
 
- const handleNext = () => {
-  setAnswers(prev => ({ ...prev, [data.questions[currentQuestionIndex]]: selectedAnswer }))
-  setSelectedAnswer('')
-  setOverallProgress(100)
-  if (currentQuestionIndex < data.questions.length - 1) {
-   setCurrentQuestionIndex(currentQuestionIndex + 1)
-  } else {
-   handleSubmit()
+ const submitAnswer = async () => {
+  try {
+   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/${data.id}/question/${data.questions[currentQuestionIndex]}/submit`, {
+    method: 'POST',
+    headers: {
+     'Content-Type': 'application/json',
+     'x-access-token': accessToken
+    },
+    body: JSON.stringify({ answer: selectedAnswer })
+   })
+   if (!response.ok) {
+    throw new Error('Failed to submit answer')
+   }
+   // Update server time reference with each API call
+   const result = await response.json()
+   if (result.serverTime) {
+    serverTimeRef.current = new Date(result.serverTime).getTime()
+    clientTimeRef.current = Date.now()
+   } else {
+    console.error('Server time not provided in API response')
+   }
+  } catch (error) {
+   console.error('Error submitting answer:', error)
   }
  }
 
- const handleSubmit = () => {
-  const finalAnswers = { ...answers, [data.questions[currentQuestionIndex]]: selectedAnswer }
-  console.log('Test submitted with answers:', finalAnswers)
-  // Here you would typically send the answers to your backend
- }
+ const handleSubmit = async () => {
+  await submitTest();
+ };
+
+ const submitTest = async () => {
+  try {
+   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/${data.id}/submit`, {
+    method: 'GET',
+    headers: {
+     'Content-Type': 'application/json',
+     'x-access-token': accessToken
+    },
+   });
+   if (!response.ok) {
+    throw new Error('Failed to submit test');
+   }
+   const result = await response.json();
+   console.log('Test submitted successfully:', result);
+   // Handle successful test submission (e.g., redirect to results page)
+  } catch (error) {
+   console.error('Error submitting test:', error);
+  }
+ };
+
 
  if (!currentQuestion) {
   return <div>Loading question...</div>
@@ -221,7 +338,9 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
          </DialogHeader>
         </DialogContent>
        </Dialog>
-       <Button onClick={handleSubmit}>Submit Test</Button>
+       <Button onClick={handleNextOrSubmit} disabled={!selectedAnswer}>
+        {currentQuestionIndex < data.questions.length - 1 ? 'Next Question' : 'Submit Test'}
+       </Button>
       </div>
      </div>
     </div>
@@ -247,7 +366,7 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
       <div
        className={`h-2 bg-red-300`}
        style={{
-        width: `${progress}%`,
+        width: `${overallProgress}%`,
         transition: "width 400ms ease-out"
        }}
       />
@@ -286,10 +405,10 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
        <div className="text-sm text-gray-500">
         {currentQuestion.timeLimit ? 'Timed question' : 'No time limit'}
        </div>
-       <Button onClick={handleNext} disabled={!selectedAnswer} className="gap-2">
-        Next
-        <ChevronRight className="h-4 w-4" />
-       </Button>
+       {/* <Button onClick={handleNext} disabled={!selectedAnswer} className="gap-2">
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </Button> */}
       </div>
      </CardFooter>
     </Card>

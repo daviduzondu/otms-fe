@@ -2,7 +2,7 @@
 import { QuestionAnswerPage } from "@/components/question-answer-page";
 import { addMinutes, isAfter } from "date-fns";
 
-export default async function StudentAnswerPage({ searchParams }) {
+export default async function Page({ searchParams }) {
  const { token } = searchParams;
 
  
@@ -10,6 +10,8 @@ export default async function StudentAnswerPage({ searchParams }) {
 
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/take/${token}`, {cache: 'no-store'});
   const { data, message} = await response.json();
+
+  console.log(data);
   
   if (!response.ok) {
    const errorDetails = {
@@ -21,5 +23,6 @@ export default async function StudentAnswerPage({ searchParams }) {
   }
 
   if (isAfter(new Date(), addMinutes(new Date(data.startedAt), data.durationMin))) return <div>You&apos;ve run out of time.</div>;
+  if (data.status === "submitted") return <div>Submission already made</div>
   return <QuestionAnswerPage companyName={"David Uzondu"} data={data} accessToken={token} />
 }

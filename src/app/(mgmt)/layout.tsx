@@ -48,7 +48,7 @@ export default function TestMgmtLayout({children}: Readonly<{children: React.Rea
                                 <UserProfileBtn className={"z-50 lg:fixed absolute"}/>
                                 <div className="flex justify-center mt-16 lg:mt-4">
                                     {children}
-                                    <Toaster richColors position="top-center" theme="light"/>
+                                    <Toaster richColors position="top-center" theme="light" className="text-3xl"/>
                                 </div>
                             </ErrorBoundary>
                         </AuthGuard>

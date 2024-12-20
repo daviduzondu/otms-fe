@@ -29,7 +29,7 @@ export default function LandingLayout({
       <Navbar />
       <div className="mt-4">
        {children}
-       <Toaster richColors position="top-center" theme="light" closeButton />
+       <Toaster richColors position="top-center" theme="light" closeButton  pauseWhenPageIsHidden={true} />
       </div>
      </AuthProvider>
     </AuthSessionProvider>
