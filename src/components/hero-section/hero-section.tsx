@@ -1,8 +1,4 @@
-import { ArrowRight } from "lucide-react"
-import { Button } from "../../components/ui/button"
 import Image from "next/image"
-import Link from "next/link"
-import { useContext } from "react"
 import ActionButtons from "./action-buttons"
 import dashboard from "@/assets/dashboard.png"
 

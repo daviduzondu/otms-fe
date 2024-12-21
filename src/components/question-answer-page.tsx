@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
-import { AlertCircle, ChevronRight, Clock, HelpCircle } from 'lucide-react'
+import { AlertCircle, BookCheck, ChevronRight, Clock, HelpCircle, Loader } from 'lucide-react'
 import {
  Dialog,
  DialogContent,
@@ -132,7 +132,7 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
 
   const timerInterval = setInterval(updateTimers, 1000)
   return () => clearInterval(timerInterval)
- }, [data.startedAt, data.durationMin, currentQuestion, handleNextOrSubmit])
+ }, [data.startedAt, data.durationMin, currentQuestion])
 
  useEffect(() => {
   if (data.questions[currentQuestionIndex]) {
@@ -153,8 +153,8 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
    if (response.ok) {
     setCurrentQuestion(result.data)
     // Update server time reference with each API call
-    if (result.serverTime) {
-     serverTimeRef.current = new Date(result.serverTime).getTime()
+    if (result.data.serverTime) {
+     serverTimeRef.current = new Date(result.data.serverTime).getTime()
      clientTimeRef.current = Date.now()
     } else {
      console.error('Server time not provided in API response')
@@ -271,8 +271,8 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
    }
    // Update server time reference with each API call
    const result = await response.json()
-   if (result.serverTime) {
-    serverTimeRef.current = new Date(result.serverTime).getTime()
+   if (result.data.serverTime) {
+    serverTimeRef.current = new Date(result.data.serverTime).getTime()
     clientTimeRef.current = Date.now()
    } else {
     console.error('Server time not provided in API response')
@@ -308,11 +308,22 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
 
 
  if (!currentQuestion) {
-  return <div>Loading question...</div>
+  return <div className='flex gap-2 h-screen items-center justify-center bg-white w-screen z-10'><Loader className='animate-spin' /> Loading next question...</div>
  }
 
+ if (isTestComplete) {
+  return <div className='flex items-center justify-center h-screen '><Card className="lg:w-[25vw] border-green-200 bg-green-100 text-green-700 w-screen">
+  <CardHeader className="flex"><BookCheck size={40}/></CardHeader>
+  <CardContent className="font-bold text-lg -mt-3">
+   Submission successful
+  </CardContent>
+  <CardFooter className="text-sm -mt-3">You can close this page now</CardFooter>
+ </Card></div>
+ }
+
+
  return (
-  <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+  <div className="min-h-screen w-screen">
    <header className="bg-white shadow-md">
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
      <div className="flex justify-between items-center">
@@ -325,8 +336,8 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
        <Dialog>
         <DialogTrigger asChild>
          <Button variant="outline">
-          <HelpCircle className="mr-2 h-4 w-4" />
-          ? Instructions
+          <HelpCircle className="mr-1 h-4 w-4" />
+          Instructions
          </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
@@ -338,8 +349,9 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
          </DialogHeader>
         </DialogContent>
        </Dialog>
-       <Button onClick={handleNextOrSubmit} disabled={!selectedAnswer}>
-        {currentQuestionIndex < data.questions.length - 1 ? 'Next Question' : 'Submit Test'}
+       <Button onClick={handleNextOrSubmit} disabled={!selectedAnswer || isSubmitting}>
+        {isSubmitting ? <Loader className='animate-spin mr-2'/> : null}
+        {!isSubmitting ?  currentQuestionIndex < data.questions.length - 1 ? 'Next Question' : 'Submit Test' : "Submitting"}
        </Button>
       </div>
      </div>
@@ -362,7 +374,7 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
       position: 'relative',
      }}
     >
-     {currentQuestion.timeLimit ? (
+     {currentQuestion?.timeLimit ? (
       <div
        className={`h-2 bg-red-300`}
        style={{
@@ -372,9 +384,9 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
       />
      ) : null}
 
-     <CardHeader className="flex flex-row items-center justify-between bg-gray-50 border-b">
+     <CardHeader className="flex flex-row items-center justify-between bg-gray-50 border-b pt-4 pl-6 pb-6 pr-6">
       <h3 className="text-lg font-semibold">Question {currentQuestionIndex + 1}</h3>
-      {currentQuestion.timeLimit && (
+      {currentQuestion?.timeLimit && (
        <div className="flex items-center space-x-2 text-orange-600">
         <AlertCircle className="h-4 w-4" />
         <span className="text-sm font-medium">Time left: {formatTime(questionTimeRemaining)}</span>
@@ -384,26 +396,26 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
      <CardContent className="p-6 bg-white">
       <div className="lg:grid lg:grid-cols-2 lg:gap-6">
        <div className="space-y-4">
-        <div dangerouslySetInnerHTML={{ __html: currentQuestion.body }} />
-        {currentQuestion.mediaId && (
+        <div dangerouslySetInnerHTML={{ __html: currentQuestion?.body }} />
+        {currentQuestion?.mediaId && (
          <img src={`/media/${currentQuestion.mediaId}`} alt="Question media" className="my-4 rounded-lg shadow-md" />
         )}
        </div>
        <div className="mt-6 lg:mt-0 space-y-4">
         <h4 className="font-medium text-gray-900">
-         {currentQuestion.type === 'mcq' && 'Select only one answer'}
-         {currentQuestion.type === 'trueOrFalse' && 'Select True or False'}
-         {currentQuestion.type === 'essay' && 'Write your essay'}
-         {currentQuestion.type === 'shortAnswer' && 'Write your answer'}
+         {currentQuestion?.type === 'mcq' && 'Select only one answer'}
+         {currentQuestion?.type === 'trueOrFalse' && 'Select True or False'}
+         {currentQuestion?.type === 'essay' && 'Write your essay'}
+         {currentQuestion?.type === 'shortAnswer' && 'Write your answer'}
         </h4>
         {renderQuestionContent()}
        </div>
       </div>
      </CardContent>
-     <CardFooter className="bg-gray-50 border-t">
+     <CardFooter className="bg-gray-50 border-t p-6">
       <div className="w-full flex justify-between items-center">
        <div className="text-sm text-gray-500">
-        {currentQuestion.timeLimit ? 'Timed question' : 'No time limit'}
+        {currentQuestion?.timeLimit ? 'Timed question' : 'No time limit'}
        </div>
        {/* <Button onClick={handleNext} disabled={!selectedAnswer} className="gap-2">
                 Next
