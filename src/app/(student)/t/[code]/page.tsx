@@ -6,7 +6,8 @@ import { BookCheck, Clock } from "lucide-react";
 
 export default async function Page({ searchParams }) {
  const { token } = searchParams;
-
+ 
+ // TODO: Handle situation where token is not provided: Request for email to send the token to the user
 
  if (!token) { throw new Error("You did not provide a token") }
 
