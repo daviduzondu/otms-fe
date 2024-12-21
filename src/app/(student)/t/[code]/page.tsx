@@ -24,10 +24,10 @@ export default async function Page({ searchParams }) {
   throw new Error(JSON.stringify(errorDetails)); // Serialize error details
  }
 
- // if (data.status === "submitted") return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={<BookCheck size={40}/>} content="Whoops! Looks like you&apos;ve already made a submission." footer={"If you think this is wrong, contact your supervisor."}/></div>
+ if (data.status === "submitted") return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={<BookCheck size={40}/>} content="Whoops! Looks like you&apos;ve already made a submission." footer={"If you think this is wrong, contact your supervisor."}/></div>
 
 
- // if (isAfter(new Date(), addMinutes(new Date(data.startedAt), data.durationMin))) return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={<Clock size={40}/>} content="You've run out of time." footer={"If you think this is wrong, contact your supervisor."}/></div>;
+ if (isAfter(new Date(), addMinutes(new Date(data.startedAt), data.durationMin))) return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={<Clock size={40}/>} content="You've run out of time." footer={"If you think this is wrong, contact your supervisor."}/></div>;
  return <QuestionAnswerPage companyName={"David Uzondu"} data={data} accessToken={token} />
 }
 

@@ -179,9 +179,13 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
  }
 
  const renderQuestionContent = () => {
-  if (!currentQuestion) return null
-
+  if (!currentQuestion) return null;
   const currentAnswer = answers[currentQuestion.id] || '';
+
+  const isDisabled = (currentQuestion.timeLimit === null && testTimeRemaining === 0) ||
+   (currentQuestion.timeLimit !== null && questionTimeRemaining === 0);
+
+  const cursorClass = isDisabled ? "cursor-not-allowed" : "cursor-pointer";
 
   switch (currentQuestion.type) {
    case 'mcq':
@@ -192,18 +196,26 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
        setAnswers(prev => ({ ...prev, [currentQuestion.id]: value }));
        setSelectedAnswer(value);
       }}
+      disabled={isDisabled}
       className="space-y-2"
      >
       {currentQuestion.options?.map((option, index) => (
-       <div key={index} className="flex items-center space-x-2 rounded-md border p-4 hover:bg-gray-50 transition-colors">
+       <div
+        key={index}
+        className={`flex items-center space-x-2 rounded-md border p-4 hover:bg-gray-50 transition-colors ${cursorClass}`}
+       >
         <RadioGroupItem value={index.toString()} id={`option-${index}`} />
-        <Label htmlFor={`option-${index}`} className="flex-grow cursor-pointer">
+        <Label
+         htmlFor={`option-${index}`}
+         className={`flex-grow ${cursorClass}`}
+        >
          {option}
         </Label>
        </div>
       ))}
      </RadioGroup>
-    )
+    );
+
    case 'trueOrFalse':
     return (
      <RadioGroup
@@ -212,22 +224,35 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
        setAnswers(prev => ({ ...prev, [currentQuestion.id]: value }));
        setSelectedAnswer(value);
       }}
+      disabled={isDisabled}
       className="space-y-2"
+      title={isDisabled ? "You've run out of time" : "Select one"}
      >
-      <div className="flex items-center space-x-2 rounded-md border p-4 hover:bg-gray-50 transition-colors">
+      <div
+       className={`flex items-center space-x-2 rounded-md border p-4 hover:bg-gray-50 transition-colors ${cursorClass}`}
+      >
        <RadioGroupItem value="true" id="true" />
-       <Label htmlFor="true" className="flex-grow cursor-pointer">
+       <Label
+        htmlFor="true"
+        className={`flex-grow ${cursorClass}`}
+       >
         True
        </Label>
       </div>
-      <div className="flex items-center space-x-2 rounded-md border p-4 hover:bg-gray-50 transition-colors">
+      <div
+       className={`flex items-center space-x-2 rounded-md border p-4 hover:bg-gray-50 transition-colors ${cursorClass}`}
+      >
        <RadioGroupItem value="false" id="false" />
-       <Label htmlFor="false" className="flex-grow cursor-pointer">
+       <Label
+        htmlFor="false"
+        className={`flex-grow ${cursorClass}`}
+       >
         False
        </Label>
       </div>
      </RadioGroup>
-    )
+    );
+
    case 'essay':
     return (
      <Textarea
@@ -238,8 +263,10 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
        setAnswers(prev => ({ ...prev, [currentQuestion.id]: e.target.value }));
        setSelectedAnswer(e.target.value);
       }}
+      disabled={isDisabled}
      />
-    )
+    );
+
    case 'shortAnswer':
     return (
      <Input
@@ -249,12 +276,15 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
        setAnswers(prev => ({ ...prev, [currentQuestion.id]: e.target.value }));
        setSelectedAnswer(e.target.value);
       }}
+      disabled={isDisabled}
      />
-    )
+    );
+
    default:
-    return null
+    return null;
   }
- }
+ };
+
 
  const submitAnswer = async () => {
   try {
@@ -313,12 +343,12 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
 
  if (isTestComplete) {
   return <div className='flex items-center justify-center h-screen '><Card className="lg:w-[25vw] border-green-200 bg-green-100 text-green-700 w-screen">
-  <CardHeader className="flex"><BookCheck size={40}/></CardHeader>
-  <CardContent className="font-bold text-lg -mt-3">
-   Submission successful
-  </CardContent>
-  <CardFooter className="text-sm -mt-3">You can close this page now</CardFooter>
- </Card></div>
+   <CardHeader className="flex"><BookCheck size={40} /></CardHeader>
+   <CardContent className="font-bold text-lg -mt-3">
+    Submission successful
+   </CardContent>
+   <CardFooter className="text-sm -mt-3">You can close this page now</CardFooter>
+  </Card></div>
  }
 
 
@@ -350,8 +380,8 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
         </DialogContent>
        </Dialog>
        <Button onClick={handleNextOrSubmit} disabled={!selectedAnswer || isSubmitting}>
-        {isSubmitting ? <Loader className='animate-spin mr-2'/> : null}
-        {!isSubmitting ?  currentQuestionIndex < data.questions.length - 1 ? 'Next Question' : 'Submit Test' : "Submitting"}
+        {isSubmitting ? <Loader className='animate-spin mr-2' /> : null}
+        {!isSubmitting ? currentQuestionIndex < data.questions.length - 1 ? 'Next Question' : 'Submit Test' : "Submitting"}
        </Button>
       </div>
      </div>
@@ -376,7 +406,7 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
     >
      {currentQuestion?.timeLimit ? (
       <div
-       className={`h-2 bg-red-300`}
+       className={`h-2 bg-orange-600`}
        style={{
         width: `${overallProgress}%`,
         transition: "width 400ms ease-out"
