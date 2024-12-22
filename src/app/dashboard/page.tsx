@@ -65,7 +65,7 @@ export default function Dashboard() {
      } fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}
    >
     <div className="flex items-center justify-between h-16 px-6 bg-gray-800 text-white">
-     <span className="text-2xl font-semibold flex gap-2 items-center"><GraduationCap size={30} /> OTMS</span>
+     <Link href="/" className="text-2xl font-semibold flex gap-2 items-center"><GraduationCap size={30} /> OTMS</Link>
      <Button
       variant="ghost"
       size="icon"
