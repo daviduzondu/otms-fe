@@ -5,7 +5,7 @@ import * as z from 'zod'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Edit, GripVertical, List, PlusIcon, Printer, Settings } from 'lucide-react'
+import { ArrowLeft, ArrowLeftCircle, BookText, Edit, GripVertical, List, PlusIcon, Printer, Settings } from 'lucide-react'
 import { differenceInMinutes } from 'date-fns'
 import { AuthContext } from '../../../../contexts/auth.context'
 import { errorToast } from '../../../../helpers/show-toasts'
@@ -285,14 +285,26 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
       <h1 className="lg:text-3xl text-2xl font-bold">{showResponses ? "Submissions for " : null}{testDetails.title}</h1>
       <div className="flex justify-between w-full">
        <div className={"flex gap-2"}>
-        <Button variant="outline" size="sm" onClick={handlePrintTest} className={"flex gap-2"}>
-         <Printer className="w-4 h-4" />
-         <span className={"hidden lg:block"}>Print test</span>
-        </Button>
-        <Button variant="outline" size="sm" className={'flex gap-2'}>
-         <Settings className="w-4 h-4" />
-         <span className={"hidden lg:block"}>Test Settings</span>
-        </Button>
+        {!showResponses ?
+         <>
+          <Button variant="outline" size="sm" onClick={handlePrintTest} className={"flex gap-2"}>
+           <Printer className="w-4 h-4" />
+           <span className={"hidden lg:block"}>Print test</span>
+          </Button>
+          <Button variant="outline" size="sm" className={'flex gap-2'}>
+           <Settings className="w-4 h-4" />
+           <span className={"hidden lg:block"}>Test Settings</span>
+          </Button>
+          <Button variant="outline" size="sm" className={'flex gap-2'} onClick={() => setShowResponses(!showResponses)}>
+           <BookText className="w-4 h-4" />
+           <span className={"hidden lg:block"}>Submissions</span>
+          </Button>
+         </>
+         : <Button variant="outline" size="sm" className={'flex gap-2'} onClick={() => setShowResponses(!showResponses)}>
+          <ArrowLeftCircle className="w-4 h-4" />
+          <span>Back to questions</span>
+         </Button>}
+
        </div>
        <div className={"flex gap-2"}>
         <Dialog>
@@ -320,7 +332,8 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
 
          </DialogContent>
         </Dialog>
-        <SendTest test={testDetails} questions={questions} />
+
+        {!showResponses ? <SendTest test={testDetails} questions={questions} /> : null}
        </div>
       </div>
      </CardHeader>

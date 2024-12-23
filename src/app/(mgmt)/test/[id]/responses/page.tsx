@@ -332,10 +332,11 @@ export default function Responses() {
  }
 
  return (
-  <div className="flex h-screen bg-gray-100">
-   <div className="w-1/4 bg-white border-r">
-    <Card className='p-6 flex flex-col-reverse gap-3'>
-      <div className="text-sm text-gray-500 text-center flex items-center gap-2">
+  <div className="flex gap-4">
+   <div className='block md:w-1/3'>    
+   <Card className="bg-white border-r sticky top-4">
+    <div className='p-6 flex flex-col-reverse gap-3 border-b'>
+      <div className="text-sm text-gray-500 text-center flex items-center gap-2 justify-center">
        <Progress
         value={(submissions.filter(s => s.completed).length / submissions.length) * 100}
         className="mb-2"
@@ -366,7 +367,7 @@ export default function Responses() {
        </DropdownMenuContent>
       </DropdownMenu>
      </div>
-    </Card>
+    </div>
     {submissions.map(submission => (
      <div
       key={submission.id}
@@ -382,8 +383,9 @@ export default function Responses() {
       )}
      </div>
     ))}
+   </Card>
    </div>
-   <div className="flex-1 p-6 overflow-y-auto">
+   <div className="w-full md:w-2/3 rounded-lg p-3 mb-3 bg-gray-200">
     {selectedSubmission ? (
      <>
       <Card className="mb-6">
