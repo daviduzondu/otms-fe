@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts'
 import { Menu, X, ChevronDown, Users, GraduationCap, ClipboardList, Activity, BookOpen, School, User, Settings, Bell, PlusCircle, FileText, Calendar, Home, LogOut, PieChart, UserPlus, Edit } from 'lucide-react'
 import Link from 'next/link'
+import RecentTests from '../../components/dashboard/recent-tests'
 
 // Mock data (replace with actual data fetching in a real application)
 const recentTests = [
@@ -131,7 +132,8 @@ export default function Dashboard() {
       </div>
 
       <div className="grid gap-6 mb-8 md:grid-cols-2 h-[100%]">
-       <Card>
+       <RecentTests />
+       {/* <Card>
         <CardHeader>
          <CardTitle>Recent Tests</CardTitle>
         </CardHeader>
@@ -152,7 +154,7 @@ export default function Dashboard() {
           ))}
          </div>
         </CardContent>
-       </Card>
+       </Card> */}
        <Card>
               <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>
