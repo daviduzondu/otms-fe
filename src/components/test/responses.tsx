@@ -12,15 +12,15 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Switch } from "@/components/ui/switch"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import {
- DropdownMenu,
- DropdownMenuContent,
- DropdownMenuItem,
- DropdownMenuLabel,
- DropdownMenuSeparator,
- DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { infoToast, successToast } from '../../../../../helpers/show-toasts'
+// import {
+//  DropdownMenu,
+//  DropdownMenuContent,
+//  DropdownMenuItem,
+//  DropdownMenuLabel,
+//  DropdownMenuSeparator,
+//  DropdownMenuTrigger,
+// } from "@/components/ui/dropdown-menu"
+import { infoToast, successToast } from '../../helpers/show-toasts'
 
 interface Test {
  id: string
@@ -351,7 +351,7 @@ export default function Responses() {
        <FileSpreadsheet className="mr-2 h-4 w-4" />
        Generate Results Sheet
       </Button>
-      <DropdownMenu>
+      {/* <DropdownMenu>
        <DropdownMenuTrigger asChild>
         <Button variant="outline" className="w-full">
          <FileUp className="mr-2 h-4 w-4" />
@@ -365,7 +365,7 @@ export default function Responses() {
         <DropdownMenuItem onClick={() => handleExport('xlsx')}>Export to Excel</DropdownMenuItem>
         <DropdownMenuItem onClick={() => handleExport('pdf')}>Export to PDF</DropdownMenuItem>
        </DropdownMenuContent>
-      </DropdownMenu>
+      </DropdownMenu> */}
      </div>
     </div>
     {submissions.map(submission => (

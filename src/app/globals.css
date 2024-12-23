@@ -115,6 +115,15 @@
   -webkit-user-drag: none;
  }
 
+ @media print {
+  html, body {
+    height: 100vh; /* Use 100% here to support printing more than a single page*/
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden;
+  }
+}
+
  .wysiwyg * {
   font-size: 15px !important;
   /* Set default font size to 20px */

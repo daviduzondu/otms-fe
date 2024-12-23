@@ -1,5 +1,5 @@
 
-import { QuestionAnswerPage } from "@/components/question-answer-page";
+import { QuestionAnswerPage } from "@/components/test/question-answer-page";
 import { addMinutes, isAfter } from "date-fns";
 import { Card, CardContent, CardFooter, CardHeader } from "../../../../components/ui/card";
 import { BookCheck, Clock } from "lucide-react";

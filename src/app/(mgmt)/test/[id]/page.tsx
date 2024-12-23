@@ -20,7 +20,8 @@ import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { CSS } from "@dnd-kit/utilities";
 import { cn } from '@/lib/utils'
 import { CreateQuestionSchema, QuestionSchemaProps } from "@/validation/create-question.validation";
-import Responses from './responses/page'
+import Responses from '../../../../components/test/responses'
+import { TestPDFPreview } from '../../../../components/test/test-pdf-preview'
 
 const TestDetailsSchema = z.object({
  title: z.string().min(1, "Title is required"),
@@ -53,7 +54,7 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
  const [isLoading, setIsLoading] = useState(true);
  const reqHeaders = { Authorization: `Bearer ${user.accessToken}` }
  const [isIndexUpdating, setIsIndexUpdating] = useState(false);
- const [showResponses, setShowResponses] = useState(true);
+ const [showResponses, setShowResponses] = useState(false);
 
  useEffect(() => {
   const fetchData = async () => {
@@ -287,10 +288,11 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
        <div className={"flex gap-2"}>
         {!showResponses ?
          <>
-          <Button variant="outline" size="sm" onClick={handlePrintTest} className={"flex gap-2"}>
-           <Printer className="w-4 h-4" />
-           <span className={"hidden lg:block"}>Print test</span>
-          </Button>
+          <TestPDFPreview
+           testTitle={testDetails.title}
+           questions={questions}
+           instructions={testDetails.instructions}
+          />
           <Button variant="outline" size="sm" className={'flex gap-2'}>
            <Settings className="w-4 h-4" />
            <span className={"hidden lg:block"}>Test Settings</span>
