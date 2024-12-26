@@ -26,7 +26,7 @@ export function TestPDFPreview({ testTitle, questions, instructions }: TestPDFPr
 
   const handlePrint = useReactToPrint({
    contentRef: printableRef,
-    fonts:[{family:'Times New Roman', source:''}],
+    fonts:[{family:'Source Serif 4', source:'https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap'}],
     documentTitle: testTitle || 'Test PDF',
     onAfterPrint: () => setIsOpen(false),
   })
