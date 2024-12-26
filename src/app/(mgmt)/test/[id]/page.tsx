@@ -330,10 +330,10 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
                 </Button>
               </div>
             </div>
-            <div className="w-full md:w-2/3 rounded-lg p-3 mb-3 bg-gray-200">
+            <div className="w-full md:w-2/3 rounded-lg mb-3 ">
               {questions.length === 0 ? (
                 <div className="text-center text-muted-foreground py-8">
-                  No questions added yet. Click "Add Question" to get started.
+                  No questions added yet. Click &apos;Add Question&apos; to get started.
                 </div>
               ) : (
                 questions.map((question, index) => (

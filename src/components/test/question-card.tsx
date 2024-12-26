@@ -8,7 +8,7 @@ import {AuthContext} from "../../contexts/auth.context";
 import {errorToast} from "../../helpers/show-toasts";
 import {QuestionSchemaProps} from "@/validation/create-question.validation";
 
-const QuestionTypeMap = {
+export const QuestionTypeMap = {
     "mcq": "Multiple Choice",
     "trueOrFalse": "True or False",
     "shortAnswer": "Short Answer",
@@ -48,7 +48,7 @@ export default function QuestionCard({question, setEditingQuestion, handleDelete
             <div className={"flex items-center justify-between"}>
                 <div className={'flex items-center gap-2'}>
                     <span className={"text-base text-muted-foreground"}>Question {index + 1}</span>
-                    <p className="text-sm text-muted-foreground px-2 text-white rounded-full w-fit bg-muted-foreground select-none">{QuestionTypeMap[question.type].toLowerCase()}</p>
+                    <p className="text-sm text-muted-foreground px-2 text-white rounded-full w-fit bg-muted-foreground select-none">{QuestionTypeMap[question.type]}</p>
                 </div>
                 <p className="text-sm select-none flex gap-1 items-center">
 

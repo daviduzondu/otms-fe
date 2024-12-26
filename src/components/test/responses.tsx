@@ -50,6 +50,7 @@ interface Answer {
   isWithinTime: boolean | null
   autoGraded: boolean
   graded: boolean
+  maxPoints: number
 }
 
 interface WebcamCapture {
@@ -314,13 +315,13 @@ export default function Responses({ testId }: { testId: string }) {
           ))}
         </Card>
       </div>
-      <div className="w-full md:w-2/3 rounded-lg p-3 mb-3 bg-gray-200">
+      <div className="w-full md:w-2/3 rounded-lg mb-3 ">
         {selectedSubmission ? (
           <>
             <Card className="mb-6">
               <CardHeader>
                 <CardTitle>{selectedSubmission.firstName} {selectedSubmission.lastName}</CardTitle>
-                <CardDescription>{selectedSubmission.regNumber}</CardDescription>
+                <CardDescription>{selectedSubmission.email} • {selectedSubmission.regNumber}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex justify-between text-sm">
@@ -330,7 +331,7 @@ export default function Responses({ testId }: { testId: string }) {
                   </div>
                   <div className="flex items-center">
                     <FileText className="mr-1 h-4 w-4" />
-                    Score: {calculateTotalScore(selectedSubmission)} / {calculateMaxScore(selectedSubmission)}
+                    Total Score: {calculateTotalScore(selectedSubmission)} / {calculateMaxScore(selectedSubmission)}
                   </div>
                 </div>
               </CardContent>

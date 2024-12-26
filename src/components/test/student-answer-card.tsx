@@ -21,6 +21,7 @@ interface Answer {
   isWithinTime: boolean | null
   autoGraded: boolean
   graded: boolean
+  maxPoints: number
 }
 
 interface StudentAnswerCardProps {
@@ -52,7 +53,7 @@ export function StudentAnswerCard({
 
   const [points, setPoints] = useState(answer.point || 0);
 
-  const maxPoints = 10; // Assuming max points is 10, adjust as needed
+  const maxPoints = answer.maxPoints; 
 
   return (
     <Card className={`overflow-hidden transition-all duration-200 ${answer.graded ? 'bg-white' : 'bg-gray-50'}`}>

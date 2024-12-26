@@ -83,6 +83,10 @@
   }
  }
 
+ html {
+  scroll-behavior: smooth;
+ }
+
 
  .main-header {
   view-transition-name: main-header-text;
