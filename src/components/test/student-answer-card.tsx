@@ -118,86 +118,89 @@ export function StudentAnswerCard({
      </Badge>
 
 
-     {['mcq', 'trueOrFalse'].includes(answer.type) && answer.answer &&
-      <div className='flex items-center'>
-       <span className="text-sm mr-2">Override</span>
-       <Switch
-        checked={!answer.autoGraded}
-        onCheckedChange={() => {
-         onOverrideAutoGrade(answer.id);
-         if (!answer.autoGraded) handleGrade(prevPoints)
-         // return handleGrade(prevPoints);
-          }}
-        disabled={answer.type === 'essay'}
-       />
-      </div>
-     }
+     <div className='flex items-center gap-4 h-10'>
+      {(!answer.autoGraded || answer.type === 'essay') && !isGradingDisabled && (
+       editingAnswerId === answer.id ? (
+        <div className={`flex items-center justify-end ${isHovered ? "visible" : "invisible"}`}>
+         <Input
+          type="number"
+          min="0"
+          max={answer.maxPoints}
+          value={points}
+          onChange={(e) => setPoints(parseInt(e.target.value))}
+          className="w-20 mr-2"
+         />
+         <span>/ {answer.maxPoints}</span>
+         <Button size="sm" variant="outline" className="ml-2" onClick={() => handleGrade(points)}>
+          Save
+         </Button>
+        </div>
+       ) : (
+        <div className={`flex items-center justify-end ${isHovered ? "visible" : "invisible"}`}>
+         <TooltipProvider>
+          <Tooltip>
+           <TooltipTrigger asChild>
+            <Button
+             size="sm"
+             variant="outline"
+             onClick={() => handleGrade(answer.maxPoints)}
+             disabled={isGradingDisabled}
+            >
+             <Check className="h-4 w-4 text-green-500" />
+            </Button>
+           </TooltipTrigger>
+           <TooltipContent>
+            <p>Award full points</p>
+           </TooltipContent>
+          </Tooltip>
+         </TooltipProvider>
+         <TooltipProvider>
+          <Tooltip>
+           <TooltipTrigger asChild>
+            <Button
+             size="sm"
+             variant="outline"
+             onClick={() => handleGrade(0)}
+             className="ml-2"
+             disabled={isGradingDisabled}
+            >
+             <X className="h-4 w-4 text-red-500" />
+            </Button>
+           </TooltipTrigger>
+           <TooltipContent>
+            <p>Award zero points</p>
+           </TooltipContent>
+          </Tooltip>
+         </TooltipProvider>
+         <Button
+          size="sm"
+          variant="outline"
+          className="ml-2"
+          onClick={() => setEditingAnswerId(answer.id)}
+          disabled={isGradingDisabled}
+         >
+          <Edit2 className="h-4 w-4" />
+         </Button>
+        </div>
+       )
+      )}
+      {['mcq', 'trueOrFalse'].includes(answer.type) && answer.answer &&
+       <div className='flex items-center '>
+        <span className="text-sm mr-1">Override</span>
+        <Switch
+         checked={!answer.autoGraded}
+         onCheckedChange={() => {
+          onOverrideAutoGrade(answer.id);
+          if (!answer.autoGraded) handleGrade(prevPoints)
+          // return handleGrade(prevPoints);
+         }}
+         disabled={answer.type === 'essay'}
+        />
+       </div>
+      }
+     </div>
     </div>
-    {(!answer.autoGraded || answer.type === 'essay') && !isGradingDisabled && (
-     editingAnswerId === answer.id ? (
-      <div className="flex items-center mt-2 justify-end">
-       <Input
-        type="number"
-        min="0"
-        max={answer.maxPoints}
-        value={points}
-        onChange={(e) => setPoints(parseInt(e.target.value))}
-        className="w-20 mr-2"
-       />
-       <span>/ {answer.maxPoints}</span>
-       <Button size="sm" variant="outline" className="ml-2" onClick={() => handleGrade(points)}>
-        Save
-       </Button>
-      </div>
-     ) : (
-      <div className="flex items-center justify-end mt-2">
-       <TooltipProvider>
-        <Tooltip>
-         <TooltipTrigger asChild>
-          <Button
-           size="sm"
-           variant="outline"
-           onClick={() => handleGrade(answer.maxPoints)}
-           disabled={isGradingDisabled}
-          >
-           <Check className="h-4 w-4 text-green-500" />
-          </Button>
-         </TooltipTrigger>
-         <TooltipContent>
-          <p>Award full points</p>
-         </TooltipContent>
-        </Tooltip>
-       </TooltipProvider>
-       <TooltipProvider>
-        <Tooltip>
-         <TooltipTrigger asChild>
-          <Button
-           size="sm"
-           variant="outline"
-           onClick={() => handleGrade(0)}
-           className="ml-2"
-           disabled={isGradingDisabled}
-          >
-           <X className="h-4 w-4 text-red-500" />
-          </Button>
-         </TooltipTrigger>
-         <TooltipContent>
-          <p>Award zero points</p>
-         </TooltipContent>
-        </Tooltip>
-       </TooltipProvider>
-       <Button
-        size="sm"
-        variant="outline"
-        className="ml-2"
-        onClick={() => setEditingAnswerId(answer.id)}
-        disabled={isGradingDisabled}
-       >
-        <Edit2 className="h-4 w-4" />
-       </Button>
-      </div>
-     )
-    )}
+
    </CardContent>
   </Card>
  )
