@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Check, X, Edit2, MinusCircle } from 'lucide-react'
 import { Switch } from "@/components/ui/switch"
+import { QuestionTypeMap } from './question-card'
 
 interface Answer {
  id: string
@@ -43,13 +44,13 @@ export function StudentAnswerCard({
  setEditingAnswerId
 }: StudentAnswerCardProps) {
  const getGradeStatus = (answer: Answer) => {
-  if (answer.point === null) return
+  if (answer.point === null) return;
   if (answer.point === answer.maxPoints) return 'Correct'
   if (answer.point === 0) return 'Incorrect'
-  return 'Partial Credit'
+  return 'Partial credit'
  }
 
-
+ const [prevPoints, setPrevPoints] = useState(answer.point || 0);
  const [points, setPoints] = useState(answer.point || 0)
  const [isHovered, setIsHovered] = useState(false)
  const [localGradeStatus, setLocalGradeStatus] = useState(getGradeStatus(answer))
@@ -61,30 +62,28 @@ export function StudentAnswerCard({
 
  const getGradeStatusColor = (status: string) => {
   switch (status) {
-   case 'Correct': return 'text-green-500'
-   case 'Incorrect': return 'text-red-500'
-   case 'Partial Credit': return 'text-yellow-500'
-   default: return 'text-gray-500'
+   case 'Correct': return 'text-green-600'
+   case 'Incorrect': return 'text-red-600'
+   case 'Partial credit': return 'text-yellow-600'
+   default: return 'text-gray-600'
   }
  }
 
- const cardBackgroundColor = answer.graded ? 'bg-white' : 'bg-gray-100'
+ const cardBackgroundColor = answer.graded ? 'bg-white' : 'bg-slate-100'
  const isGradingDisabled = !answer.answer
 
  const handleGrade = (points: number) => {
   onGrade(answer.id, points)
-  setPoints(points)
+  setPoints(points => {
+   // setPrevPoints(points)
+   return points;
+  })
   setLocalGradeStatus(getGradeStatus({ ...answer, point: points }))
- }
-
- const handlePartialCredit = () => {
-  const partialPoints = Math.floor(answer.maxPoints / 2)
-  handleGrade(partialPoints)
  }
 
  return (
   <Card
-   className={`overflow-hidden transition-all duration-200 ${cardBackgroundColor} hover:shadow-md`}
+   className={`overflow-hidden transition-all duration-200 ${cardBackgroundColor}`}
    onMouseEnter={() => setIsHovered(true)}
    onMouseLeave={() => setIsHovered(false)}
   >
@@ -93,13 +92,7 @@ export function StudentAnswerCard({
      <div>
       <CardTitle className="text-lg font-normal" dangerouslySetInnerHTML={{ __html: answer.body }}></CardTitle>
       <CardDescription className="flex items-center mt-1 space-x-2">
-       <span className="text-xs">{answer.type}</span>
-       {answer.autoGraded && (
-        <Badge variant="secondary" className="text-xs">Auto-graded</Badge>
-       )}
-       {!answer.graded && (
-        <Badge variant="outline" className="text-xs">Not graded</Badge>
-       )}
+       <span className="text-xs">{QuestionTypeMap[answer.type]}</span>
       </CardDescription>
      </div>
      <div className="flex items-center space-x-2">
@@ -107,31 +100,42 @@ export function StudentAnswerCard({
        {localGradeStatus}
       </span>
       <span className="text-sm font-medium">
-       {answer.point !== null ? answer.point : 'N/A'} / {answer.maxPoints}
+       {answer.point !== null ? answer.point : 0} / {answer.maxPoints}
       </span>
      </div>
     </div>
    </CardHeader>
    <CardContent className="py-3 relative">
     <div className="text-sm mb-2">
-     <strong>Student's Answer:</strong> {answer.answer || 'No answer provided'}
+     <strong>Student&apos;s Answer:</strong> {answer.answer || 'No answer provided'}
     </div>
-    <div className="flex items-center justify-end mt-2">
+    <div className="flex items-center justify-between mt-2 gap-2">
+     <Badge
+      variant="default"
+      className={`text-xs ${answer.autoGraded ? 'bg-blue-500' : 'invisible'}`}
+     >
+      {answer.autoGraded ? 'Automatically graded' : 'Not graded'}
+     </Badge>
+
 
      {['mcq', 'trueOrFalse'].includes(answer.type) && answer.answer &&
-      <>
-       <span className="text-sm mr-2">Override Auto-grade</span>
+      <div className='flex items-center'>
+       <span className="text-sm mr-2">Override</span>
        <Switch
         checked={!answer.autoGraded}
-        onCheckedChange={() => onOverrideAutoGrade(answer.id)}
+        onCheckedChange={() => {
+         onOverrideAutoGrade(answer.id);
+         if (!answer.autoGraded) handleGrade(prevPoints)
+         // return handleGrade(prevPoints);
+          }}
         disabled={answer.type === 'essay'}
        />
-      </>
+      </div>
      }
     </div>
     {(!answer.autoGraded || answer.type === 'essay') && !isGradingDisabled && (
      editingAnswerId === answer.id ? (
-      <div className="flex items-center mt-2">
+      <div className="flex items-center mt-2 justify-end">
        <Input
         type="number"
         min="0"
@@ -161,24 +165,6 @@ export function StudentAnswerCard({
          </TooltipTrigger>
          <TooltipContent>
           <p>Award full points</p>
-         </TooltipContent>
-        </Tooltip>
-       </TooltipProvider>
-       <TooltipProvider>
-        <Tooltip>
-         <TooltipTrigger asChild>
-          <Button
-           size="sm"
-           variant="outline"
-           onClick={handlePartialCredit}
-           className="ml-2"
-           disabled={isGradingDisabled}
-          >
-           <MinusCircle className="h-4 w-4 text-yellow-500" />
-          </Button>
-         </TooltipTrigger>
-         <TooltipContent>
-          <p>Award partial credit</p>
          </TooltipContent>
         </Tooltip>
        </TooltipProvider>

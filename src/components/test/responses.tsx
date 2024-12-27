@@ -110,7 +110,7 @@ export default function Responses({ testId }: { testId: string }) {
         ...answer,
         point: points,
         graded: true,
-        autoGraded: false
+        autoGraded: ['mcq', 'trueOrFalse'].includes(answer.type) ? answer.autoGraded : false
        }
       }
       return answer
@@ -129,7 +129,7 @@ export default function Responses({ testId }: { testId: string }) {
       ...answer,
       point: points,
       graded: true,
-      autoGraded: false
+      autoGraded: ['mcq', 'trueOrFalse'].includes(answer.type) ? answer.autoGraded : false
      }
     }
     return answer
@@ -182,13 +182,12 @@ export default function Responses({ testId }: { testId: string }) {
  }
 
  const calculateMaxScore = (submission: Submission) => {
-  // Assuming max score is not provided in the new data structure
-  // You might need to adjust this based on your actual requirements
-  return submission.answers.length * 10 // Assuming each question is worth 10 points
+  return submission.answers.reduce((a, c) => a + Number(c.maxPoints || 0), 0);
+
  }
 
  const calculateGradedQuestions = (submission: Submission) => {
-  return submission.answers.filter(answer => answer.graded).length
+  return submission.answers.filter(answer => answer.graded && answer.answer).length
  }
 
  const handleCompleteGrading = () => {
@@ -296,7 +295,11 @@ export default function Responses({ testId }: { testId: string }) {
       <div className="flex flex-col space-y-2">
        <Button onClick={handleGenerateResultsSheet} className="w-full">
         <FileSpreadsheet className="mr-2 h-4 w-4" />
-        Generate Results Sheet
+        Generate results sheet
+       </Button>
+       <Button onClick={handleGenerateResultsSheet} className="w-full" variant={'outline'}>
+        <Mail className="mr-2 h-4 w-4" />
+        Send results via email
        </Button>
       </div>
      </div>
@@ -346,22 +349,18 @@ export default function Responses({ testId }: { testId: string }) {
          </div>
         </div>
        </CardContent>
-       <CardFooter className="justify-between">
-        {calculateGradedQuestions(selectedSubmission) === selectedSubmission.answers.length && (
+       <CardFooter className="justify-end">
+        {calculateGradedQuestions(selectedSubmission) === selectedSubmission.answers.filter(answer => answer.graded && answer.answer).length && (
          <>
-          <Button variant="outline" onClick={handleSendResultsEmail}>
-           <Mail className="mr-2 h-4 w-4" />
-           Send Results Email
-          </Button>
           {selectedSubmission.completed ? (
            <Button onClick={handleReverseCompleteGrading}>
             <CheckCircle className="mr-2 h-4 w-4" />
-            Reverse Grading Completion
+            Unmark as graded
            </Button>
           ) : (
            <Button onClick={handleCompleteGrading}>
             <CheckCircle className="mr-2 h-4 w-4" />
-            Complete Grading
+            Mark as graded
            </Button>
           )}
          </>
