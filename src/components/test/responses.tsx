@@ -16,6 +16,7 @@ import { infoToast, successToast, errorToast } from '../../helpers/show-toasts'
 import { StudentAnswerCard } from './student-answer-card'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { AuthContext } from '../../contexts/auth.context'
+import test from 'node:test'
 
 interface Submission {
  id: string
@@ -25,7 +26,6 @@ interface Submission {
  lastName: string
  middleName: string
  addedBy: string
- studentId: string
  testId: string
  startedAt: string
  submittedAt: string
@@ -38,7 +38,8 @@ interface Submission {
 }
 
 interface Answer {
- id: string
+ id: string;
+ questionId: string
  body: string
  options: string[] | null
  correctAnswer: string | null
@@ -48,7 +49,6 @@ interface Answer {
  index: number
  answer: string | null
  point: number | null
- isCorrect: boolean | null
  isWithinTime: boolean | null
  autoGraded: boolean
  graded: boolean
@@ -105,7 +105,7 @@ export default function Responses({ testId }: { testId: string }) {
    return oldData.map(submission => {
     if (submission.id === selectedSubmission.id) {
      const updatedAnswers = submission.answers.map(answer => {
-      if (answer.id === answerId) {
+      if (answer.questionId === answerId) {
        return {
         ...answer,
         point: points,
@@ -124,7 +124,7 @@ export default function Responses({ testId }: { testId: string }) {
   setSelectedSubmission(prevSubmission => {
    if (!prevSubmission) return null
    const updatedAnswers = prevSubmission.answers.map(answer => {
-    if (answer.id === answerId) {
+    if (answer.questionId === answerId) {
      return {
       ...answer,
       point: points,
@@ -148,7 +148,7 @@ export default function Responses({ testId }: { testId: string }) {
    return oldData.map(submission => {
     if (submission.id === selectedSubmission.id) {
      const updatedAnswers = submission.answers.map(answer => {
-      if (answer.id === answerId) {
+      if (answer.questionId === answerId) {
        return {
         ...answer,
         autoGraded: !answer.autoGraded
@@ -165,7 +165,7 @@ export default function Responses({ testId }: { testId: string }) {
   setSelectedSubmission(prevSubmission => {
    if (!prevSubmission) return null
    const updatedAnswers = prevSubmission.answers.map(answer => {
-    if (answer.id === answerId) {
+    if (answer.questionId === answerId) {
      return {
       ...answer,
       autoGraded: !answer.autoGraded
@@ -395,12 +395,14 @@ export default function Responses({ testId }: { testId: string }) {
       <div className="space-y-4">
        {selectedSubmission.answers.map(answer => (
         <StudentAnswerCard
-         key={answer.id}
+         key={answer.questionId}
          answer={answer}
          onGrade={handleGrade}
          onOverrideAutoGrade={handleOverrideAutoGrade}
          editingAnswerId={editingAnswerId}
          setEditingAnswerId={setEditingAnswerId}
+         testId={testId}
+         studentId={selectedSubmission.id}
         />
        ))}
       </div>

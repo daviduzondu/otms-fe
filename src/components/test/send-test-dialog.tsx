@@ -63,7 +63,7 @@ export function SendTest({test, questions}) {
 
     useEffect(() => {
         if (isOpen) {
-            const link = `https://otms.ng/t/${test.code}`
+            const link = `${process.env.NEXT_PUBLIC_FE_URL}/t/${test.code}`
             setGeneratedLink(link)
         }
     }, [isOpen]);

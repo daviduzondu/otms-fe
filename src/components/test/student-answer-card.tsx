@@ -1,17 +1,20 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Check, X, Edit2, MinusCircle } from 'lucide-react'
+import { Check, X, Edit2, MinusCircle, Loader } from 'lucide-react'
 import { Switch } from "@/components/ui/switch"
 import { QuestionTypeMap } from './question-card'
+import { AuthContext } from '../../contexts/auth.context'
+import { errorToast } from '../../helpers/show-toasts'
 
 interface Answer {
- id: string
+ id: string;
+ questionId: string
  body: string
  options: string[] | null
  correctAnswer: string | null
@@ -21,7 +24,6 @@ interface Answer {
  index: number
  answer: string | null
  point: number | null
- isCorrect: boolean | null
  isWithinTime: boolean | null
  autoGraded: boolean
  graded: boolean
@@ -34,6 +36,8 @@ interface StudentAnswerCardProps {
  onOverrideAutoGrade: (answerId: string) => void
  editingAnswerId: string | null
  setEditingAnswerId: (id: string | null) => void
+ testId: string
+ studentId: string
 }
 
 export function StudentAnswerCard({
@@ -41,16 +45,20 @@ export function StudentAnswerCard({
  onGrade,
  onOverrideAutoGrade,
  editingAnswerId,
- setEditingAnswerId
+ setEditingAnswerId,
+ testId,
+ studentId
 }: StudentAnswerCardProps) {
+ const { user } = useContext(AuthContext);
  const getGradeStatus = (answer: Answer) => {
+  console.log(answer)
   if (answer.point === null) return;
   if (answer.point === answer.maxPoints) return 'Correct'
   if (answer.point === 0) return 'Incorrect'
   return 'Partial credit'
  }
 
- const [prevPoints, setPrevPoints] = useState(answer.point || 0);
+ const [updatingScore, setUpdatingScore] = useState(false);
  const [points, setPoints] = useState(answer.point || 0)
  const [isHovered, setIsHovered] = useState(false)
  const [localGradeStatus, setLocalGradeStatus] = useState(getGradeStatus(answer))
@@ -72,13 +80,40 @@ export function StudentAnswerCard({
  const cardBackgroundColor = answer.graded ? 'bg-white' : 'bg-slate-100'
  const isGradingDisabled = !answer.answer
 
- const handleGrade = (points: number) => {
-  onGrade(answer.id, points)
-  setPoints(points => {
-   // setPrevPoints(points)
-   return points;
-  })
-  setLocalGradeStatus(getGradeStatus({ ...answer, point: points }))
+
+
+ const handleGrade = async (points: number | undefined, autoGrade = false) => {
+  try {
+
+
+   if (autoGrade) points = String(answer.answer) === String(answer.correctAnswer) ? answer.maxPoints : 0;
+   setUpdatingScore(true);
+   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/${testId}/grade${autoGrade ? "?autoGrade=true" : "?autoGrade=false"}`, {
+    method: 'POST',
+    body: JSON.stringify({
+     point: Number(points),
+     studentId,
+     questionId: answer.questionId
+    }),
+    headers: {
+     "Authorization": `Bearer ${user.accessToken}`,
+     'Content-Type': 'application/json'
+    }
+   });
+
+   const { message } = await res.json();
+   if (!res.ok) throw new Error(message);
+
+   onGrade(answer.questionId, points as number)
+   setPoints(points => {
+    return points;
+   })
+   setLocalGradeStatus(getGradeStatus({ ...answer, point: points as number }))
+  } catch (error) {
+   errorToast("Failed to update score", { description: (error as Error).message })
+  }
+  setUpdatingScore(false);
+
  }
 
  return (
@@ -92,35 +127,35 @@ export function StudentAnswerCard({
      <div>
       <CardTitle className="text-lg font-normal" dangerouslySetInnerHTML={{ __html: answer.body }}></CardTitle>
       <CardDescription className="flex items-center mt-1 space-x-2">
-       <span className="text-xs">{QuestionTypeMap[answer.type]}</span>
+       <span className="text-xs">{QuestionTypeMap[answer.type]}{" "}{answer.questionId}</span>
       </CardDescription>
      </div>
-     <div className="flex items-center space-x-2">
+     {!updatingScore ? <div className="flex items-center space-x-2">
       <span className={`text-sm font-medium ${getGradeStatusColor(localGradeStatus)}`}>
        {localGradeStatus}
       </span>
-      <span className="text-sm font-medium">
+      <span className="text-sm font-medium whitespace-nowrap">
        {answer.point !== null ? answer.point : 0} / {answer.maxPoints}
       </span>
-     </div>
+     </div> : <div className='flex  text-sm items-center'> <Loader className='animate-spin mr-2' size={20} /> Updating...</div>}
     </div>
    </CardHeader>
    <CardContent className="py-3 relative">
     <div className="text-sm mb-2">
      <strong>Student&apos;s Answer:</strong> {answer.answer || 'No answer provided'}
     </div>
-    <div className="flex items-center justify-between mt-2 gap-2">
+    {!updatingScore ? <div className="flex items-center justify-between mt-2 gap-2">
      <Badge
       variant="default"
-      className={`text-xs ${answer.autoGraded ? 'bg-blue-500' : 'invisible'}`}
+      className={`text-xs ${answer.autoGraded && answer.answer ? 'bg-blue-500' : 'invisible'}`}
      >
-      {answer.autoGraded ? 'Automatically graded' : 'Not graded'}
+      {answer.autoGraded && answer.answer ? 'Automatically graded' : 'Not graded'}
      </Badge>
 
 
      <div className='flex items-center gap-4 h-10'>
       {(!answer.autoGraded || answer.type === 'essay') && !isGradingDisabled && (
-       editingAnswerId === answer.id ? (
+       editingAnswerId === answer.questionId ? (
         <div className={`flex items-center justify-end ${isHovered ? "visible" : "invisible"}`}>
          <Input
           type="number"
@@ -137,7 +172,7 @@ export function StudentAnswerCard({
         </div>
        ) : (
         <div className={`flex items-center justify-end ${isHovered ? "visible" : "invisible"}`}>
-         <TooltipProvider>
+         <TooltipProvider delayDuration={0}>
           <Tooltip>
            <TooltipTrigger asChild>
             <Button
@@ -154,7 +189,7 @@ export function StudentAnswerCard({
            </TooltipContent>
           </Tooltip>
          </TooltipProvider>
-         <TooltipProvider>
+         <TooltipProvider delayDuration={0}>
           <Tooltip>
            <TooltipTrigger asChild>
             <Button
@@ -176,7 +211,7 @@ export function StudentAnswerCard({
           size="sm"
           variant="outline"
           className="ml-2"
-          onClick={() => setEditingAnswerId(answer.id)}
+          onClick={() => setEditingAnswerId(answer.questionId)}
           disabled={isGradingDisabled}
          >
           <Edit2 className="h-4 w-4" />
@@ -190,8 +225,9 @@ export function StudentAnswerCard({
         <Switch
          checked={!answer.autoGraded}
          onCheckedChange={() => {
-          onOverrideAutoGrade(answer.id);
-          if (!answer.autoGraded) handleGrade(prevPoints)
+          onOverrideAutoGrade(answer.questionId);
+          console.log(answer)
+          if (!answer.autoGraded) handleGrade(undefined, true)
           // return handleGrade(prevPoints);
          }}
          disabled={answer.type === 'essay'}
@@ -199,7 +235,7 @@ export function StudentAnswerCard({
        </div>
       }
      </div>
-    </div>
+    </div> : <div className='h-10'></div>}
 
    </CardContent>
   </Card>
