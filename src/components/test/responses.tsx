@@ -19,7 +19,7 @@ import { AuthContext } from '../../contexts/auth.context'
 import test from 'node:test'
 import ResultSheet from './result-sheet'
 import { Submission, Answer, WebcamCapture } from '../../types/test'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
+import Papa from 'papaparse';
 
 const fetchSubmissions = async (testId: string, accessToken: string) => {
  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/${testId}/responses`, {
@@ -283,8 +283,16 @@ export default function Responses({ testId }: { testId: string }) {
        <div className='space-y-2 border p-2 rounded-md bg-slate-100'>
         <span className='flex text-sm text-muted-foreground justify-center items-center '>Export Options</span>
         <div className='flex gap-2'>
-         <Button variant={'outline'} className='lg:w-1/2'> <File className="mr-1 h-4 w-4" /> CSV</Button>
-         <Button variant={'outline'} className='lg:w-1/2'> <FileSpreadsheet className="mr-1 h-4 w-4" /> XLSX</Button>
+         <Button variant={'outline'} className='lg:w-1/2' onClick={() => {
+          const data = submissions.map(s => ({ Name: s.firstName + " " + s.lastName, Email: s.email, "Registration Number": s.regNumber, Score: calculateTotalScore(s) }))
+          const csv = Papa.unparse(data);
+          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = `Test Results for test.csv`;
+          link.click();
+         }}> <File className="mr-1 h-4 w-4" />CSV</Button>
+         <Button variant={'outline'} className='lg:w-1/2'> <FileSpreadsheet className="mr-1 h-4 w-4" />XLSX</Button>
         </div>
        </div>
 
