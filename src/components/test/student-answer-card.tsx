@@ -11,24 +11,7 @@ import { Switch } from "@/components/ui/switch"
 import { QuestionTypeMap } from './question-card'
 import { AuthContext } from '../../contexts/auth.context'
 import { errorToast } from '../../helpers/show-toasts'
-
-interface Answer {
- id: string;
- questionId: string
- body: string
- options: string[] | null
- correctAnswer: string | null
- type: 'trueOrFalse' | 'mcq' | 'essay'
- startedAt: string | null
- isTouched: boolean | null
- index: number
- answer: string | null
- point: number | null
- isWithinTime: boolean | null
- autoGraded: boolean
- graded: boolean
- maxPoints: number
-}
+import { Answer } from '../../types/test'
 
 interface StudentAnswerCardProps {
  answer: Answer

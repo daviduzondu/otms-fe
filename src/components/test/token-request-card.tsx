@@ -38,11 +38,11 @@ export default function TokenRequestCard({ code }: { code: string }) {
 
 
  return <Card className="lg:w-[25vw] w-screen">
-  <CardHeader className="flex flex-colgap-2">{!hasPIN ? <Shield size="40" /> : <RectangleEllipsis size="40" />}
-   <span className="text-lg  font-bold ">This Test is protected.</span>
+  <CardHeader className="flex flex-col gap-2">{!hasPIN ? <Shield size="40" /> : <RectangleEllipsis size="40" />}
+   <span className="text-lg  font-bold ">Access Restricted</span>
    <span className="text-sm">
     {!hasPIN
-     ? "Provide your email to get a Test PIN."
+     ? "Enter your email. If the email exists for this test, you will receive a Test PIN."
      : "Enter your Test PIN"}
    </span>
 
@@ -62,7 +62,7 @@ export default function TokenRequestCard({ code }: { code: string }) {
       router.replace(`?token=${val}`);
       setIsSending(true)
      }
-    }} disabled={isSending}>{isSending ? <Loader size={20} className="mr-2 animate-spin" /> : null} {isSending ? "Sending..." : !hasPIN ? "Request PIN" : "Proceed"}</Button>
+    }} disabled={isSending|| val.length <= 0}>{isSending ? <Loader size={20} className="mr-2 animate-spin" /> : null} {isSending ? "Sending..." : !hasPIN ? "Request PIN" : "Proceed"}</Button>
    </form>
   </CardContent>
   <CardFooter className={cn("text-sm flex-col -mt-3 items-start")}>
@@ -80,7 +80,7 @@ export default function TokenRequestCard({ code }: { code: string }) {
    </span>
 
    <span>
-    If you do not remember your email, contact your supervisor.
+    Facing issues? contact your supervisor.
    </span>
   </CardFooter>
  </Card >

@@ -1,11 +1,11 @@
 'use client'
 
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect, useRef } from 'react'
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Check, X, Edit2, Clock, FileText, Mail, Download, Eye, EyeOff, CheckCircle, ChevronDown, ChevronUp, AlertTriangle, FileSpreadsheet, Settings, FileUp, CameraOff } from 'lucide-react'
+import { Check, X, Edit2, Clock, FileText, Mail, Download, Eye, EyeOff, CheckCircle, ChevronDown, ChevronUp, AlertTriangle, FileSpreadsheet, Settings, FileUp, CameraOff, File } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -17,49 +17,9 @@ import { StudentAnswerCard } from './student-answer-card'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { AuthContext } from '../../contexts/auth.context'
 import test from 'node:test'
-
-interface Submission {
- id: string
- email: string
- regNumber: string
- firstName: string
- lastName: string
- middleName: string
- addedBy: string
- testId: string
- startedAt: string
- submittedAt: string
- endsAt: string
- origin: string
- answers: Answer[]
- webcamCaptures: WebcamCapture[]
- pendingSubmissionsCount: number,
- completed: boolean
-}
-
-interface Answer {
- id: string;
- questionId: string
- body: string
- options: string[] | null
- correctAnswer: string | null
- type: 'trueOrFalse' | 'mcq' | 'essay'
- startedAt: string | null
- isTouched: boolean | null
- index: number
- answer: string | null
- point: number | null
- isWithinTime: boolean | null
- autoGraded: boolean
- graded: boolean
- maxPoints: number
-}
-
-interface WebcamCapture {
- id: string
- url: string
- timestamp: string
-}
+import ResultSheet from './result-sheet'
+import { Submission, Answer, WebcamCapture } from '../../types/test'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 
 const fetchSubmissions = async (testId: string, accessToken: string) => {
  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/${testId}/responses`, {
@@ -84,12 +44,29 @@ export default function Responses({ testId }: { testId: string }) {
  const [editingAnswerId, setEditingAnswerId] = useState<string | null>(null)
  const { user } = useContext(AuthContext)
  const queryClient = useQueryClient()
+ const manualUpdateRef = useRef(false)
 
  const { data: submissions = [], isError, error, isLoading } = useQuery<Submission[], Error>({
   queryKey: ['submissions', testId, user?.accessToken],
   queryFn: () => fetchSubmissions(testId, user?.accessToken || ''),
   enabled: Boolean(user?.accessToken),
  })
+
+ useEffect(() => {
+  if (manualUpdateRef.current) return;
+  queryClient.setQueryData(
+   ['submissions', testId, user?.accessToken],
+   (oldData: Submission[] | undefined) => {
+    if (!oldData) return [];
+    oldData.forEach(submission => console.log(submission))
+    return oldData.map(submission => ({
+     ...submission,
+     completed: submission.answers.filter(x => x.answer !== null).every(answer => answer.point !== null && answer.point >= 0)
+    }));
+   }
+  );
+ });
+
 
  const handleSubmissionSelect = (submission: Submission) => {
   setSelectedSubmission(submission)
@@ -144,6 +121,7 @@ export default function Responses({ testId }: { testId: string }) {
   if (!selectedSubmission) return
 
   queryClient.setQueryData(['submissions', testId, user?.accessToken], (oldData: Submission[] | undefined) => {
+
    if (!oldData) return []
    return oldData.map(submission => {
     if (submission.id === selectedSubmission.id) {
@@ -191,6 +169,7 @@ export default function Responses({ testId }: { testId: string }) {
  }
 
  const handleCompleteGrading = () => {
+  manualUpdateRef.current = true;
   if (!selectedSubmission) return
 
   queryClient.setQueryData(['submissions', testId, user?.accessToken], (oldData: Submission[] | undefined) => {
@@ -214,6 +193,7 @@ export default function Responses({ testId }: { testId: string }) {
  }
 
  const handleReverseCompleteGrading = () => {
+  manualUpdateRef.current = true;
   if (!selectedSubmission) return
 
   queryClient.setQueryData(['submissions', testId, user?.accessToken], (oldData: Submission[] | undefined) => {
@@ -263,11 +243,12 @@ export default function Responses({ testId }: { testId: string }) {
   setSelectedWebcamCapture(capture)
  }
 
- const handleGenerateResultsSheet = () => {
-  successToast("Results Sheet Generated", {
-   description: "The results sheet has been generated and is ready for download.",
-  })
- }
+ // const handleGenerateResultsSheet = () => {
+ //  console.log(submissions.map(s=>({...s, totalScore: calculateTotalScore(s)})))
+ //  successToast("Results Sheet Generated", {
+ //   description: "The results sheet has been generated and is ready for download.",
+ //  })
+ // }
 
  if (isLoading) {
   return <div className="flex items-center justify-center h-full">Loading submissions...</div>
@@ -293,14 +274,20 @@ export default function Responses({ testId }: { testId: string }) {
       </div>
 
       <div className="flex flex-col space-y-2">
-       <Button onClick={handleGenerateResultsSheet} className="w-full">
-        <FileSpreadsheet className="mr-2 h-4 w-4" />
-        Generate results sheet
-       </Button>
-       <Button onClick={handleGenerateResultsSheet} className="w-full" variant={'outline'}>
+       <ResultSheet submissions={submissions.map(s => ({ ...s, totalScore: calculateTotalScore(s) }))} />
+       <Button className="w-full" variant={'outline'}>
         <Mail className="mr-2 h-4 w-4" />
         Send results via email
        </Button>
+
+       <div className='space-y-2 border p-2 rounded-md bg-slate-100'>
+        <span className='flex text-sm text-muted-foreground justify-center items-center '>Export Options</span>
+        <div className='flex gap-2'>
+         <Button variant={'outline'} className='lg:w-1/2'> <File className="mr-1 h-4 w-4" /> CSV</Button>
+         <Button variant={'outline'} className='lg:w-1/2'> <FileSpreadsheet className="mr-1 h-4 w-4" /> XLSX</Button>
+        </div>
+       </div>
+
       </div>
      </div>
      {submissions.map(submission => (
@@ -311,11 +298,9 @@ export default function Responses({ testId }: { testId: string }) {
       >
        <h3 className="font-medium">{submission.firstName} {submission.lastName}</h3>
        <p className="text-sm text-gray-500 text-ellipsis">{submission.email} {submission.regNumber && "•"} {submission.regNumber}</p>
-       {submission.completed && (
-        <Badge variant="secondary" className="mt-1">
-         Graded
-        </Badge>
-       )}
+       <Badge variant="secondary" className={`mt-1 ${submission.completed ? "visible" : "invisible"}`}>
+        Graded
+       </Badge>
       </div>
      ))}
      {submissions[0]?.pendingSubmissionsCount ? <CardFooter className=' p-2 border-t flex items-center justify-center text-sm text-gray-600'>{submissions[0]?.pendingSubmissionsCount} student{submissions[0]?.pendingSubmissionsCount > 1 ? "s" : ""} yet to submit</CardFooter> : null}

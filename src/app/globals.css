@@ -31,7 +31,6 @@
   --chart-5: 27 87% 67%;
  }
 
-
  .dark {
   --background: 222.2 84% 4.9%;
   --foreground: 210 40% 98%;
@@ -66,7 +65,6 @@
   box-sizing: border-box;
  }
 
-
  .auth-container {
   view-transition-name: auth-container;
  }
@@ -87,7 +85,6 @@
   scroll-behavior: smooth;
  }
 
-
  .main-header {
   view-transition-name: main-header-text;
   width: fit-content;
@@ -95,13 +92,12 @@
   margin: 0 auto;
  }
 
-
  ::view-transition-old(auth-container) {
-  animation: 90ms cubic-bezier(0.4, 0, 1, 1) both fade-out,
+  animation: 90ms cubic-bezier(0.4, 0, 1, 1) both fade-out;
  }
 
  ::view-transition-new(auth-container) {
-  animation: 210ms cubic-bezier(0, 0, 0.2, 1) 90ms both fade-in,
+  animation: 210ms cubic-bezier(0, 0, 0.2, 1) 90ms both fade-in;
  }
 
  .mask-rect {
@@ -110,7 +106,7 @@
  }
 
  .gradient-text {
-  background: radial-gradient(circle, #293F98, #de0969, #0b96fa);
+  background: radial-gradient(circle, #293f98, #de0969, #0b96fa);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -120,14 +116,26 @@
  }
 
  @media print {
-  html, body {
-    height: 100vh; /* Use 100% here to support printing more than a single page*/
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow: hidden;
+  html,
+  body {
+   height: 100vh; /* Use 100% here to support printing more than a single page*/
+   margin: 0 !important;
+   padding: 0 !important;
+   overflow: hidden;
   }
-}
 
+  .print-only {
+   display: block; 
+   width: 100%;
+  }
+ }
+
+
+ @media screen {
+  .print-only {
+   display: none;
+  }
+ }
  .wysiwyg * {
   font-size: 15px !important;
   /* Set default font size to 20px */
