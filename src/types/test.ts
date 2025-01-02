@@ -51,3 +51,21 @@ export interface WebcamCapture {
  url: string
  timestamp: string
 }
+
+export interface TestDetails {
+ id: string;
+ title: string;
+ instructions?: string;
+ startsAt: Date;
+ durationMin: number;
+ endsAt: Date;
+ code: string;
+ passingScore: number;
+ accessCode?: string;
+ randomizeQuestions: boolean;
+ showResults: boolean;
+ showCorrectAnswers: boolean;
+ provideExplanations: boolean;
+ disableCopyPaste: boolean;
+ requireFullScreen: boolean;
+}

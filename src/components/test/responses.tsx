@@ -18,8 +18,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { AuthContext } from '../../contexts/auth.context'
 import test from 'node:test'
 import ResultSheet from './result-sheet'
-import { Submission, Answer, WebcamCapture } from '../../types/test'
+import { Submission, Answer, WebcamCapture, TestDetails } from '../../types/test'
 import Papa from 'papaparse';
+import * as xlsx from 'xlsx';
 
 const fetchSubmissions = async (testId: string, accessToken: string) => {
  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/${testId}/responses`, {
@@ -36,7 +37,7 @@ const fetchSubmissions = async (testId: string, accessToken: string) => {
  return data
 }
 
-export default function Responses({ testId }: { testId: string }) {
+export default function Responses({ testDetails }: { testDetails: TestDetails }) {
  const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null)
  const [resultsReleased, setResultsReleased] = useState(false)
  const [selectedWebcamCapture, setSelectedWebcamCapture] = useState<WebcamCapture | null>(null)
@@ -45,6 +46,7 @@ export default function Responses({ testId }: { testId: string }) {
  const { user } = useContext(AuthContext)
  const queryClient = useQueryClient()
  const manualUpdateRef = useRef(false)
+ const testId = testDetails.id
 
  const { data: submissions = [], isError, error, isLoading } = useQuery<Submission[], Error>({
   queryKey: ['submissions', testId, user?.accessToken],
@@ -289,10 +291,25 @@ export default function Responses({ testId }: { testId: string }) {
           const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
           const link = document.createElement('a');
           link.href = URL.createObjectURL(blob);
-          link.download = `Test Results for test.csv`;
+          link.download = `Test results for ${testDetails.title}.csv`;
           link.click();
+
+          URL.revokeObjectURL(link.href);
          }}> <File className="mr-1 h-4 w-4" />CSV</Button>
-         <Button variant={'outline'} className='lg:w-1/2'> <FileSpreadsheet className="mr-1 h-4 w-4" />XLSX</Button>
+         <Button variant={'outline'} className='lg:w-1/2' onClick={() => {
+          const data = submissions.map(s => ({ Name: s.firstName + " " + s.lastName, Email: s.email, "Registration Number": s.regNumber, Score: calculateTotalScore(s) }));
+          const csv = Papa.unparse(data);
+          const workbook = xlsx.read(csv, { type: 'string' });
+
+          const result = xlsx.write(workbook, { bookType: 'xlsx', type: 'array' });
+          const blob = new Blob([result], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = `Test results for ${testDetails.title}.xlsx`;
+          link.click();
+
+          URL.revokeObjectURL(link.href);
+         }}> <FileSpreadsheet className="mr-1 h-4 w-4" />XLSX</Button>
         </div>
        </div>
 

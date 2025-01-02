@@ -24,25 +24,7 @@ import Responses from '../../../../components/test/responses'
 import { TestPDFPreview } from '../../../../components/test/test-pdf-preview'
 import LocalErrorFallback from '../../../../components/errors/local-error-fallback'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
-
-const TestDetailsSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  instructions: z.string().optional(),
-  startsAt: z.date(),
-  durationMin: z.number(),
-  endsAt: z.date(),
-  code: z.string(),
-  passingScore: z.number().min(0).max(100),
-  accessCode: z.string().optional(),
-  randomizeQuestions: z.boolean(),
-  showResults: z.boolean(),
-  showCorrectAnswers: z.boolean(),
-  provideExplanations: z.boolean(),
-  disableCopyPaste: z.boolean(),
-  requireFullScreen: z.boolean(),
-})
-
-type TestDetailsSchemaType = z.infer<typeof TestDetailsSchema>
+import { TestDetails } from '../../../../types/test'
 
 export default function EnhancedTestQuestionManagement({ params }: { params: { id: string } }) {
   const { showBoundary } = useErrorBoundary()
@@ -50,7 +32,7 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
   const searchParams = useSearchParams()
   const router = useRouter()
   const pathname = usePathname()
-  const [testDetails, setTestDetails] = useState<TestDetailsSchemaType | Record<string, any>>({})
+  const [testDetails, setTestDetails] = useState<TestDetails>({})
   const [questions, setQuestions] = useState<Array<QuestionSchemaProps>>([])
   const [isAddQuestionOpen, setIsAddQuestionOpen] = useState(false)
   const [editingQuestion, setEditingQuestion] = useState<QuestionSchemaProps | null>(null)
@@ -72,6 +54,7 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
           })
           return
         }
+        console.log(data.id)
         setTestDetails(data)
         setQuestions(data.questions)
         setIsLoading(false)
@@ -299,7 +282,7 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
 
       {showResponses ? (
         <ErrorBoundary FallbackComponent={LocalErrorFallback}>
-          <Responses testId={params.id} />
+          <Responses testDetails={testDetails} />
         </ErrorBoundary>
       ) : (
         <>
