@@ -11,6 +11,8 @@ export const CreateQuestionSchema = (maxValue?: number) => {
 
             id: z.string().optional(),
 
+            mediaId: z.string().optional(),
+
             body: z
                 .string({required_error: "Title cannot be empty"})
                 .min(5, "Text cannot have fewer than 5 characters"),

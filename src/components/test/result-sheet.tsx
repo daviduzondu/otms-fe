@@ -2,14 +2,14 @@ import { FileSpreadsheet, GraduationCap } from "lucide-react";
 import { Dialog, DialogHeader, DialogTrigger, DialogContent, DialogTitle, DialogFooter } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
-import { Submission } from "../../types/test";
+import { Submission, TestDetails } from "../../types/test";
 import { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import { ibm, sourceSerif4 } from "../../app/fonts";
 import { cn } from "../../lib/utils";
 import Link from "next/link";
 
-export default function ResultSheet({ submissions }: { submissions: (Submission & { totalScore: number })[] }) {
+export default function ResultSheet({ submissions, testDetails }: { submissions: (Submission & { totalScore: number })[], testDetails: TestDetails }) {
  const printableRef = useRef<HTMLTableElement>(null)
 
  const handlePrint = useReactToPrint({
@@ -21,7 +21,7 @@ export default function ResultSheet({ submissions }: { submissions: (Submission 
 
  return <Dialog>
   <DialogTrigger>
-   <Button className="w-full">
+   <Button className="w-full" disabled={submissions.length <= 0}>
     <FileSpreadsheet className="mr-2 h-4 w-4" />
     Generate results sheet
    </Button>
@@ -37,7 +37,8 @@ export default function ResultSheet({ submissions }: { submissions: (Submission 
 
     <div className="print-only">
      <div className="text-center w-full uppercase">
-      Results for test
+      <div className="text-xl font-semibold">{testDetails.title}</div>
+      <div>TEST RESULTS</div>
      </div>
     </div>
     <Table>

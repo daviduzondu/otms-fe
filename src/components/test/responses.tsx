@@ -264,20 +264,20 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
   <div className="flex gap-4">
    <div className='block md:w-1/3'>
     <Card className="bg-white border-r sticky top-4">
-     <div className='p-6 flex flex-col-reverse gap-3 border-b'>
-      <div className="text-sm text-gray-500 text-center flex items-center gap-2 justify-center">
+     <div className={'p-6 flex flex-col-reverse gap-3 border-b'}>
+      <div className={`text-sm text-gray-500 text-center flex items-center gap-2 justify-center  ${submissions.length <= 0 ? "invisible" : "visible"}`}>
        <Progress
         value={(submissions.filter(s => s.completed).length / submissions.length) * 100}
         className="mb-2"
        />
-       <span className="text-sm whitespace-nowrap">
+       <span className={`text-sm whitespace-nowrap`}>
         {submissions.filter(s => s.completed).length} / {submissions.length} graded
        </span>
       </div>
 
       <div className="flex flex-col space-y-2">
-       <ResultSheet submissions={submissions.map(s => ({ ...s, totalScore: calculateTotalScore(s) }))} />
-       <Button className="w-full" variant={'outline'}>
+       <ResultSheet testDetails={testDetails} submissions={submissions.map(s => ({ ...s, totalScore: calculateTotalScore(s) }))} />
+       <Button className="w-full" variant={'outline'} disabled={submissions.length <= 0}>
         <Mail className="mr-2 h-4 w-4" />
         Send results via email
        </Button>
@@ -285,7 +285,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
        <div className='space-y-2 border p-2 rounded-md bg-slate-100'>
         <span className='flex text-sm text-muted-foreground justify-center items-center '>Export Options</span>
         <div className='flex gap-2'>
-         <Button variant={'outline'} className='lg:w-1/2' onClick={() => {
+         <Button variant={'outline'} className='lg:w-1/2' disabled={submissions.length <= 0} onClick={() => {
           const data = submissions.map(s => ({ Name: s.firstName + " " + s.lastName, Email: s.email, "Registration Number": s.regNumber, Score: calculateTotalScore(s) }))
           const csv = Papa.unparse(data);
           const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -296,10 +296,14 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
 
           URL.revokeObjectURL(link.href);
          }}> <File className="mr-1 h-4 w-4" />CSV</Button>
-         <Button variant={'outline'} className='lg:w-1/2' onClick={() => {
+         <Button variant={'outline'} className='lg:w-1/2' disabled={submissions.length <= 0} onClick={() => {
           const data = submissions.map(s => ({ Name: s.firstName + " " + s.lastName, Email: s.email, "Registration Number": s.regNumber, Score: calculateTotalScore(s) }));
           const csv = Papa.unparse(data);
           const workbook = xlsx.read(csv, { type: 'string' });
+
+          const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+
+          worksheet['!cols'] = data[0] ? Object.keys(data[0]).map(() => ({ width: 20 })) : [];
 
           const result = xlsx.write(workbook, { bookType: 'xlsx', type: 'array' });
           const blob = new Blob([result], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
@@ -419,7 +423,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
      </>
     ) : (
      <div className="flex items-center justify-center h-full text-gray-500">
-      Select a submission to review
+      {!(submissions.length <= 0) ? "Select a submission to review" : "No submission yet"}
      </div>
     )}
    </div>
