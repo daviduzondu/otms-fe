@@ -171,7 +171,7 @@ export default function QuestionForm({ initialData, onSubmit, onCancel, minLeft 
 
    {/* Question Text Input */}
    <Input type="hidden" {...register("testId", { value: location.pathname.split("/")[2] })} />
-   <Input type="hidden" {...register("mediaId")} />
+   {mediaData ?<Input type="hidden" {...register("mediaId")} />: null}
    <div className="space-y-2">
     <Label htmlFor="questionText">Question Text</Label>
     <div className="flex flex-col items-start gap-12">
