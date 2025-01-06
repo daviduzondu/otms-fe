@@ -15,7 +15,7 @@ export default function TestLayout({ children }: Readonly<{ children: React.Reac
     <Toaster richColors position="top-center" theme="light" className="text-3xl" />
 
     {children}
-    <div className={"absolute bottom-5 flex flex-col items-center justify-center"}>
+    <div className={"absolute bottom-5 flex flex-col items-center justify-center footer-brand"}>
      <span className="font-plex flex gap-2 items-center justify-center">
       <GraduationCap /> ONLINE TEST MANAGEMENT SYSTEM
      </span>

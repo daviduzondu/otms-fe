@@ -204,7 +204,7 @@ export default function QuestionForm({ initialData, onSubmit, onCancel, minLeft 
      ) :
       // Check if mediaUrl is an mp3
       mediaData.type === "audio" ? (
-       <audio controls src={new URL(mediaData.url).toString()} />
+       <audio controls src={new URL(mediaData.url).toString()} className="w-full"/>
       ) :
        // Check if mediaUrl is an mp4
        mediaData.type === "video" ? (

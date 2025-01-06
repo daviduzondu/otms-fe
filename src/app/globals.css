@@ -125,11 +125,18 @@
   }
 
   .print-only {
-   display: block; 
+   display: block;
    width: 100%;
   }
  }
 
+ video {
+  transform: scaleX(-1);
+ }
+
+ .hide-footer-brand + .footer-brand {
+  display: none;
+ }
 
  @media screen {
   .print-only {

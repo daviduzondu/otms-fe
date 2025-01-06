@@ -400,7 +400,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
            className="cursor-pointer border rounded-lg overflow-hidden"
            onClick={() => handleWebcamCaptureSelect(capture)}
           >
-           <img src={capture.url} alt={`Webcam capture ${capture.id}`} className="w-full h-32 object-cover" />
+           <img src={new URL(capture.url).toString()} alt={`Webcam capture ${capture.id}`} className="w-full h-32 object-cover" />
           </div>
          ))}
         </div>}

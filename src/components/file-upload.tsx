@@ -63,7 +63,7 @@ export default function FileUpload({ questionId, onUpload, buttonText }: { quest
   e.stopPropagation();
   if (!selectedFile) {
    errorToast("No file selected", {
-    description: "Please select a file before confirming.",
+    description: "Please select a file before uploading.",
    })
    return
   }
@@ -73,7 +73,6 @@ export default function FileUpload({ questionId, onUpload, buttonText }: { quest
    const form = e.target as HTMLFormElement;
    const formData = new FormData(form);
 
-   console.log(formData)
    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/storage/upload/${questionId ? "?questionId=" + questionId : ""}`, {
     method: 'POST',
     body: formData,
@@ -98,7 +97,7 @@ export default function FileUpload({ questionId, onUpload, buttonText }: { quest
   } catch (error) {
    console.error('Error reading file:', error)
    errorToast("Upload failed", {
-    description: "There was an error uploading your file. Please try again.",
+    description: (error as Error).message,
    })
   }
   setIsUploading(false)
