@@ -1,12 +1,17 @@
-export type QuestionType = 'multiple-choice' | 'true-false' | 'short-answer' | 'essay' | 'matching'
+export type QuestionType = 'mcq' | 'trueOrFalse' | 'shortAnswer' | 'essay'
 
 export interface Question {
  id: string
  type: QuestionType
- text: string
+ body: string
  options?: string[]
  correctAnswer?: string | string[]
  points: number
+ media : {
+  id: string
+  type: string
+  url: string
+ }
 }
 
 export interface Submission {

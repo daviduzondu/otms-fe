@@ -34,7 +34,6 @@ export function StudentAnswerCard({
 }: StudentAnswerCardProps) {
  const { user } = useContext(AuthContext);
  const getGradeStatus = (answer: Answer) => {
-  console.log(answer)
   if (answer.point === null) return;
   if (answer.point === answer.maxPoints) return 'Correct'
   if (answer.point === 0) return 'Incorrect'

@@ -29,7 +29,7 @@ export default async function Page({ searchParams, params }) {
  if (!token) return <div className={"flex items-center justify-center h-screen"}><TokenRequestCard code={code} /></div>
  const studentData = await verifyStudent(token);
 
- if (!ri && !studentData.isTouched) <BeforeTest studentName={`${studentData.firstName} ${studentData.lastName}`} testDetails={studentData.testInfo} />
+ if (!ri && !studentData.isTouched) return <BeforeTest studentName={`${studentData.firstName} ${studentData.lastName}`} testDetails={studentData.testInfo} />
 
  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/take/${token}`, { cache: 'no-store' });
  const { data, message } = await response.json();

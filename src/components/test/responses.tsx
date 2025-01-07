@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Check, X, Edit2, Clock, FileText, Mail, Download, Eye, EyeOff, CheckCircle, ChevronDown, ChevronUp, AlertTriangle, FileSpreadsheet, Settings, FileUp, CameraOff, File } from 'lucide-react'
+import { Check, X, Edit2, Clock, FileText, Mail, Download, Eye, EyeOff, CheckCircle, ChevronDown, ChevronUp, AlertTriangle, FileSpreadsheet, Settings, FileUp, CameraOff, File, ArrowLeftCircle, ArrowRightCircle } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -43,6 +43,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
  const [selectedWebcamCapture, setSelectedWebcamCapture] = useState<WebcamCapture | null>(null)
  const [isWebcamSectionOpen, setIsWebcamSectionOpen] = useState(false)
  const [editingAnswerId, setEditingAnswerId] = useState<string | null>(null)
+ const [currentCaptureIndex, setCurrentCaptureIndex] = useState(0);
  const { user } = useContext(AuthContext)
  const queryClient = useQueryClient()
  const manualUpdateRef = useRef(false)
@@ -60,7 +61,6 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
    ['submissions', testId, user?.accessToken],
    (oldData: Submission[] | undefined) => {
     if (!oldData) return [];
-    oldData.forEach(submission => console.log(submission))
     return oldData.map(submission => ({
      ...submission,
      completed: submission.answers.filter(x => x.answer !== null).every(answer => answer.point !== null && answer.point >= 0)
@@ -241,8 +241,11 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
   })
  }
 
+
  const handleWebcamCaptureSelect = (capture: WebcamCapture) => {
-  setSelectedWebcamCapture(capture)
+   setSelectedWebcamCapture(capture);
+   const index = selectedSubmission?.webcamCaptures.findIndex(c => c.id === capture.id) ?? 0;
+   setCurrentCaptureIndex(index);
  }
 
  // const handleGenerateResultsSheet = () => {
@@ -429,12 +432,53 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
    </div>
    {selectedWebcamCapture && (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-     <div className="bg-white p-4 rounded-lg max-w-3xl max-h-[90vh] overflow-auto">
-      <img src={selectedWebcamCapture.url} alt="Selected webcam capture" className="w-full object-contain mb-4" />
-      <p className="text-sm text-gray-500">Captured at: {new Date(selectedWebcamCapture.timestamp).toLocaleString()}</p>
-      <Button className="mt-4" onClick={() => setSelectedWebcamCapture(null)}>Close</Button>
+     <div className="bg-white p-4 rounded-lg max-w-3xl max-h-[90vh] overflow-hidden relative">
+      {/* Image Container */}
+      <div className="relative">
+       <img
+        src={new URL(selectedWebcamCapture.url).toString()}
+        alt="Selected webcam capture"
+        className="w-full object-contain mb-4"
+       />
+       {/* Arrow Controls */}
+       <div className="absolute inset-0 flex items-center justify-between px-4">
+        <button
+         className="bg-[#c5c5c594] rounded-full text-white  p-2 shadow-lg backdrop-blur-md"
+         onClick={() => {
+          if (!selectedSubmission) return;
+          const newIndex = Math.max(0, currentCaptureIndex - 1);
+          handleWebcamCaptureSelect(selectedSubmission.webcamCaptures[newIndex]);
+         }}
+         disabled={currentCaptureIndex === 0}
+        >
+         <ArrowLeftCircle size={35} strokeWidth={1.2} />
+        </button>
+        <button
+         className="bg-[#c5c5c594] rounded-full text-white p-2 shadow-lg backdrop-blur-md"
+         onClick={() => {
+          if (!selectedSubmission) return;
+          const newIndex = Math.min(selectedSubmission.webcamCaptures.length - 1, currentCaptureIndex + 1);
+          handleWebcamCaptureSelect(selectedSubmission.webcamCaptures[newIndex]);
+         }}
+         disabled={selectedSubmission && currentCaptureIndex === selectedSubmission.webcamCaptures.length - 1}
+        >
+         <ArrowRightCircle size={35} strokeWidth={1.2} />
+        </button>
+       </div>
+      </div>
+
+      {/* Timestamp */}
+      <p className="text-sm text-gray-500">
+       Captured at: {new Date(selectedWebcamCapture.timestamp).toLocaleString()}
+      </p>
+
+      {/* Close Button */}
+      <Button className="mt-4" onClick={() => setSelectedWebcamCapture(null)}>
+       Close
+      </Button>
      </div>
     </div>
+
    )}
   </div>
  )

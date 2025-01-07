@@ -115,19 +115,49 @@
   -webkit-user-drag: none;
  }
 
+ @page {
+  @bottom-center {
+   content: counter(page);
+   font-family: serif;
+  }
+ }
+
  @media print {
   html,
   body {
-   height: 100vh; /* Use 100% here to support printing more than a single page*/
+   height: initial !important;
+   overflow: initial !important;
    margin: 0 !important;
    padding: 0 !important;
-   overflow: hidden;
+   /* overflow: hidden; */
   }
 
   .print-only {
    display: block;
    width: 100%;
   }
+ }
+
+ ol {
+  list-style: decimal; /* Use numbers for list items */
+  margin: 1em 0; /* Add space above and below the list */
+  padding-left: 2em; /* Indent the list items */
+  line-height: 1.6; /* Improve readability */
+  color: #333; /* Text color */
+  counter-reset: list-counter; /* Reset counter for custom styling */
+ }
+
+ ol li {
+  margin-bottom: 0.5em; /* Space between list items */
+  counter-increment: list-counter; /* Increment custom counter */
+ }
+
+ ol li::marker {
+  font-weight: bold; /* Make numbers bold */
+ }
+
+ ol li:last-child {
+  margin-bottom: 0; /* Remove margin from the last item */
  }
 
  video {
