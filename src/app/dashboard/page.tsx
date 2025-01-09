@@ -60,60 +60,58 @@ export default function Page() {
  const { user } = useContext(AuthContext)
 
  return (
-  <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
-   <div className="mx-auto px-6 py-8">
-    <h2 className="text-xl font-semibold text-gray-800 mb-4">Welcome back, {user.firstName} {user.lastName}</h2>
+  <>
+   <h2 className="text-xl font-semibold text-gray-800 mb-4">Welcome back, {user.firstName} {user.lastName}</h2>
 
-    <div className="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
-     <StatCard title="Total Students" value="1,234" icon={<Users className="h-8 w-8" />} />
-     <StatCard title="Active Classes" value="56" icon={<GraduationCap className="h-8 w-8" />} />
-     <StatCard title="Tests Conducted" value="289" icon={<ClipboardList className="h-8 w-8" />} />
-     <StatCard title="Avg. Performance" value="78%" icon={<Activity className="h-8 w-8" />} />
-    </div>
-
-    <div className="grid gap-6 mb-8 md:grid-cols-2 h-[100%]">
-     <RecentTests />
-     <Card>
-      <CardHeader>
-       <CardTitle>Recent Activity</CardTitle>
-      </CardHeader>
-      <CardContent>
-       <div className="space-y-4">
-        {activityLog.map((activity, index) => (
-         <div key={index} className="flex items-start">
-          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
-           {activity.icon}
-          </div>
-          <div className="ml-4">
-           <p className="text-sm font-medium">{activity.message}</p>
-           <p className="text-xs text-gray-500">{activity.timestamp}</p>
-          </div>
-         </div>
-        ))}
-       </div>
-      </CardContent>
-     </Card>
-     <Card>
-      <CardHeader>
-       <CardTitle>Average Score per test</CardTitle>
-      </CardHeader>
-      <CardContent>
-       <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={topicPerformance}>
-         <CartesianGrid strokeDasharray="3 3" />
-         <XAxis dataKey="name" />
-         <YAxis />
-         <Tooltip />
-         <Legend />
-         <Bar dataKey="score" fill="#8884d8" name="Score" />
-        </BarChart>
-       </ResponsiveContainer>
-      </CardContent>
-     </Card>
-
-    </div>
+   <div className="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
+    <StatCard title="Total Students" value="1,234" icon={<Users className="h-8 w-8" />} />
+    <StatCard title="Active Classes" value="56" icon={<GraduationCap className="h-8 w-8" />} />
+    <StatCard title="Tests Conducted" value="289" icon={<ClipboardList className="h-8 w-8" />} />
+    <StatCard title="Avg. Performance" value="78%" icon={<Activity className="h-8 w-8" />} />
    </div>
-  </main>
+
+   <div className="grid gap-6 mb-8 md:grid-cols-2 h-[100%]">
+    <RecentTests />
+    <Card>
+     <CardHeader>
+      <CardTitle>Recent Activity</CardTitle>
+     </CardHeader>
+     <CardContent>
+      <div className="space-y-4">
+       {activityLog.map((activity, index) => (
+        <div key={index} className="flex items-start">
+         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
+          {activity.icon}
+         </div>
+         <div className="ml-4">
+          <p className="text-sm font-medium">{activity.message}</p>
+          <p className="text-xs text-gray-500">{activity.timestamp}</p>
+         </div>
+        </div>
+       ))}
+      </div>
+     </CardContent>
+    </Card>
+    <Card>
+     <CardHeader>
+      <CardTitle>Average Score per test</CardTitle>
+     </CardHeader>
+     <CardContent>
+      <ResponsiveContainer width="100%" height={300}>
+       <BarChart data={topicPerformance}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        <Bar dataKey="score" fill="#8884d8" name="Score" />
+       </BarChart>
+      </ResponsiveContainer>
+     </CardContent>
+    </Card>
+
+   </div>
+  </>
  )
 }
 

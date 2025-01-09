@@ -10,18 +10,18 @@ import { formatDistance, subDays } from "date-fns";
 
 // Function to fetch tests
 const fetchTests = async (accessToken: string) => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests`, {
-   headers: {
-    'Authorization': `Bearer ${accessToken}`,
-   },
-  });
+ const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests`, {
+  headers: {
+   'Authorization': `Bearer ${accessToken}`,
+  },
+ });
 
-  const { message, data } = await res.json();
-  if (!res.ok) {
-   throw new Error(message || "Failed to fetch recent tests");
-  }
+ const { message, data } = await res.json();
+ if (!res.ok) {
+  throw new Error(message || "Failed to fetch recent tests");
+ }
 
-  return data;
+ return data;
 };
 
 export default function TestList() {
@@ -44,13 +44,13 @@ export default function TestList() {
 
  // If an error occurred, it will be handled by React Error Boundary
  if (isError) {
-    throw new Error("Failed to fetch tests. Check your network and try again.");
+  throw new Error("Failed to fetch tests. Check your network and try again.");
  }
 
  // Display the list of tests if available
  return (
   <ul className="space-y-4">
-   {data && data.map((test, index) => (
+   {data && data.slice().reverse().filter((x, i) => i <= 4).map((test, index) => (
     <li key={index} className="flex items-center justify-between">
      <div>
       <h3 className="font-semibold">{test.title}</h3>

@@ -2,14 +2,14 @@
 
 import { useContext, useState } from "react"
 import { AuthContext } from "../../contexts/auth.context"
-import { Button } from "../../components/ui/button"
+import { Button } from "../ui/button"
 import { Activity, Bell, ClipboardList, GraduationCap, Home, LogOut, Menu, PlusCircle, Settings, Users, X } from "lucide-react"
 import Link from 'next/link'
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { usePathname } from "next/navigation"
 import { signOut } from "next-auth/react"
 
-export default function DashboardSidebar({ children }) {
+export default function DashboardShell({ children }) {
  const { user } = useContext(AuthContext)
  const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -34,7 +34,7 @@ export default function DashboardSidebar({ children }) {
    <NavItem icon={<Users />} label="Students" />
    <NavItem icon={<Activity />} label="Analytics" />
    <NavItem icon={<Settings />} label="Settings" />
-   <NavItem icon={<LogOut />} label="Logout" onClick={() => signOut({ callbackUrl: '/' })} className={"absolute bottom-0 w-full"}/>
+   <NavItem icon={<LogOut />} label="Logout" onClick={() => signOut({ callbackUrl: '/' })} className={"absolute bottom-0 w-full"} />
   </nav>
 
  </aside>
@@ -67,7 +67,10 @@ export default function DashboardSidebar({ children }) {
      </Avatar>
     </div>
    </header>
-   {children}
+   <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
+    <div className="mx-auto px-6 py-6">
+     {children}
+    </div></main>
   </div></>
 
 }
