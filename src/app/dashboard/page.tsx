@@ -12,6 +12,7 @@ import { Menu, X, ChevronDown, Users, GraduationCap, ClipboardList, Activity, Bo
 import Link from 'next/link'
 import RecentTests from '../../components/dashboard/recent-tests'
 import { AuthContext } from '../../contexts/auth.context'
+import DashboardSummary from '../../components/dashboard/summary'
 
 // Mock data (replace with actual data fetching in a real application)
 const recentTests = [
@@ -62,13 +63,7 @@ export default function Page() {
  return (
   <>
    <h2 className="text-xl font-semibold text-gray-800 mb-4">Welcome back, {user.firstName} {user.lastName}</h2>
-
-   <div className="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
-    <StatCard title="Total Students" value="1,234" icon={<Users className="h-8 w-8" />} />
-    <StatCard title="Active Classes" value="56" icon={<GraduationCap className="h-8 w-8" />} />
-    <StatCard title="Tests Conducted" value="289" icon={<ClipboardList className="h-8 w-8" />} />
-    <StatCard title="Avg. Performance" value="78%" icon={<Activity className="h-8 w-8" />} />
-   </div>
+   <DashboardSummary />
 
    <div className="grid gap-6 mb-8 md:grid-cols-2 h-[100%]">
     <RecentTests />
@@ -112,20 +107,6 @@ export default function Page() {
 
    </div>
   </>
- )
-}
-
-function StatCard({ title, value, icon }) {
- return (
-  <Card className="flex items-center p-6">
-   <div className="p-3 rounded-full bg-violet-500 bg-opacity-10">
-    {icon}
-   </div>
-   <div className="ml-4">
-    <h3 className="mb-2 text-sm font-medium text-gray-600">{title}</h3>
-    <p className="text-lg font-semibold text-gray-700">{value}</p>
-   </div>
-  </Card>
  )
 }
 

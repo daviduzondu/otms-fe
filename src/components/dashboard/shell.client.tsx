@@ -67,7 +67,7 @@ export default function DashboardShell({ children }) {
      </Avatar>
     </div>
    </header>
-   <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
+   <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
     <div className="mx-auto px-6 py-6">
      {children}
     </div></main>

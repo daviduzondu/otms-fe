@@ -21,7 +21,7 @@ export default function DashboardLayout({
   <AuthSessionProvider>
    <AuthProvider>
     <AuthGuard next={pathname}>
-     <div className="flex h-screen bg-gray-100">
+     <div className="flex h-screen ">
       <DashboardShell>{children}</DashboardShell>
       {/* <div className="flex-1 flex flex-col overflow-hidden">
 
