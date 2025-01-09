@@ -395,8 +395,8 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
          {isWebcamSectionOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </Button>
        </CollapsibleTrigger>
-       <CollapsibleContent className="mt-4">
-        {selectedSubmission.webcamCaptures.length === 0 ? <div className='flex items-center justify-center'><CameraOff className='mr-2' /> Nothing to see here</div> : <div className="grid grid-cols-3 gap-4">
+       <CollapsibleContent className="mt-4 overflow-y-scroll h-[400px] bg-white shadow-sm rounded-sm p-2">
+        {selectedSubmission.webcamCaptures.length === 0 ? <div className='flex items-center justify-center h-full w-full'><CameraOff className='mr-2' /> Nothing to see here</div> : <div className="grid grid-cols-3 gap-4">
          {selectedSubmission.webcamCaptures.map((capture) => (
           <div
            key={capture.id}

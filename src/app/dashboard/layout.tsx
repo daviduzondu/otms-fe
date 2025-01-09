@@ -3,7 +3,8 @@ import { AuthProvider } from "../../contexts/auth.context"
 import AuthSessionProvider from "../../contexts/providers/auth-session.provider"
 import AuthGuard from "@/components/guards/auth-guard";
 import { headers } from "next/headers";
-import { Toaster } from "../../components/ui/sonner";
+import Sidebar from "../../components/dashboard/sidebar";
+import DashboardSidebar from "./sidebar.client";
 
 export const metadata = {
  title: 'Next.js',
@@ -20,9 +21,12 @@ export default function DashboardLayout({
   <AuthSessionProvider>
    <AuthProvider>
     <AuthGuard next={pathname}>
-     <>
-      {children}
-     </>
+     <div className="flex h-screen bg-gray-100">
+      <DashboardSidebar>{children}</DashboardSidebar>
+      {/* <div className="flex-1 flex flex-col overflow-hidden">
+
+      </div> */}
+     </div>
     </AuthGuard>
    </AuthProvider>
   </AuthSessionProvider>

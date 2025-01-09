@@ -115,11 +115,6 @@ const featureSections: TFeatureSection[] = [
                 icon: <Webcam size={80} strokeWidth={1.5}/>
             },
             {
-                cardTitle: 'Access controls & restrictions',
-                cardDescription: `Define password protection, IP address whitelisting, and device limitations for enhanced security.`,
-                icon: <FileLock size={80} strokeWidth={1.5}/>
-            },
-            {
                 cardTitle: 'Random question selection',
                 cardDescription: `Choose to have the system randomly select questions from a pool for each student, ensuring unique test experiences.`,
                 icon: <LucideDices size={80} strokeWidth={1.5}/>
