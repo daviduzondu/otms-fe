@@ -3,8 +3,9 @@ import { AuthProvider } from "../../contexts/auth.context"
 import AuthSessionProvider from "../../contexts/providers/auth-session.provider"
 import AuthGuard from "@/components/guards/auth-guard";
 import { headers } from "next/headers";
-import Sidebar from "../../components/dashboard/sidebar";
 import DashboardShell from "../../components/dashboard/shell.client";
+import { ErrorBoundary } from "react-error-boundary";
+import LocalErrorFallback from "../../components/errors/local-error-fallback";
 
 export const metadata = {
  title: 'Next.js',
@@ -21,7 +22,8 @@ export default function DashboardLayout({
   <AuthSessionProvider>
    <AuthProvider>
     <AuthGuard next={pathname}>
-     <div className="flex h-screen ">
+
+     <div className="flex h-screen">
       <DashboardShell>{children}</DashboardShell>
       {/* <div className="flex-1 flex flex-col overflow-hidden">
 

@@ -3,7 +3,7 @@
 import React, { useRef, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { FileText } from 'lucide-react'
+import { FileText, TriangleAlert } from 'lucide-react'
 import { useReactToPrint } from 'react-to-print'
 import { sourceSerif4 } from '../../app/fonts'
 import { Question } from '../../types/test'
@@ -107,7 +107,8 @@ export function TestPDFPreview({ testTitle, questions, instructions }: TestPDFPr
      </div>
     </div>
     {/* Print Button */}
-    <div className="flex justify-end mt-6">
+    <div className="flex justify-between items-center mt-6">
+     <span className={`text-red-500 text-sm flex items-center gap-1 font-medium ${questions.map(q => q?.media?.type).includes('audio') || questions.map(q => q?.media?.type).includes('video')  ? "visible" : "invisible"}`}><TriangleAlert size={15} /> This is a warning</span>
      <Button onClick={() => handlePrint()}>Print PDF</Button>
     </div>
    </DialogContent>
