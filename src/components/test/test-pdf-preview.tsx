@@ -73,7 +73,7 @@ export function TestPDFPreview({ testTitle, questions, instructions }: TestPDFPr
            <span className='flex-shrink-0 italic'>({question.points} points)</span>
           </div>
          </div>
-         {question.media ? <div className="space-y-2 flex items-center justify-center relative">
+         {question.media ? <div className="flex items-center justify-center relative">
           {
 
            question.media.type === "image" ? (
@@ -81,7 +81,10 @@ export function TestPDFPreview({ testTitle, questions, instructions }: TestPDFPr
            ) :
             // Check if mediaUrl is an mp3
             question.media.type === "audio" ? (
-             <audio controls src={new URL(question.media.url).toString()} className="w-full" />
+             <div className='w-full relative py-4'>
+              <div className='absolute bg-[#000000cc] h-full w-full flex font-sans items-center rounded-md justify-center z-10 backdrop-blur-sm text-white no-print'>Non-image media hidden</div>
+              <audio controls src={new URL(question.media.url).toString()} className="w-full " />
+             </div>
             ) :
              // Check if mediaUrl is an mp4
              question.media.type === "video" ? (
@@ -108,8 +111,8 @@ export function TestPDFPreview({ testTitle, questions, instructions }: TestPDFPr
     </div>
     {/* Print Button */}
     <div className="flex justify-between items-center mt-6">
-     <span className={`text-red-500 text-sm flex items-center gap-1 font-medium ${questions.map(q => q?.media?.type).includes('audio') || questions.map(q => q?.media?.type).includes('video')  ? "visible" : "invisible"}`}><TriangleAlert size={15} /> This is a warning</span>
-     <Button onClick={() => handlePrint()}>Print PDF</Button>
+     <span className={`text-red-500 text-sm bg-red-200 px-3 py-2 rounded-full flex justify-center items-center gap-1 font-medium ${questions.map(q => q?.media?.type).includes('audio') || questions.map(q => q?.media?.type).includes('video') ? "visible" : "invisible"}`}><TriangleAlert size={15} />Your test contains non-image media (audio or video)</span>
+     <Button onClick={() => handlePrint()}>{questions.map(q => q?.media?.type).includes('audio') || questions.map(q => q?.media?.type).includes('video') ? "Print anyway" : "Print"}</Button>
     </div>
    </DialogContent>
   </Dialog>

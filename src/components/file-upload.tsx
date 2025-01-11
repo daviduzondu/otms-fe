@@ -108,6 +108,7 @@ export default function FileUpload({ questionId, onUpload, buttonText }: { quest
    <DialogTrigger asChild>
     <Button type="button" className="flex gap-1 text-blue-600 p-0 m-0 outline-none" variant={'link'}>
      <Images />
+     
      {!buttonText ? "Add media" : buttonText}
     </Button>
    </DialogTrigger>
@@ -124,7 +125,7 @@ export default function FileUpload({ questionId, onUpload, buttonText }: { quest
        id="file"
        name="file"
        type="file"
-       className="col-span-3"
+       className="col-span-3 z-50"
        ref={fileInputRef}
        accept=".jpeg,.jpg,.png,.mp3,.mp4"
        onChange={handleFileChange}
