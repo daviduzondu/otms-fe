@@ -2,8 +2,7 @@
 
 import {SessionProvider, useSession} from "next-auth/react";
 import {ReactNode, Suspense, useEffect, useState} from "react";
-import Loader from "../../components/loader/loader";
-import {LoaderPinwheel} from "lucide-react";
+import {Loader} from "lucide-react";
 
 interface AuthProviderProperties {
     children: ReactNode;
@@ -33,7 +32,7 @@ export default function AuthSessionProvider({children}: AuthProviderProperties) 
     return (
         <SessionProvider>
             <Suspense
-                fallback={<div className={"h-[100vh] w-[100vw] flex items-center justify-center"}><LoaderPinwheel className={'animate-spin'} size={'40'} strokeWidth={'1'}/> Loading...
+                fallback={<div className={"h-[100vh] w-[100vw] flex items-center justify-center"}><Loader className={'animate-spin'} size={'70'} />
                 </div>}>
                 <SessionChecker>{children}</SessionChecker>
             </Suspense>

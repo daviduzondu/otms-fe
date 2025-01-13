@@ -13,6 +13,7 @@ import AuthGuard from "../../components/guards/auth-guard";
 import {ErrorBoundary} from "react-error-boundary";
 import GlobalErrorFallback from "../../components/errors/global-error-fallback";
 import {headers} from "next/headers";
+import { Suspense } from "react";
 
 const inter = Inter({subsets: ["latin"]});
 
