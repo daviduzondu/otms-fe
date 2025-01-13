@@ -47,24 +47,24 @@ const testData = {
        class: {
          id: "cb9ac5b6-905b-464a-b127-c34242489522",
          name: "Data Communications and Networking",
-         teacherId: "c41f4b4d-e439-44e5-96ed-e9ee08e72a22",
+         teacherId: "c41f4b4d-e439-44e5-96ed-e9ee08e72a22"
        },
        id: "07e5d1fc-d47a-4e9d-9206-5022d919b426",
        firstName: "Silas",
        lastName: "Gaines",
-       totalPoints: 0,
+       totalPoints: 0
      },
      {
        class: {
          id: "cb9ac5b6-905b-464a-b127-c34242489522",
          name: "Data Communications and Networking",
-         teacherId: "c41f4b4d-e439-44e5-96ed-e9ee08e72a22",
+         teacherId: "c41f4b4d-e439-44e5-96ed-e9ee08e72a22"
        },
        id: "f6cb5ea1-8368-46f0-a124-32fbd5c88b86",
        firstName: "Wayne",
        lastName: "Ugo",
-       totalPoints: 10,
-     },
+       totalPoints: 10
+     }
    ],
    questionStats: [
      {
@@ -75,19 +75,23 @@ const testData = {
        responses: [
          {
            id: "e74dcc3c-d8a1-481c-b209-ad7b80cbf4e8",
+           firstName: "Silas",
+           lastName: "Gaines",
            point: null,
            answer: "Fuck this shit!",
-           submittedAt: "2025-01-09T08:31:55.109",
+           submittedAt: "2025-01-09T08:31:55.109"
          },
          {
            id: "45e885e3-ab4a-4bc3-8027-b17ecaa62397",
+           firstName: "Wayne",
+           lastName: "Ugo",
            point: null,
            answer: "What the fuck?",
-           submittedAt: "2025-01-09T08:31:09.69",
-         },
+           submittedAt: "2025-01-09T08:31:09.69"
+         }
        ],
        averageTimeSpentInSeconds: 5.27,
-       answerCount: 2,
+       answerCount: 2
      },
      {
        questionId: "c46f3691-ac3a-4555-ac75-5ceac23596cf",
@@ -97,19 +101,23 @@ const testData = {
        responses: [
          {
            id: "615d1279-6381-49ca-b07b-5300c897fa59",
+           firstName: "Silas",
+           lastName: "Gaines",
            point: null,
            answer: null,
-           submittedAt: null,
+           submittedAt: null
          },
          {
            id: "161726d8-aa90-482e-b1ba-4d2764cecd77",
+           firstName: "Wayne",
+           lastName: "Ugo",
            point: null,
            answer: "Will?",
-           submittedAt: "2025-01-09T08:31:15.856",
-         },
+           submittedAt: "2025-01-09T08:31:15.856"
+         }
        ],
        averageTimeSpentInSeconds: 6.15,
-       answerCount: 1,
+       answerCount: 1
      },
      {
        questionId: "ccb3cb0a-5195-4cab-b5b8-d7539088efe3",
@@ -119,19 +127,23 @@ const testData = {
        responses: [
          {
            id: "e3673da1-b9b7-4b96-8988-f1f739fe2860",
+           firstName: "Silas",
+           lastName: "Gaines",
            point: 0,
            answer: "s",
-           submittedAt: "2025-01-09T08:31:45.116",
+           submittedAt: "2025-01-09T08:31:45.116"
          },
          {
            id: "2d6e19e4-0e55-43a8-895c-994fb21c3b75",
+           firstName: "Wayne",
+           lastName: "Ugo",
            point: 0,
            answer: "s",
-           submittedAt: "2025-01-09T08:30:17.922",
-         },
+           submittedAt: "2025-01-09T08:30:17.922"
+         }
        ],
        averageTimeSpentInSeconds: 4.2665,
-       answerCount: 2,
+       answerCount: 2
      },
      {
        questionId: "d4190d1c-8315-4888-9e06-f8d6131b261d",
@@ -141,19 +153,23 @@ const testData = {
        responses: [
          {
            id: "cf606476-0b45-4ca6-80be-5d0a7d4edc29",
+           firstName: "Silas",
+           lastName: "Gaines",
            point: 0,
            answer: "true",
-           submittedAt: "2025-01-09T08:31:47.233",
+           submittedAt: "2025-01-09T08:31:47.233"
          },
          {
            id: "8672d5ba-3e51-4aff-ab58-7caeb1f06bba",
+           firstName: "Wayne",
+           lastName: "Ugo",
            point: 0,
            answer: "true",
-           submittedAt: "2025-01-09T08:30:58.361",
-         },
+           submittedAt: "2025-01-09T08:30:58.361"
+         }
        ],
        averageTimeSpentInSeconds: 21.253,
-       answerCount: 2,
+       answerCount: 2
      },
      {
        questionId: "e4f143e5-092d-48c6-b13f-a4d088c0a3fb",
@@ -163,22 +179,26 @@ const testData = {
        responses: [
          {
            id: "3f695b1e-11a1-4ec2-9171-395a7feef889",
+           firstName: "Silas",
+           lastName: "Gaines",
            point: 0,
            answer: "5",
-           submittedAt: "2025-01-09T08:31:49.258",
+           submittedAt: "2025-01-09T08:31:49.258"
          },
          {
            id: "eb2bd26e-7f60-4328-b5c6-f747d58a0d74",
+           firstName: "Wayne",
+           lastName: "Ugo",
            point: 10,
            answer: "4",
-           submittedAt: "2025-01-09T08:31:04.948",
-         },
+           submittedAt: "2025-01-09T08:31:04.948"
+         }
        ],
        averageTimeSpentInSeconds: 4.279,
-       answerCount: 2,
-     },
-   ],
- },
+       answerCount: 2
+     }
+   ]
+ }
 };
 
 

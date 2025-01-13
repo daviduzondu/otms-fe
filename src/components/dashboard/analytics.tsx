@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useState, useMemo } from "react"
+import React, { useState, useMemo, useEffect } from "react"
 import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, CartesianGrid } from "recharts"
 import { Info } from 'lucide-react'
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658']
@@ -59,6 +59,7 @@ export const ChartDialog: React.FC<{ data: TestData }> = ({ data }) => {
   class: attempt.class.name,
  })), [data.attempts])
 
+
  const questionStats = useMemo(() => data.questionStats.sort((a, b) => Number(a.index) - Number(b.index)).map((stat) => ({
   index: `Q${stat.index + 1}`,
   points: stat.points,
@@ -67,7 +68,7 @@ export const ChartDialog: React.FC<{ data: TestData }> = ({ data }) => {
   studentsAnswered: stat.answerCount,
   correctAnswers: stat.responses.filter(r => r.point === stat.points).length,
   incorrectAnswers: stat.responses.filter(r => r.point !== null && r.point !== stat.points).length,
-  unanswered: stat.responses.filter(r => r.point === null).length,
+  partiallyCorrect: stat.responses.filter(r => r.point === null).length,
  })), [data.questionStats])
 
  const classDistribution = useMemo(() => {
@@ -83,6 +84,7 @@ export const ChartDialog: React.FC<{ data: TestData }> = ({ data }) => {
   return {
    highestScore: Math.max(...scores),
    lowestScore: Math.min(...scores),
+   // highestScoringStudent
    averageScore: scores.reduce((sum, score) => sum + score, 0) / scores.length,
    totalParticipants: data.attempts.length,
    totalQuestions: data.questionStats.length,
@@ -122,7 +124,7 @@ export const ChartDialog: React.FC<{ data: TestData }> = ({ data }) => {
    <DialogContent className="max-w-7xl max-h-[90vh] overflow-auto">
     <DialogTitle>Test Metrics - {data.title}</DialogTitle>
     <DialogDescription>
-     Duration: {data.durationMin} minutes | Total Points: {stats.totalPoints}
+     Duration: {data.durationMin} minutes
     </DialogDescription>
     <div className="space-y-8 mt-6">
      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 [&>*]:bg-slate-100">
@@ -213,6 +215,7 @@ export const ChartDialog: React.FC<{ data: TestData }> = ({ data }) => {
         <div className="h-[400px]">
          <ResponsiveContainer width="100%" height="100%">
           <BarChart data={studentScores}>
+           <CartesianGrid strokeDasharray="3 3" />
            <XAxis dataKey="name" tick={{ fontSize: 12 }} angle={-45} textAnchor="end" height={80} />
            <YAxis />
            <Tooltip />
@@ -225,13 +228,12 @@ export const ChartDialog: React.FC<{ data: TestData }> = ({ data }) => {
       </Card>
      </div>
 
-     <div className="flex w-full gap-2">
-      <Card className="flex-1">
+     <div className="flex w-full h-min gap-2 justify-between">
+      <Card className="w-full">
        <CardHeader>
         <CardTitle className="flex items-center gap-2">
          Question Statistics
-         <Info className="h-4 w-4" />
-         <span className="text-sm font-normal">Click on a bar to view question details</span>
+
         </CardTitle>
        </CardHeader>
        <CardContent>
@@ -247,70 +249,110 @@ export const ChartDialog: React.FC<{ data: TestData }> = ({ data }) => {
            }}
            layout="vertical"
           >
-           <XAxis type="number" />
+
+           <XAxis
+            type="number"
+            domain={[0, Math.ceil(Math.max(...questionStats.map(q=>q.avgTime), ...questionStats.map(q=>q.points)))]}
+            tickCount={30040} // Specifies the number of ticks
+            allowDecimals={false}
+           />
            <YAxis dataKey="index" type="category" />
            <Tooltip />
+           <CartesianGrid strokeDasharray="3 3" />
            <Legend />
-           <Bar dataKey="points" fill="#0088FE" name="Maximum Points" />
-           <Bar dataKey="avgTime" fill="#00C49F" name="Average Time (seconds)" />
-           <Bar dataKey="studentsAnswered" fill="#FFBB28" name="Number of students who answered" />
-           <Bar dataKey="correctAnswers" fill="#FF8042" name="Correct Answers" />
-           <Bar dataKey="incorrectAnswers" fill="#8884d8" name="Incorrect Answers" />
-           <Bar dataKey="unanswered" fill="#82ca9d" name="Unanswered" />
+           <Bar dataKey="points" fill="#0800FE" name="Maximum Points"></Bar>
+           <Bar dataKey="avgTime" fill="purple" name="Average Time (seconds)" />
+           <Bar fill="ORANGE" dataKey="correctAnswers" name="Students who answered correctly" />
           </BarChart>
          </ResponsiveContainer>
         </div>
        </CardContent>
       </Card>
 
-      {selectedQuestion && (
-       <Card className="flex-1">
-        <CardHeader>
-         <CardTitle>Question {selectedQuestion.index + 1}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-         <div className="grid grid-cols-1 gap-6">
-          <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: selectedQuestion.body }}></div>
-          <div className="h-[300px]">
-           <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-             <Pie
-              data={getResponseDistribution(selectedQuestion.responses, selectedQuestion.points)}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-              outerRadius={80}
-              fill="#8884d8"
-              dataKey="value"
+
+      <Card className="w-full">
+       {selectedQuestion ? (
+        <>
+         <CardHeader>
+          <CardTitle>Question {selectedQuestion.index + 1}</CardTitle>
+         </CardHeader>
+         <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 gap-6">
+           <div
+            className="prose max-w-none"
+            dangerouslySetInnerHTML={{ __html: selectedQuestion.body }}
+           ></div>
+           <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+             <PieChart>
+              <Pie
+               data={getResponseDistribution(selectedQuestion.responses, selectedQuestion.points).filter(
+                (x) => Number(x.value) !== 0
+               )}
+               cx="50%"
+               cy="50%"
+               labelLine={false}
+               label={({ name, percent }) =>
+                `${name}: ${(percent * 100).toFixed(0)}%`
+               }
+               innerRadius={40}
+               outerRadius={80}
+               fill="#8884d8"
+               dataKey="value"
+              >
+               {getResponseDistribution(selectedQuestion.responses, selectedQuestion.points).map(
+                (entry, index) => (
+                 <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                 />
+                )
+               )}
+              </Pie>
+              <Tooltip />
+              <Legend />
+             </PieChart>
+            </ResponsiveContainer>
+           </div>
+          </div>
+          <div>
+           <h4 className="text-lg font-semibold mb-2">Response Distribution</h4>
+           <div className="h-[200px]">
+            <ResponsiveContainer width="100%" height="100%">
+             <BarChart
+              data={selectedQuestion.responses.map((r, i) => ({
+               student: `${r.firstName} ${r.lastName}`,
+               points: r.point || 0,
+              }))}
              >
-              {getResponseDistribution(selectedQuestion.responses, selectedQuestion.points).map((entry, index) => (
-               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-             </Pie>
-             <Tooltip />
-             <Legend />
-            </PieChart>
-           </ResponsiveContainer>
+              <XAxis
+               dataKey="student"
+               angle={-45}
+               textAnchor="end"
+               fontSize={"12"}
+              />
+              <YAxis />
+              <Tooltip />
+              <CartesianGrid strokeDasharray="3 3" />
+
+              <Legend />
+              <Bar dataKey="points" fill="#8884d8" name="Points" />
+             </BarChart>
+            </ResponsiveContainer>
+           </div>
           </div>
-         </div>
-         <div>
-          <h4 className="text-lg font-semibold mb-2">Response Distribution</h4>
-          <div className="h-[200px]">
-           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={selectedQuestion.responses.map((r, i) => ({ student: `Student ${i + 1}`, points: r.point || 0 }))}>
-             <XAxis dataKey="student" />
-             <YAxis />
-             <Tooltip />
-             <Legend />
-             <Bar dataKey="points" fill="#8884d8" name="Points" />
-            </BarChart>
-           </ResponsiveContainer>
-          </div>
-         </div>
+         </CardContent>
+        </>
+       ) : (
+        <CardContent className="flex flex-col items-center h-full justify-center gap-4  text-muted-foreground">
+         <Info className="h-6 w-6" />
+         <span className="text-sm font-normal text-center">
+          Click on a bar to view question details
+         </span>
         </CardContent>
-       </Card>
-      )}
+       )}
+      </Card>
+
      </div>
     </div>
    </DialogContent>
