@@ -9,12 +9,12 @@ import LocalErrorFallback from "../errors/local-error-fallback";
 export default function RecentTests() {
 
  return (
-  <Card>
+  <Card >
    <CardHeader>
     <CardTitle>Recent Tests</CardTitle>
-    <CardDescription>Last 5 tests created or administered</CardDescription>
+    <CardDescription>Last few tests created or administered</CardDescription>
    </CardHeader>
-   <CardContent>
+   <CardContent className="h-full">
     <Suspense fallback={<div>Loading...</div>}>
      <ErrorBoundary FallbackComponent={LocalErrorFallback}>
       <TestList />

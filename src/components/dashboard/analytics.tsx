@@ -68,7 +68,6 @@ async function fetchTestAnalytics(accessToken: string, testId: string) {
 }
 
 export const TestAnalytics: React.FC<{ testId: string, children?: ReactNode }> = ({ testId, children }) => {
- const queryClient = useQueryClient();
  const { user } = useContext(AuthContext);
  const [selectedQuestion, setSelectedQuestion] = useState<QuestionStat | null>(null);
 

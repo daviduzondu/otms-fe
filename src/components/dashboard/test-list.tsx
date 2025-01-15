@@ -50,7 +50,7 @@ export default function TestList() {
  // Display the list of tests if available
  return (
   <ul className="space-y-4">
-   {data && data.slice().reverse().filter((x, i) => i <= 4).map((test, index) => (
+   {data && data.slice().reverse().filter((x, i) => i <= 7).map((test, index) => (
     <li key={index} className="flex items-center justify-between">
      <div>
       <h3 className="font-semibold">{test.title}</h3>
