@@ -38,8 +38,6 @@ export default function DashboardShell({ children }) {
    <NavItem setTopBar={setTopBar} icon={<ClipboardList />} label="Tests" href={'/dashboard/tests'} />
    <NavItem setTopBar={setTopBar} icon={<GraduationCap />} label="Classes" />
    <NavItem setTopBar={setTopBar} icon={<Users />} label="Students" />
-   <NavItem setTopBar={setTopBar} icon={<Activity />} label="Analytics" href="/dashboard/analytics" />
-   <NavItem setTopBar={setTopBar} icon={<Settings />} label="Settings" />
    <NavItem setTopBar={setTopBar} icon={<LogOut />} label="Logout" onClick={() => confirm("Are you sure you want to log out?") && signOut({ callbackUrl: '/' })} className={"absolute bottom-0 w-full"} />
   </nav>
 
@@ -69,13 +67,6 @@ export default function DashboardShell({ children }) {
        Create New Test
       </Button>
      </Link>
-     <Button variant="ghost" size="icon">
-      <Bell className="h-5 w-5" />
-     </Button>
-     <Avatar>
-      <AvatarImage src="/placeholder.svg?height=32&width=32" alt="Teacher" />
-      <AvatarFallback>TC</AvatarFallback>
-     </Avatar>
     </div>
    </header>
    <main className="flex-1 overflow-x-hidden overflow-y-auto  h-full">

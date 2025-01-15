@@ -62,8 +62,6 @@ export function StudentAnswerCard({
  const cardBackgroundColor = answer.graded ? 'bg-white' : 'bg-slate-100'
  const isGradingDisabled = !answer.answer
 
-
-
  const handleGrade = async (points: number | undefined, autoGrade = false) => {
   try {
 
@@ -112,7 +110,7 @@ export function StudentAnswerCard({
        <span className="text-xs">{QuestionTypeMap[answer.type]}{" "}{answer.questionId}</span>
       </CardDescription>
      </div>
-     {!updatingScore ? <div className="flex items-center space-x-2">
+     {!updatingScore ? <div className="flex items-center space-x-2 whitespace-nowrap">
       <span className={`text-sm font-medium ${getGradeStatusColor(localGradeStatus)}`}>
        {localGradeStatus}
       </span>

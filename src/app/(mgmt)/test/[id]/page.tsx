@@ -5,7 +5,7 @@ import * as z from 'zod'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { ArrowLeft, ArrowLeftCircle, BookText, Edit, GripVertical, List, Loader, PlusIcon, Printer, Settings } from 'lucide-react'
+import { ArrowLeft, ArrowLeftCircle, BookText, ChartColumn, Edit, GripVertical, List, Loader, PlusIcon, Printer, Settings } from 'lucide-react'
 import { differenceInMinutes } from 'date-fns'
 import { AuthContext } from '../../../../contexts/auth.context'
 import { errorToast } from '../../../../helpers/show-toasts'
@@ -25,6 +25,7 @@ import { TestPDFPreview } from '../../../../components/test/test-pdf-preview'
 import LocalErrorFallback from '../../../../components/errors/local-error-fallback'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { TestDetails } from '../../../../types/test'
+import { TestAnalytics } from '../../../../components/dashboard/analytics'
 
 export default function EnhancedTestQuestionManagement({ params }: { params: { id: string } }) {
  const { showBoundary } = useErrorBoundary()
@@ -226,7 +227,7 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
           questions={questions}
           instructions={testDetails.instructions}
          />
-         <Button variant="outline" size="sm" className="flex gap-2">
+         <Button variant="outline" size="sm" className="flex items-center gap-2">
           <Settings className="w-4 h-4" />
           <span className="hidden lg:block">Test Settings</span>
          </Button>
@@ -234,12 +235,22 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
           <BookText className="w-4 h-4" />
           <span className="hidden lg:block">Submissions</span>
          </Button>
+         {/* <Button variant="outline" size="sm" className="flex gap-2" onClick={toggleResponses}>
+         </Button> */}
         </>
        ) : (
-        <Button variant="outline" size="sm" className="flex gap-2" onClick={toggleResponses}>
-         <ArrowLeftCircle className="w-4 h-4" />
-         <span>Back to questions</span>
-        </Button>
+        <div className='flex items-center gap-2'>
+         <Button variant="outline" size="sm" className="flex gap-2" onClick={toggleResponses}>
+          <ArrowLeftCircle className="w-4 h-4" />
+          <span>Back to questions</span>
+         </Button>
+         <TestAnalytics testId={testDetails.id}>
+          <Button variant={'outline'} size={'sm'}>
+           <ChartColumn />
+           <span className="hidden lg:block">Analytics</span>
+          </Button>
+         </TestAnalytics>
+        </div>
        )}
       </div>
       <div className="flex gap-2">
