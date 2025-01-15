@@ -1,13 +1,13 @@
 'use client'
 
 import React, { useContext, useMemo } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { FileText, UserPlus, Edit, Activity, PlusCircle, BookOpen } from 'lucide-react'
 import { format, isToday, isYesterday, isThisWeek, isThisMonth, parseISO } from 'date-fns'
 import { useQuery } from '@tanstack/react-query'
-import { AuthContext } from '../contexts/auth.context'
+import { AuthContext } from '../../contexts/auth.context'
 import Skeleton from 'react-loading-skeleton'
-import { ScrollArea } from './ui/scroll-area'
+import { ScrollArea } from '../ui/scroll-area'
 
 interface ActivityItem {
  id: string
@@ -79,22 +79,25 @@ const groupActivities = (activities: ActivityItem[]): GroupedActivity[] => {
      message = `${items.length} ${type} ${items.length === 1 ? 'activity' : 'activities'}`
    }
 
-   let timestamp
-   if (isToday(latestDate)) {
-    timestamp = `Today, ${format(latestDate, 'h:mm a')}`
-   } else if (isYesterday(latestDate)) {
-    timestamp = `Yesterday, ${format(latestDate, 'h:mm a')}`
-   } else if (isThisWeek(latestDate)) {
-    timestamp = format(latestDate, 'EEEE, h:mm a')
-   } else if (isThisMonth(latestDate)) {
-    timestamp = format(latestDate, 'MMMM d, h:mm a')
-   } else {
-    timestamp = format(latestDate, 'MMMM d, yyyy')
-   }
-
-   return { icon, message, timestamp }
+   return { icon, message, timestamp: latestDate.toISOString() }
   })
  ).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+}
+
+function getHumanReadableTimeStamp(date: Date) {
+ let timestamp
+ if (isToday(date)) {
+  timestamp = `Today, ${format(date, 'h:mm a')}`
+ } else if (isYesterday(date)) {
+  timestamp = `Yesterday, ${format(date, 'h:mm a')}`
+ } else if (isThisWeek(date)) {
+  timestamp = format(date, 'EEEE, h:mm a')
+ } else if (isThisMonth(date)) {
+  timestamp = format(date, 'MMMM d, h:mm a')
+ } else {
+  timestamp = format(date, 'MMMM d, yyyy')
+ }
+ return timestamp
 }
 
 async function fetchRecentActivity(accessToken: string) {
@@ -138,6 +141,7 @@ export const DashboardActivityLog: React.FC = () => {
   <Card>
    <CardHeader>
     <CardTitle>Recent Activity</CardTitle>
+    <CardDescription>An overview of recent activity</CardDescription>
    </CardHeader>
    <CardContent className='h-full'>
     <ScrollArea className="h-full">
@@ -148,7 +152,7 @@ export const DashboardActivityLog: React.FC = () => {
        </div>
        <div className="ml-4">
         <p className="text-sm font-medium">{activity.message}</p>
-        <p className="text-xs text-gray-500">{activity.timestamp}</p>
+        <p className="text-xs text-gray-500">{getHumanReadableTimeStamp(new Date(activity.timestamp))}</p>
        </div>
       </div>
      ))}

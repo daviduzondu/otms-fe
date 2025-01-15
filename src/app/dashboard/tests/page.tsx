@@ -101,6 +101,7 @@ export default function DashboardTests() {
   columns,
   getCoreRowModel: getCoreRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
+  sortDescFirst: true,
   onSortingChange: setSorting,
   getSortedRowModel: getSortedRowModel(),
   onColumnFiltersChange: setColumnFilters,

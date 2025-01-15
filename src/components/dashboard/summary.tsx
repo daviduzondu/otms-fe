@@ -46,7 +46,7 @@ export default function DashboardSummary() {
  return <div className={"grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4"}>
   <StatCard title="Total Students" value={data.totalStudents} icon={<Users className="h-8 w-8" />} />
   <StatCard title="Active Classes" value={data.classes} icon={<GraduationCap className="h-8 w-8" />} />
-  <StatCard title="Tests Conducted" value={data.testCount} icon={<ClipboardList className="h-8 w-8" />} />
+  <StatCard title="Tests Created" value={data.testCount} icon={<ClipboardList className="h-8 w-8" />} />
   <StatCard title="Avg. Performance" value={`${Math.round(data.averagePerformance)}%`} icon={<Activity className="h-8 w-8" />} />
  </div>
 }

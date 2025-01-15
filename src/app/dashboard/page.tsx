@@ -13,7 +13,7 @@ import Link from 'next/link'
 import RecentTests from '../../components/dashboard/recent-tests'
 import { AuthContext } from '../../contexts/auth.context'
 import DashboardSummary from '../../components/dashboard/summary'
-import { DashboardActivityLog } from '../../components/dashboard-activity-log'
+import { DashboardActivityLog } from '../../components/dashboard/dashboard-activity-log'
 import { ErrorBoundary } from 'react-error-boundary'
 import LocalErrorFallback from '../../components/errors/local-error-fallback'
 

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useMemo, useContext, useEffect, ReactNode } from "react"
-import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogHeader } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, CartesianGrid } from "recharts"
@@ -161,10 +161,12 @@ export const TestAnalytics: React.FC<{ testId: string, children?: ReactNode }> =
     </Button>}
    </DialogTrigger>
    <DialogContent className="max-w-7xl h-[90vh] flex flex-col overflow-auto">
-    <DialogTitle>Test Analytics - {data.title}</DialogTitle>
-    <DialogDescription>
-     Duration: {data.durationMin} minutes
-    </DialogDescription>
+    <DialogHeader>
+     <DialogTitle>Test Analytics - {data.title}</DialogTitle>
+     <DialogDescription>
+      Duration: {data.durationMin} minutes
+     </DialogDescription>
+    </DialogHeader>
     {(data?.attempts.length === 0 || data?.questionStats.length === 0) ? <div className="border-2 h-full flex items-center justify-center border-dotted bg-slate-100 rounded-sm space-y-4 flex-col">
      <LayoutPanelLeft size={80} />
      <span className="text-xl font-semibold">Nothing to see here...yet</span>
