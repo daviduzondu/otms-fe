@@ -5,7 +5,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { useEffect } from "react"
 import { motion } from "framer-motion"
-import { ArrowRight, BarChart3, Book, Calendar, FileText, ImageIcon, Lock, MonitorPlay, MoveUpRight, PenSquare, Settings2, Shield, Sparkles, UserPlus } from 'lucide-react'
+import { ArrowRight, BarChart3, Book, Calendar, Clock, FileText, ImageIcon, Lock, MonitorPlay, MoveUpRight, PenSquare, Settings2, Shield, Sparkles, UserPlus } from 'lucide-react'
 import { Badge } from "../../components/ui/badge"
 import ActionButtons from "../../components/hero-section/action-buttons"
 
@@ -28,7 +28,7 @@ export default function Home() {
        <Badge variant="secondary" className="rounded-md px-3 py-1 mb-5 text-[0.9rem]">
         Revolutionizing Classroom assessments
        </Badge>
-       <h1 className="text-5xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-[5rem]">
+       <h1 className="text-5xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-[5.5rem]">
         Your All-In-One Platform to{" "}<br />
         <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
          Create, Deliver & Grade
@@ -81,7 +81,7 @@ export default function Home() {
          <h3 className="font-semibold">Equation Editor</h3>
         </div>
         <p className="mt-2 text-sm text-gray-500">
-         Easily integrate mathematical equations and formulas into question text and answer choices.
+         Easily integrate mathematical equations and formulas into test questions.
         </p>
        </motion.div>
        <motion.div
@@ -102,11 +102,11 @@ export default function Home() {
         className="relative overflow-hidden rounded-lg border bg-background p-6"
        >
         <div className="flex gap-4">
-         <Calendar className="h-6 w-6 text-green-500" />
-         <h3 className="font-semibold">Scheduling & Time Limits</h3>
+         <Clock className="h-6 w-6 text-green-500" />
+         <h3 className="font-semibold">Time Limits</h3>
         </div>
         <p className="mt-2 text-sm text-gray-500">
-         Set specific dates and times for test availability, with countdown timers for realistic test environments.
+         Set time-limited tests with countdown timers. The timer continues running even if a student leaves the page.
         </p>
        </motion.div>
        <motion.div
@@ -178,7 +178,7 @@ export default function Home() {
        <div className="space-y-2">
         <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">Start creating tests today</h2>
         <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-         Join thousands of educators who are already using our platform to create better assessments.
+         Join the educators who are already using this platform to create better assessments.
         </p>
        </div>
        <div className="flex flex-col gap-2 min-[400px]:flex-row">
