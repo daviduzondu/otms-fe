@@ -160,14 +160,15 @@ export const TestAnalytics: React.FC<{ testId: string, children?: ReactNode }> =
      Analytics
     </Button>}
    </DialogTrigger>
-   <DialogContent className="max-w-7xl h-[90vh] flex flex-col overflow-auto">
-    <DialogHeader>
+   <DialogContent className="max-w-7xl h-[90vh] flex gap-4 flex-col">
+    <DialogHeader className=" h-fit">
      <DialogTitle>Test Analytics - {data.title}</DialogTitle>
      <DialogDescription>
       Duration: {data.durationMin} minutes
      </DialogDescription>
     </DialogHeader>
-    {(data?.attempts.length === 0 || data?.questionStats.length === 0) ? <div className="border-2 h-full flex items-center justify-center border-dotted bg-slate-100 rounded-sm space-y-4 flex-col">
+    <div className="flex flex-col h-full">
+    {(data?.attempts.length === 0 || data?.questionStats.length === 0) ? <div className="border-2 h-full flex items-center justify-center border-dotted bg-slate-100 rounded-sm space-y-4 flex-col text-gray-500">
      <LayoutPanelLeft size={80} />
      <span className="text-xl font-semibold">Nothing to see here...yet</span>
      <span className="text-base">Nothing to analyze because no one has submitted.</span>
@@ -396,6 +397,7 @@ export const TestAnalytics: React.FC<{ testId: string, children?: ReactNode }> =
        </Card>
       </div>
      </div>}
+    </div>
    </DialogContent>
   </Dialog>
  )

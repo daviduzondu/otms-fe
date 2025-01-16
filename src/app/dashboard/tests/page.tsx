@@ -162,6 +162,7 @@ export default function DashboardTests() {
        table.getRowModel().rows.map((row) => (
         <TableRow
          key={row.id}
+         className="border-l-0"
          data-state={row.getIsSelected() && "selected"}
         >
          {row.getVisibleCells().map((cell) => (
