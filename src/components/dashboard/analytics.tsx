@@ -161,7 +161,7 @@ export const TestAnalytics: React.FC<{ testId: string, children?: ReactNode }> =
      Analytics
     </Button>}
    </DialogTrigger>
-   <DialogContent className="max-w-7xl h-[90vh] flex gap-4 flex-col overflow-y-scroll">
+   <DialogContent className="max-w-7xl h-[90vh] flex gap-4 flex-col overflow-y-auto">
     <DialogHeader className=" h-fit">
      <DialogTitle>Test Analytics - {data.title}</DialogTitle>
      <DialogDescription>

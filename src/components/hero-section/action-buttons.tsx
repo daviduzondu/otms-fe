@@ -13,15 +13,15 @@ export default function ActionButtons(): React.JSX.Element {
  const router = useRouter()
 
  return <>
-  <div className="flex flex-col gap-6">
-   <Button className="w-fit lg:text-lg lg:py-6 font-normal group relative flex items-center shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out" onClick={() => router.push(user ? "/dashboard" : "/auth/register")}>
+  <div className="flex flex-col gap-6 items-center">
+   <Button className="w-fit text-base lg:py-6 -ml-2 font-normal group relative flex items-center shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out" onClick={() => router.push(user ? "/dashboard" : "/auth/register")}>
     {!user ? "Create an account" : "Continue to dashboard"}
     <ArrowRight
      className="ml-2 w-5 transition-all duration-100 ease-in-out group-hover:ml-[0.8rem] group-hover:w-5 group-hover:opacity-100"
     />
    </Button>
 
-   {!user && <span className="font-semibold flex gap-1 lg:text-xl text-base">Already have an account?
+   {!user && <span className="font-medium flex gap-1 text-base">Already have an account?
     <Link className="group flex text-blue-600 hover:underline hover:underline-offset-1 items-center justify-center" href={"/auth/login"}>
      Login
      <ArrowRight
