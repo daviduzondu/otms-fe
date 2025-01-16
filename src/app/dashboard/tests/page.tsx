@@ -18,7 +18,7 @@ import {
  ColumnFiltersState,
  getFilteredRowModel,
 } from "@tanstack/react-table"
-import { ChartNoAxesColumn, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Eye, Loader, Search, SearchIcon, Trash2 } from 'lucide-react'
+import { BarChartIcon as ChartNoAxesColumn, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Eye, Loader, Search, SearchIcon, Trash2 } from 'lucide-react'
 import { TestDetails } from "../../../types/test"
 import Skeleton from "react-loading-skeleton"
 import Link from "next/link"
@@ -86,7 +86,9 @@ const columns: ColumnDef<TestDetails>[] = [
 
 export default function DashboardTests() {
  const { user } = useContext(AuthContext)
- const [sorting, setSorting] = useState<SortingState>([])
+ const [sorting, setSorting] = useState<SortingState>([
+  { id: "createdAt", desc: true }
+ ])
  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
  const { data, isError, isLoading, error } = useQuery<TestDetails[]>({
@@ -106,6 +108,9 @@ export default function DashboardTests() {
   getSortedRowModel: getSortedRowModel(),
   onColumnFiltersChange: setColumnFilters,
   getFilteredRowModel: getFilteredRowModel(),
+  initialState: {
+    sorting: [{ id: "createdAt", desc: true }]
+  },
   state: {
    sorting,
    columnFilters,
