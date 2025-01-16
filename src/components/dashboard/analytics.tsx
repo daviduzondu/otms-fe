@@ -48,6 +48,7 @@ interface Attempt {
 interface TestData {
  id: string
  title: string
+ totalParticipants: string
  durationMin: number
  attempts: Attempt[]
  questionStats: QuestionStat[]
@@ -123,7 +124,7 @@ export const TestAnalytics: React.FC<{ testId: string, children?: ReactNode }> =
   highestScore: Math.max(...studentScores.map(s => s.score)),
   lowestScore: Math.min(...studentScores.map(s => s.score)),
   averageScore: studentScores.reduce((sum, s) => sum + s.score, 0) / studentScores.length,
-  totalParticipants: data.attempts.length,
+  totalAttempts: data.attempts.length,
   totalQuestions: data.questionStats.length,
   totalPoints: data.questionStats.reduce((sum, q) => sum + q.points, 0),
  };
@@ -168,20 +169,21 @@ export const TestAnalytics: React.FC<{ testId: string, children?: ReactNode }> =
       Duration: {data.durationMin} minutes
      </DialogDescription>
     </DialogHeader>
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full relative">
      {(data?.attempts.length === 0 || data?.questionStats.length === 0) ? <div className="border-2 h-full flex items-center justify-center border-dotted bg-slate-100 rounded-sm space-y-4 flex-col text-gray-500">
       <LayoutPanelLeft size={80} />
       <span className="text-xl font-semibold">Nothing to see here...yet</span>
       <span className="text-base">Nothing to analyze because no one has submitted.</span>
      </div> :
-      <div className="space-y-8">
+      <div className="space-y-8 relative">
+       {Number(data.totalParticipants) !== Number(stats.totalAttempts) ?  <div className="bg-yellow-300 p-3 rounded-sm flex gap-2 items-center"><Info size={20}/> Analytics is incomplete because some students are yet to submit or haven't taken the test yet.</div> : null}
        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 [&>*]:bg-slate-100">
         <Card>
          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Participants</CardTitle>
+          <CardTitle className="text-sm font-medium">Total Attempts</CardTitle>
          </CardHeader>
          <CardContent>
-          <div className="text-2xl font-bold">{stats.totalParticipants}</div>
+          <div className="text-2xl font-bold">{stats.totalAttempts}</div>
          </CardContent>
         </Card>
         <Card>

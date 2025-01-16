@@ -59,7 +59,7 @@ export function StudentAnswerCard({
   }
  }
 
- const cardBackgroundColor = answer.graded ? 'bg-white' : 'bg-slate-100'
+ const cardBackgroundColor = answer.graded || answer?.point >= 0 || answer.autoGraded ? 'bg-white' : 'bg-slate-100'
  const isGradingDisabled = !answer.answer
 
  const handleGrade = async (points: number | undefined, autoGrade = false) => {

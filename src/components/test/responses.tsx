@@ -53,6 +53,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
   queryKey: ['submissions', testId, user?.accessToken],
   queryFn: () => fetchSubmissions(testId, user?.accessToken || ''),
   enabled: Boolean(user?.accessToken),
+  // refetchInterval: 3000,
  })
 
  useEffect(() => {
@@ -243,9 +244,9 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
 
 
  const handleWebcamCaptureSelect = (capture: WebcamCapture) => {
-   setSelectedWebcamCapture(capture);
-   const index = selectedSubmission?.webcamCaptures.findIndex(c => c.id === capture.id) ?? 0;
-   setCurrentCaptureIndex(index);
+  setSelectedWebcamCapture(capture);
+  const index = selectedSubmission?.webcamCaptures.findIndex(c => c.id === capture.id) ?? 0;
+  setCurrentCaptureIndex(index);
  }
 
  // const handleGenerateResultsSheet = () => {
