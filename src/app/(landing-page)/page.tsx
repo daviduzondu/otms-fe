@@ -25,7 +25,7 @@ export default function Home() {
      </div>
      <div className="container flex flex-col items-center justify-center gap-4 px-4 text-center md:px-6">
       <div className="space-y-3">
-       <Badge variant="secondary" className="rounded-md px-3 py-1 mb-5">
+       <Badge variant="secondary" className="rounded-md px-3 py-1 mb-5 text-[0.9rem]">
         Revolutionizing Classroom assessments
        </Badge>
        <h1 className="text-5xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-[5rem]">

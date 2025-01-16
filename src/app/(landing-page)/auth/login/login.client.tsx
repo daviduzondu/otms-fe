@@ -78,9 +78,9 @@ export default function LoginClient() {
                         {submitting ? "Logging in..." : "Login"}
                     </Button>
                 </div>
-                <div className="mt-4 text-center text-sm">
+                <div className="mt-4 text-center text-sm ">
                     Don&apos;t have an account?{" "}
-                    <Link href={`/auth/register`} className="hover:underline" prefetch={false}>
+                    <Link href={`/auth/register`} className="hover:underline text-blue-600" prefetch={false}>
                         Register
                     </Link>
                 </div>

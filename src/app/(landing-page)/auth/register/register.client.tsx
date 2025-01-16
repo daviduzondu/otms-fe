@@ -121,7 +121,7 @@ export default function RegisterClient() {
                 </div>
                 <div className="mt-4 text-center text-sm">
                     Already have an account?{" "}
-                    <Link href={"/auth/login"} className="hover:underline" prefetch={false}>
+                    <Link href={"/auth/login"} className="hover:underline text-blue-600" prefetch={false}>
                         Login
                     </Link>
                 </div>
