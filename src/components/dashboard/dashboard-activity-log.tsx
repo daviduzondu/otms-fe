@@ -2,7 +2,7 @@
 
 import React, { useContext, useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { FileText, UserPlus, Edit, Activity, PlusCircle, BookOpen } from 'lucide-react'
+import { FileText, UserPlus, Edit, Activity, PlusCircle, BookOpen, FolderX } from 'lucide-react'
 import { format, isToday, isYesterday, isThisWeek, isThisMonth, parseISO } from 'date-fns'
 import { useQuery } from '@tanstack/react-query'
 import { AuthContext } from '../../contexts/auth.context'
@@ -138,14 +138,17 @@ export const DashboardActivityLog: React.FC = () => {
  }
 
  return (
-  <Card>
+  <Card className="h-full flex flex-col">
    <CardHeader>
     <CardTitle>Recent Activity</CardTitle>
     <CardDescription>An overview of recent activity</CardDescription>
    </CardHeader>
-   <CardContent className='h-full'>
-    <ScrollArea className="h-full">
-     {groupedActivities.map((activity, index) => (
+   <ScrollArea className="p-6 pt-0 pl-0 h-full">
+    <CardContent className={"flex flex-col flex-1 h-full"}>
+     {(groupActivities.length === 0) ? <div className="h-full w-full gap-2 flex flex-col items-center justify-center">
+      <FolderX size={50} />
+      <span className="text-xl">No activity yet...</span>
+     </div> : groupedActivities.map((activity, index) => (
       <div key={index} className="flex items-start mb-4">
        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white">
         {activity.icon}
@@ -156,8 +159,8 @@ export const DashboardActivityLog: React.FC = () => {
        </div>
       </div>
      ))}
-    </ScrollArea>
-   </CardContent>
-  </Card>
+    </CardContent>
+   </ScrollArea>
+  </Card >
  )
 }

@@ -20,7 +20,7 @@ export default function DashboardShell({ children }) {
  });
 
 
- return <><aside className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col`}
+ return <div className="flex w-full h-screen overflow-hidden"><aside className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col`}
  >
   <div className="flex items-center justify-between h-16 px-6 bg-gray-800 text-white">
    <Link href="/" className={`font-plex ${ibm.className} text-2xl font-semibold flex gap-2 items-center`}><GraduationCap size={30} /> OTMS</Link>
@@ -69,13 +69,13 @@ export default function DashboardShell({ children }) {
      </Link>
     </div>
    </header>
-   <main className="flex-1 overflow-x-hidden overflow-y-auto  h-full">
-    <div className="mx-auto px-6 py-6 h-full">
+   <main className="flex-1 flex overflow-x-hidden overflow-y-auto">
+    <div className="mx-auto px-6 py-6 w-full">
      <ErrorBoundary FallbackComponent={LocalErrorFallback} >
       {children}
      </ErrorBoundary>
     </div></main>
-  </div></>
+  </div></div>
 
 }
 

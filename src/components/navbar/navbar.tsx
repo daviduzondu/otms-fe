@@ -29,7 +29,7 @@ export default function Navbar(): React.JSX.Element {
   }, []);
 
   return (
-    <nav className={`flex justify-between items-center left-0 px-5 py-2 top-0 border-bottom-black transition-all duration-300 ${showBlur ? 'backdrop-blur-md bg-[#ffffff49] border-b' : ''} z-10 fixed w-full`}>
+    <nav className={`flex justify-between items-center left-0 px-5 py-2 top-0 border-bottom-black transition-all duration-[250ms] ${showBlur ? 'backdrop-blur-md bg-[#ffffff49] border-b' : ''} z-10 fixed w-full`}>
       <Link
         href="/"
         className="font-plex text-lg font-semibold flex gap-2 items-center lg:hidden"

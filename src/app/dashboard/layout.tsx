@@ -23,7 +23,7 @@ export default function DashboardLayout({
    <AuthProvider>
     <AuthGuard next={pathname}>
 
-     <div className="flex h-screen">
+     <div className="flex ">
       <DashboardShell>{children}</DashboardShell>
       {/* <div className="flex-1 flex flex-col overflow-hidden">
 

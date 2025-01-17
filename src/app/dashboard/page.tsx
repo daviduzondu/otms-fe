@@ -17,25 +17,18 @@ import { DashboardActivityLog } from '../../components/dashboard/dashboard-activ
 import { ErrorBoundary } from 'react-error-boundary'
 import LocalErrorFallback from '../../components/errors/local-error-fallback'
 
-const topicPerformance = [
- { name: "Algebra", score: 85 },
- { name: "Geometry", score: 78 },
- { name: "Calculus", score: 72 },
- { name: "Statistics", score: 88 },
-]
-
 export default function Page() {
  const { user } = useContext(AuthContext);
 
 
  return (
-  <div className="flex flex-col h-[85vh]">
+  <div className="flex flex-col h-full">
    <h2 className="text-xl font-semibold text-gray-800 mb-4">
     Welcome back, {user.firstName} {user.lastName}
    </h2>
    <DashboardSummary />
 
-   <div className="flex-1 flex w-full [&>*]:flex-1 gap-6 -mt-2 min-h-0 overflow-hidden">
+   <div className="flex w-full [&>*]:w-1/2 h-full gap-6 -mt-2 overflow-hidden">
     <RecentTests />
     <ErrorBoundary FallbackComponent={LocalErrorFallback}>
      <DashboardActivityLog />
