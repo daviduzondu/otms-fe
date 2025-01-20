@@ -76,7 +76,7 @@ export const TestAnalytics: React.FC<{ testId: string, children?: ReactNode }> =
   queryKey: [`analytics-${testId}`],
   queryFn: () => fetchTestAnalytics(user.accessToken, testId),
   enabled: !!user?.accessToken && !!testId,
-  refetchInterval: 1000,
+  refetchInterval: 5000,
  });
 
  // While the data is loading, show the skeleton loader

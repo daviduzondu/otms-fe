@@ -28,6 +28,7 @@ export interface Submission {
  endsAt: string
  origin: string
  answers: Answer[]
+ graded: boolean
  webcamCaptures: WebcamCapture[]
  pendingSubmissionsCount: number,
  completed: boolean
@@ -47,7 +48,6 @@ export interface Answer {
  point: number | null
  isWithinTime: boolean | null
  autoGraded: boolean
- graded: boolean
  maxPoints: number
 }
 

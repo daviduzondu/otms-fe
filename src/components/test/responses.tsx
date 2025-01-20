@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Check, X, Edit2, Clock, FileText, Mail, Download, Eye, EyeOff, CheckCircle, ChevronDown, ChevronUp, AlertTriangle, FileSpreadsheet, Settings, FileUp, CameraOff, File, ArrowLeftCircle, ArrowRightCircle } from 'lucide-react'
+import { Check, X, Edit2, Clock, FileText, Mail, Download, Eye, EyeOff, CheckCircle, ChevronDown, ChevronUp, AlertTriangle, FileSpreadsheet, Settings, FileUp, CameraOff, File, ArrowLeftCircle, ArrowRightCircle, Loader } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -39,7 +39,6 @@ const fetchSubmissions = async (testId: string, accessToken: string) => {
 
 export default function Responses({ testDetails }: { testDetails: TestDetails }) {
  const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null)
- const [resultsReleased, setResultsReleased] = useState(false)
  const [selectedWebcamCapture, setSelectedWebcamCapture] = useState<WebcamCapture | null>(null)
  const [isWebcamSectionOpen, setIsWebcamSectionOpen] = useState(false)
  const [editingAnswerId, setEditingAnswerId] = useState<string | null>(null)
@@ -48,15 +47,20 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
  const queryClient = useQueryClient()
  const manualUpdateRef = useRef(false)
  const testId = testDetails.id
+ const [sendingResult, setSendingResult] = useState(false);
 
  const { data: submissions = [], isError, error, isLoading } = useQuery<Submission[], Error>({
   queryKey: ['submissions', testId, user?.accessToken],
   queryFn: () => fetchSubmissions(testId, user?.accessToken || ''),
   enabled: Boolean(user?.accessToken),
-  // refetchInterval: 3000,
+  // refetchInterval: 1000,
  })
 
  useEffect(() => {
+
+  // submission.answers.filter(x => x.answer !== null).every(answer => answer.point !== null && answer.point >= 0)
+
+
   if (manualUpdateRef.current) return;
   queryClient.setQueryData(
    ['submissions', testId, user?.accessToken],
@@ -227,14 +231,6 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
   })
  }
 
- const handleReleaseResults = () => {
-  setResultsReleased(!resultsReleased)
-  infoToast(`${resultsReleased ? "Results Hidden" : "Results Released"}`, {
-   description: resultsReleased
-    ? "Students can no longer view their results."
-    : "Students can now view their results.",
-  })
- }
 
  const handleExport = (format: string) => {
   infoToast("Export Initiated", {
@@ -249,6 +245,30 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
   setCurrentCaptureIndex(index);
  }
 
+ const sendResultsEmail = async () => {
+  setSendingResult(true)
+  const data = {
+   testId: testDetails.id,
+   students: submissions.filter(s => s.completed).map(s => s.id)
+  }
+  try {
+   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/send-results`, {
+    method: "POST",
+    body: JSON.stringify(data),
+    headers: {
+     "Content-Type": "application/json",
+     "Authorization": `Bearer ${user.accessToken}`
+    }
+   });
+   const { message } = await response.json();
+   if (!response.ok) throw new Error(message || "Failed to send results")
+    successToast("Successfully sent results to students")
+  } catch (error) {
+   errorToast((error as Error).message)
+   console.error((error as Error).message)
+  }
+  setSendingResult(false)
+ }
  // const handleGenerateResultsSheet = () => {
  //  console.log(submissions.map(s=>({...s, totalScore: calculateTotalScore(s)})))
  //  successToast("Results Sheet Generated", {
@@ -281,9 +301,9 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
 
       <div className="flex flex-col space-y-2">
        <ResultSheet testDetails={testDetails} submissions={submissions.map(s => ({ ...s, totalScore: calculateTotalScore(s) }))} />
-       <Button className="w-full" variant={'outline'} disabled={submissions.length <= 0}>
-        <Mail className="mr-2 h-4 w-4" />
-        Send results via email
+       <Button className="w-full" variant={'outline'} onClick={sendResultsEmail} disabled={submissions.length <= 0 || sendingResult}>
+        {!sendingResult ? <Mail className="mr-2 h-4 w-4" /> : <Loader className='animate-spin' />}
+        {!sendingResult ? "Send results via email" : "Sending..."}
        </Button>
 
        <div className='space-y-2 border p-2 rounded-md bg-slate-100'>

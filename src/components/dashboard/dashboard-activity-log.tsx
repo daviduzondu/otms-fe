@@ -128,7 +128,6 @@ export const DashboardActivityLog: React.FC = () => {
   }
   return [];
  }, [data]);
-
  if (isLoading) {
   return <Skeleton count={5} height={10} style={{ width: "100%" }} />
  }
