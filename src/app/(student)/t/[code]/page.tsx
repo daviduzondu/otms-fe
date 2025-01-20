@@ -6,6 +6,9 @@ import { BookCheck, Clock, RectangleEllipsis, Shield } from "lucide-react";
 import TokenRequestCard from "../../../../components/test/token-request-card";
 import BeforeTest from "../../../../components/test/before-proceeding";
 import { TestDetails } from "../../../../types/test";
+import { ErrorBoundary } from "react-error-boundary";
+import LocalErrorFallback from "../../../../components/errors/local-error-fallback";
+import GlobalErrorFallback from "../../../../components/errors/global-error-fallback";
 
 type Student = { id: string, email: string, regNumber: string, firstName: string, lastName: string, middleName: string, addedBy: string, isTouched: boolean, testInfo: TestDetails }
 
@@ -43,11 +46,13 @@ export default async function Page({ searchParams, params }) {
   throw new Error(JSON.stringify(errorDetails)); // Serialize error details
  }
 
- // if (data.status === "submitted" || isAfter(new Date(), addMinutes(new Date(data.startedAt), data.durationMin))) return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={<BookCheck size={40} />} content="Whoops! Looks like you&apos;ve already made a submission." footer={"This test was submitted, either by you or automatically after time expired. Contact your supervisor for assistance."} /></div>
+ if (data.status === "submitted" || isAfter(new Date(), addMinutes(new Date(data.startedAt), data.durationMin))) return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={<BookCheck size={40} />} content="Whoops! Looks like you&apos;ve already made a submission." footer={"This test was submitted, either by you or automatically after time expired. Contact your supervisor for assistance if you think this is wrong."} /></div>
 
 
  // if (isAfter(new Date(), addMinutes(new Date(data.startedAt), data.durationMin))) return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={<Clock size={40} />} content="You've run out of time." footer={"If you think this is wrong, contact your supervisor."} /></div>;
- return <QuestionAnswerPage companyName={""} data={data} accessToken={token} />
+ return <ErrorBoundary FallbackComponent={GlobalErrorFallback}>
+  <QuestionAnswerPage companyName={""} data={data} accessToken={token} />
+ </ErrorBoundary>
 }
 
 

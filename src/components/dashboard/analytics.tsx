@@ -105,7 +105,7 @@ export const TestAnalytics: React.FC<{ testId: string, children?: ReactNode }> =
   .map((stat) => ({
    index: `Q${stat.index + 1}`,
    points: stat.points,
-   avgTime: stat.averageTimeSpentInSeconds,
+   avgTime: Math.round(stat.averageTimeSpentInSeconds),
    body: stat.body,
    studentsAnswered: stat.answerCount,
    correctAnswers: stat.responses.filter(r => r.point === stat.points).length,
@@ -372,6 +372,7 @@ export const TestAnalytics: React.FC<{ testId: string, children?: ReactNode }> =
             </div>
             <div>
              <h4 className="text-lg font-semibold mb-2">Response Distribution</h4>
+             {console.log(selectedQuestion.responses)}
              <div className="h-[200px]">
               <ResponsiveContainer width="100%" height="100%" debounce={1}>
                <BarChart

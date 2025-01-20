@@ -61,7 +61,7 @@ export default function ResultSheet({ submissions, testDetails }: { submissions:
 
       {/* Loop through each sub. and render a row */}
       {submissions.map((submission, index) => (<TableRow key={submission.id} className={cn(`[&>*]:border-black [&>*]:p-2 ${submissions.map(x => x.totalScore).sort((a, b) => b - a)[0] === submission.totalScore && submission.totalScore > 0 ? "font-bold" : ""}`)}>
-       <TableCell>{submission.firstName} {" "}{submission?.middleName && submission.middleName + " "}{submission.firstName}</TableCell>
+       <TableCell>{submission.firstName} {" "}{submission?.middleName && submission.middleName + " "}{submission.lastName}</TableCell>
        <TableCell>{submission.regNumber || "N/A"}</TableCell>
        <TableCell>{submission.email}</TableCell>
        <TableCell className="text-left">{submission.totalScore}</TableCell>

@@ -19,6 +19,7 @@ import {
 import { differenceInSeconds, addSeconds, isValid } from 'date-fns'
 import Webcam from 'react-webcam'
 import WebcamFeed from './webcam-feed'
+import { useErrorBoundary } from 'react-error-boundary'
 
 interface Question {
  id: string;
@@ -53,15 +54,14 @@ interface QuestionPageProps {
 export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionPageProps) {
  const [triggerScreenshot, setTriggerScreenshot] = useState(false);
  const [screenshot, setScreenshot] = useState<string | null>(null);
+ const [isLoadingQuestion, setIsLoadingQuestion] = useState(false);
+ const { showBoundary } = useErrorBoundary();
 
- const handleTakeScreenshot = () => {
-  setTriggerScreenshot(true);
- };
 
  const handleScreenshotTaken = async (imageSrc: string | null) => {
   if (!imageSrc) {
-    console.error("No image source provided!");
-    return;
+   console.error("No image source provided!");
+   return;
   }
 
   const formData = new FormData();
@@ -72,68 +72,68 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
 
   // Use a promise to ensure image is loaded before proceeding
   const createFileFromImage = new Promise<File>((resolve, reject) => {
-    image.onload = () => {
-      // Create a canvas element
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        reject('Canvas context creation failed');
-        return;
-      }
+   image.onload = () => {
+    // Create a canvas element
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+     reject('Canvas context creation failed');
+     return;
+    }
 
-      // Set canvas dimensions to match the image
-      canvas.width = image.width;
-      canvas.height = image.height;
+    // Set canvas dimensions to match the image
+    canvas.width = image.width;
+    canvas.height = image.height;
 
-      // Draw the image onto the canvas
-      ctx.drawImage(image, 0, 0);
+    // Draw the image onto the canvas
+    ctx.drawImage(image, 0, 0);
 
-      // Convert the image to a compressed JPEG format
-      const jpegDataUrl = canvas.toDataURL('image/jpeg', 0.5); // Adjust 0.7 for quality (0-1)
+    // Convert the image to a compressed JPEG format
+    const jpegDataUrl = canvas.toDataURL('image/jpeg', 0.5); // Adjust 0.7 for quality (0-1)
 
-      // Convert the base64 to Blob
-      const byteString = atob(jpegDataUrl.split(',')[1]);
-      const mimeString = jpegDataUrl.split(',')[0].split(':')[1].split(';')[0];
+    // Convert the base64 to Blob
+    const byteString = atob(jpegDataUrl.split(',')[1]);
+    const mimeString = jpegDataUrl.split(',')[0].split(':')[1].split(';')[0];
 
-      const arrayBuffer = new Uint8Array(byteString.length);
-      for (let i = 0; i < byteString.length; i++) {
-        arrayBuffer[i] = byteString.charCodeAt(i);
-      }
+    const arrayBuffer = new Uint8Array(byteString.length);
+    for (let i = 0; i < byteString.length; i++) {
+     arrayBuffer[i] = byteString.charCodeAt(i);
+    }
 
-      // Create a compressed File object
-      const file = new File([arrayBuffer], 'screenshot.jpg', { type: mimeString });
-      resolve(file); // Resolve the promise with the created file
-    };
+    // Create a compressed File object
+    const file = new File([arrayBuffer], 'screenshot.jpg', { type: mimeString });
+    resolve(file); // Resolve the promise with the created file
+   };
 
-    image.onerror = (error) => {
-      reject('Error loading image');
-    };
+   image.onerror = (error) => {
+    reject('Error loading image');
+   };
   });
 
   try {
-    // Wait for the image to load and the file to be created
-    const file = await createFileFromImage;
-    // Append the file to FormData
-    formData.append('file', file);
+   // Wait for the image to load and the file to be created
+   const file = await createFileFromImage;
+   // Append the file to FormData
+   formData.append('file', file);
 
-    // Send the form data to the server
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/storage/upload-webcam/${data.id ? "?testId=" + data.id : ""}`, {
-      method: 'POST',
-      body: formData,
-      headers: {
-        'x-access-token': accessToken
-      }
-    });
+   // Send the form data to the server
+   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/storage/upload-webcam/${data.id ? "?testId=" + data.id : ""}`, {
+    method: 'POST',
+    body: formData,
+    headers: {
+     'x-access-token': accessToken
+    }
+   });
 
-    const { message, data: json } = await response.json();
-    console.log(message);
+   const { message, data: json } = await response.json();
+   console.log(message);
 
-    setScreenshot(imageSrc); // Store the screenshot
-    setTriggerScreenshot(false); // Reset the trigger for screenshot
+   setScreenshot(imageSrc); // Store the screenshot
+   setTriggerScreenshot(false); // Reset the trigger for screenshot
   } catch (error) {
-    console.error("Error capturing screenshot:", error);
+   console.error("Error capturing screenshot:", error);
   }
-};
+ };
 
 
  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(data.questions.findIndex(q => q === data.currentQuestionId))
@@ -168,16 +168,16 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
 
   try {
    await submitAnswer();
-   setAnswers(prev => ({ ...prev, [currentQuestion.id]: selectedAnswer || '' }));
+   if (currentQuestion) setAnswers(prev => ({ ...prev, [currentQuestion.id]: selectedAnswer || '' }));
 
    if (currentQuestionIndex < data.questions.length - 1) {
     setCurrentQuestionIndex(currentQuestionIndex + 1);
     setSelectedAnswer(null);
    } else {
     await submitTest();
-    setIsTestComplete(true);
    }
   } catch (error) {
+   showBoundary(error);
    console.error('Error in handleNextOrSubmit:', error);
   } finally {
    setIsSubmitting(false);
@@ -235,6 +235,7 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
  }, [currentQuestionIndex, data.questions])
 
  const fetchQuestion = async (questionId: string) => {
+  setIsLoadingQuestion(true);
   if (!questionId) {
    console.error('Invalid questionId:', questionId);
    return;
@@ -252,12 +253,15 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
     } else {
      console.error('Server time not provided in API response')
     }
+    setIsLoadingQuestion(false);
    } else {
-    console.error('Failed to fetch question:', result.message)
+    throw new Error(result.message || "Failed to fetch question")
    }
   } catch (error) {
-   console.error('Error fetching question:', error)
+   showBoundary(error);
+   console.error('Error fetching question:', error);
   }
+  setIsLoadingQuestion(false);
  }
 
  const formatTime = (seconds: number) => {
@@ -391,15 +395,15 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
    if (!response.ok) {
     throw new Error('Failed to submit answer')
    }
-   const result = await response.json()
+   const result = await response.json();
    if (result.data.serverTime) {
     serverTimeRef.current = new Date(result.data.serverTime).getTime()
     clientTimeRef.current = Date.now()
    } else {
-    console.error('Server time not provided in API response')
+    throw new Error('Server time not provided in API response');
    }
   } catch (error) {
-   console.error('Error submitting answer:', error)
+   throw error
   }
  }
 
@@ -412,19 +416,21 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
      'x-access-token': accessToken
     },
    });
+
+   const { message } = await response.json();
    if (!response.ok) {
-    throw new Error('Failed to submit test');
-    // TODO: Make sure to handle situations where test fails to submit (e.g., show error message)
+    throw new Error(message || 'Failed to submit test');
    }
-   const result = await response.json();
-   console.log('Test submitted successfully:', result);
+   setIsTestComplete(true);
+
    // Handle successful test submission (e.g., redirect to results page)
   } catch (error) {
    console.error('Error submitting test:', error);
+   throw error;
   }
  };
 
- if (!currentQuestion) {
+ if (isLoadingQuestion) {
   return <div className='flex gap-2 h-screen items-center justify-center bg-white w-screen z-10'><Loader className='animate-spin' /> Loading next question...</div>
  }
 
@@ -442,10 +448,9 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
   )
  }
 
- return (
+ if (currentQuestion) return (
   <div className="min-h-screen w-screen">
-   <WebcamFeed className='absolute invisible' triggerScreenshot={triggerScreenshot}
-    onScreenshotTaken={handleScreenshotTaken} />
+   {!isTestComplete ? <WebcamFeed className='absolute invisible' triggerScreenshot={triggerScreenshot} onScreenshotTaken={handleScreenshotTaken} /> : null}
    <header className="bg-white shadow-md">
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
      <div className="flex justify-between items-center">
