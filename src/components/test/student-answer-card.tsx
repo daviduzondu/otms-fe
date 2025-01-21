@@ -115,8 +115,11 @@ export function StudentAnswerCard({
        {localGradeStatus}
       </span>
       <span className="text-sm font-medium whitespace-nowrap">
-       {answer.point !== null ? answer.point : 0} / {answer.maxPoints}
+       {(answer.answer && answer.point === null)
+        ? "Not graded yet"
+        : `${answer.point !== null ? answer.point : 0} / ${answer.maxPoints}`}
       </span>
+
      </div> : <div className='flex  text-sm items-center'> <Loader className='animate-spin mr-2' size={20} /> Updating...</div>}
     </div>
    </CardHeader>

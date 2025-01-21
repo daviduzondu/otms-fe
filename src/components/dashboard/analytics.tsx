@@ -372,7 +372,6 @@ export const TestAnalytics: React.FC<{ testId: string, children?: ReactNode }> =
             </div>
             <div>
              <h4 className="text-lg font-semibold mb-2">Response Distribution</h4>
-             {console.log(selectedQuestion.responses)}
              <div className="h-[200px]">
               <ResponsiveContainer width="100%" height="100%" debounce={1}>
                <BarChart

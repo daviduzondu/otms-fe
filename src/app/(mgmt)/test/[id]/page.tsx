@@ -229,7 +229,7 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
          />
          <Button variant="outline" size="sm" className="flex items-center gap-2">
           <Settings className="w-4 h-4" />
-          <span className="hidden lg:block">Test Settings</span>
+          <span className="hidden lg:block">Edit Test</span>
          </Button>
          <Button variant="outline" size="sm" className="flex gap-2" onClick={toggleResponses}>
           <BookText className="w-4 h-4" />

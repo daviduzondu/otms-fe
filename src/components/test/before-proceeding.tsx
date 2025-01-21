@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { TestDetails } from "../../types/test";
 import { GraduationCap, WebcamIcon, CameraOff } from "lucide-react";
 import Webcam from 'react-webcam';
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface WelcomePageProps {
  studentName?: string;
@@ -22,6 +22,10 @@ export default function BeforeTest({
  const searchParams = useSearchParams();
  const [cameraError, setCameraError] = useState(true);
 
+ // useEffect(() => {
+ //  addEventListener('keypress', (ev)=>console.log(ev.keyCode))
+ // }, [])
+
  const addSearchParam = () => {
   const params = new URLSearchParams(searchParams);
   params.set('ri', 'true');
@@ -30,7 +34,7 @@ export default function BeforeTest({
  };
 
  return (
-  <div className="min-h-screen p-4 flex hide-footer-brand items-center justify-center">
+  <div className="min-h-screen p-4 flex hide-footer-brand items-center justify-center" >
    <div className="max-w-7xl mx-auto">
     <header className="absolute left-0 top-5 flex items-center justify-center w-screen">
      <span className="font-plex flex gap-2 text-xl items-center justify-center">
