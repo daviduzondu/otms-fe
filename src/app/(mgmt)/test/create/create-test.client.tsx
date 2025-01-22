@@ -128,7 +128,7 @@ export default function CreateTestClient() {
           <RadioGroupItem
            value="desktop"
            id="desktop"
-           className={` ${value === "desktop" ? "border-black absolute left-2 top-[50%] translate-y-[-50%] text-black" : "border-gray-300 text-gray-600 hidden"}`}
+           className={`hidden ${value === "desktop" ? "border-black absolute left-2 top-[50%] translate-y-[-50%] text-black" : "border-gray-300 text-gray-600 "}`}
           />
           <Label
            htmlFor='desktop'
@@ -142,7 +142,7 @@ export default function CreateTestClient() {
           <RadioGroupItem
            value="mobileAndDesktop"
            id="mobileAndDesktop"
-           className={` ${value === "mobileAndDesktop" ? "border-black font-bold absolute left-2 top-[50%] translate-y-[-50%] text-black" : "border-gray-300 text-gray-600 hidden"}`}
+           className={`hidden ${value === "mobileAndDesktop" ? "border-black font-bold absolute left-2 top-[50%] translate-y-[-50%] text-black" : "border-gray-300 text-gray-600"}`}
           />
           <Label
            htmlFor='mobileAndDesktop'

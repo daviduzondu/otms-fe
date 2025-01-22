@@ -12,6 +12,7 @@ import GlobalErrorFallback from "../../../../components/errors/global-error-fall
 import { headers } from "next/headers";
 import { userAgent } from "next/server";
 import { Button } from "../../../../components/ui/button";
+import ResultsDialog from "../../../../components/test/results-dialog";
 
 type Student = { id: string, email: string, regNumber: string, firstName: string, lastName: string, middleName: string, addedBy: string, isTouched: boolean, testInfo: TestDetails, resultReady: Boolean }
 
@@ -54,7 +55,7 @@ export default async function Page({ searchParams, params }) {
   throw new Error(JSON.stringify(errorDetails)); // Serialize error details
  }
 
- if (data.status === "submitted" || isAfter(new Date(), addMinutes(new Date(data.startedAt), data.durationMin))) return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={!studentData.resultReady ? <BookCheck size={40} /> : <BookOpenCheck size={40} />} content={!studentData.resultReady ? "Looks like you've already made a submission." : "Your results are ready"} footer={!studentData.resultReady ? "This test was submitted, either by you or automatically after time expired. If you think this is wrong, contact your supervisor." : "You're seeing this because you've made a submission. If you think this is wrong, contact your supervisor."} resultReady={studentData.resultReady} /></div>
+ if (data.status === "submitted" || isAfter(new Date(), addMinutes(new Date(data.startedAt), data.durationMin))) return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={!studentData.resultReady ? <BookCheck size={40} /> : <BookOpenCheck size={40} />} content={!studentData.resultReady ? "Looks like you've already made a submission." : "Your results are ready"} footer={!studentData.resultReady ? "This test was submitted, either by you or automatically after time expired. If you think this is wrong, contact your supervisor." : "You're seeing this because you've made a submission. If you think this is wrong, contact your supervisor."} resultReady={studentData.resultReady} accessToken={token} testId={studentData.testInfo.id} /></div>
 
 
  // if (isAfter(new Date(), addMinutes(new Date(data.startedAt), data.durationMin))) return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={<Clock size={40} />} content="You've run out of time." footer={"If you think this is wrong, contact your supervisor."} /></div>;
@@ -65,7 +66,7 @@ export default async function Page({ searchParams, params }) {
 
 
 
-function ErrorCard({ icon, content, footer, resultReady }: { icon: React.ReactNode, content: string, footer: string, resultReady: Boolean }) {
+function ErrorCard({ icon, content, footer, resultReady, testId, accessToken }: { icon: React.ReactNode, content: string, footer: string, resultReady: Boolean, accessToken: string, testId: string }) {
  return <Card className="lg:w-[25vw] w-screen">
   <CardHeader className="flex">{icon}</CardHeader>
   <CardContent className="font-bold text-lg -mt-3">
@@ -73,7 +74,7 @@ function ErrorCard({ icon, content, footer, resultReady }: { icon: React.ReactNo
   </CardContent>
   <CardFooter className="text-sm -mt-2 flex flex-col w-full gap-3 text-left items-start">
    {resultReady ?
-    <Button variant={'outline'} className="w-full">View Results</Button>
+    <ResultsDialog accessToken={accessToken} testId={testId} />
     : null}{footer}
   </CardFooter>
  </Card>
