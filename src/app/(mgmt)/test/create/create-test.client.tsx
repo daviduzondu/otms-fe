@@ -16,6 +16,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { CreateTestSchema, CreateTestSchemaProps } from '../../../../validation/create-test.validation'
 import { useRouter } from 'next/navigation';
 import { Slider } from '../../../../components/ui/slider'
+import { RadioGroup, RadioGroupItem } from '../../../../components/ui/radio-group'
+import { Laptop, Smartphone } from 'lucide-react'
 
 export default function CreateTestClient() {
  const router = useRouter();
@@ -29,8 +31,6 @@ export default function CreateTestClient() {
   setValue,
   formState: { errors, isSubmitting }
  } = useForm<CreateTestSchemaProps>({ resolver: zodResolver(CreateTestSchema) })
- const [startsAt, setStartDate] = useState<Date>(addMinutes(new Date(), 120))
- const [endsAt, setEndDate] = useState<Date>(addMinutes(new Date(), 240))
  const [advancedSettings, setAdvancedSettings] = useState({
   maxAttempts: 1,
   randomizeQuestions: false,
@@ -41,13 +41,6 @@ export default function CreateTestClient() {
   provideExplanations: false,
  })
 
-
- const calculateDuration = () => {
-  const durationInMinutes = differenceInMinutes(endsAt, startsAt)
-  const hours = Math.floor(durationInMinutes / 60)
-  const minutes = durationInMinutes % 60
-  return `${hours > 0 ? `${hours} hour${hours > 1 ? 's' : ''}` : ''}${hours > 0 && minutes > 0 ? ' and ' : ''}${minutes > 0 ? `${minutes} minute${minutes > 1 ? 's' : ''}` : ''}`
- }
 
 
  const RequiredAsterisk = () => <span className="text-red-500">*</span>
@@ -89,7 +82,7 @@ export default function CreateTestClient() {
      <div className="space-y-2">
       <Label htmlFor="instructions">Instructions</Label>
       <Textarea id="instructions"
-       rows={10}
+       rows={5}
        placeholder="Enter instructions for this test..." {...register("instructions")} />
      </div>
 
@@ -118,6 +111,53 @@ export default function CreateTestClient() {
      </div>
 
      {/*<input type='hidden' value={calculateDuration()} name="duration" />*/}
+
+     <div className='w-full space-y-3 flex flex-col'>
+      <Label className='text-sm text-left'>Device restrictions</Label>
+      <Controller
+       name="platform"
+       control={control}
+       defaultValue={'desktop'}
+       render={({ field: { value, onChange } }) => (
+        <RadioGroup
+         className='flex w-full h-14'
+         value={value}
+         onValueChange={onChange} 
+        >
+         <div className="flex flex-1">
+          <RadioGroupItem
+           value="desktop"
+           id="desktop"
+           className={`hidden ${value === "desktop" ? "border-green-600 font-bold text-green-600" : "border-gray-300"}`}
+          />
+          <Label
+           htmlFor='desktop'
+           className={`cursor-pointer flex items-center p-1 gap-2 border-2 rounded-lg flex-1 justify-center ${value === "desktop" ? "bg-green-50 text-green-600 border-green-600" : "border-gray-300"}`}
+          >
+           <Laptop /> Desktop only
+          </Label>
+         </div>
+
+         <div className="flex flex-1 relative">
+          <RadioGroupItem
+           value="mobileAndDesktop"
+           id="mobileAndDesktop"
+           className={`absolute right-0 ${value === "mobileAndDesktop" ? "border-green-600 font-bold text-green-600" : "border-gray-300"}`}
+          />
+          <Label
+           htmlFor='mobileAndDesktop'
+           className={`cursor-pointer flex items-center p-1 gap-2 border-2 rounded-lg flex-1 justify-center ${value === "mobileAndDesktop" ? "bg-green-50 text-green-600 border-green-600" : "border-gray-300"}`}
+          >
+           <span className='flex'><Smartphone /> <Laptop /></span> Mobile & Desktop
+          </Label>
+         </div>
+        </RadioGroup>
+       )}
+      />
+     </div>
+
+
+
 
      <Accordion type="single" collapsible className="w-full" value={"advanced-settings"}>
       <AccordionItem value="advanced-settings">

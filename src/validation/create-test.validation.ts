@@ -8,7 +8,8 @@ export const CreateTestSchema = z.object({
  disableCopyPaste: z.boolean(),
  provideExplanations: z.boolean(),
  showResultsAfterTest: z.boolean(),
- randomizeQuestions: z.boolean()
+ randomizeQuestions: z.boolean(),
+ platform: z.enum(['desktop', 'mobileAndDesktop'])
 })
 
 export type CreateTestSchemaProps = z.infer<typeof CreateTestSchema>;

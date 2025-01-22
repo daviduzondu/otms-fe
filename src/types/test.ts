@@ -73,4 +73,5 @@ export interface TestDetails {
  provideExplanations: boolean;
  disableCopyPaste: boolean;
  requireFullScreen: boolean;
+ platform: 'mobileAndDesktop' | 'desktop';
 }

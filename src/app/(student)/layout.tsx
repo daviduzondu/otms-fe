@@ -16,9 +16,9 @@ export default function TestLayout({ children }: Readonly<{ children: React.Reac
 
     {children}
     <div className={"absolute bottom-5 flex flex-col items-center justify-center footer-brand"}>
-     <span className="font-plex flex gap-2 items-center justify-center">
+     <Link className="font-plex flex gap-2 items-center justify-center" href={'/'}>
       <GraduationCap /> ONLINE TEST MANAGEMENT SYSTEM
-     </span>
+     </Link>
      <span className="text-xs">Final year project by <Link href={"https://www.daviduzondu.com.ng"} className={"underline hover:no-underline"}>David Uzondu</Link></span>
     </div>
    </div>

@@ -18,7 +18,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
  title: "OTMS",
- description: "Your All-In-One Platform to Create, Deliver & Grade Tests For Students. Effectively.",
+ description: "The All-In-One Platform to Create, Deliver & Grade Tests For Students. Effectively.",
 };
 
 export default function TestMgmtLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
