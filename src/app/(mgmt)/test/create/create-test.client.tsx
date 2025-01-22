@@ -122,17 +122,17 @@ export default function CreateTestClient() {
         <RadioGroup
          className='flex w-full h-14'
          value={value}
-         onValueChange={onChange} 
+         onValueChange={onChange}
         >
-         <div className="flex flex-1">
+         <div className="flex flex-1 relative">
           <RadioGroupItem
            value="desktop"
            id="desktop"
-           className={`hidden ${value === "desktop" ? "border-green-600 font-bold text-green-600" : "border-gray-300"}`}
+           className={` ${value === "desktop" ? "border-black absolute left-2 top-[50%] translate-y-[-50%] text-black" : "border-gray-300 text-gray-600 hidden"}`}
           />
           <Label
            htmlFor='desktop'
-           className={`cursor-pointer flex items-center p-1 gap-2 border-2 rounded-lg flex-1 justify-center ${value === "desktop" ? "bg-green-50 text-green-600 border-green-600" : "border-gray-300"}`}
+           className={`cursor-pointer flex items-center p-1 gap-2 border-2 rounded-lg flex-1 justify-center ${value === "desktop" ? "font-bold bg-slate-200 text-black border-black" : "border-gray-300 text-gray-600"}`}
           >
            <Laptop /> Desktop only
           </Label>
@@ -142,11 +142,11 @@ export default function CreateTestClient() {
           <RadioGroupItem
            value="mobileAndDesktop"
            id="mobileAndDesktop"
-           className={`absolute right-0 ${value === "mobileAndDesktop" ? "border-green-600 font-bold text-green-600" : "border-gray-300"}`}
+           className={` ${value === "mobileAndDesktop" ? "border-black font-bold absolute left-2 top-[50%] translate-y-[-50%] text-black" : "border-gray-300 text-gray-600 hidden"}`}
           />
           <Label
            htmlFor='mobileAndDesktop'
-           className={`cursor-pointer flex items-center p-1 gap-2 border-2 rounded-lg flex-1 justify-center ${value === "mobileAndDesktop" ? "bg-green-50 text-green-600 border-green-600" : "border-gray-300"}`}
+           className={`cursor-pointer flex items-center p-1 gap-2 border-2 rounded-lg flex-1 justify-center ${value === "mobileAndDesktop" ? "font-bold bg-slate-200 text-black border-black" : "border-gray-300 text-gray-600"}`}
           >
            <span className='flex'><Smartphone /> <Laptop /></span> Mobile & Desktop
           </Label>
