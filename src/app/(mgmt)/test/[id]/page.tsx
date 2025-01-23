@@ -318,7 +318,7 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
          </div>
         </DialogContent>
        </Dialog>
-       {!showResponses && <SendTest test={testDetails} questions={questions} />}
+       {!showResponses && <SendTest test={testDetails} questions={questions} revokeStatus={revokeStatus || revokeStatusUpdating} />}
       </div>
      </div>
     </CardHeader>
@@ -377,6 +377,7 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
           setEditingQuestion={setEditingQuestion}
           handleDeleteQuestion={handleDeleteQuestion}
           index={index}
+          testId={testDetails.id}
          />
         ))
        )}

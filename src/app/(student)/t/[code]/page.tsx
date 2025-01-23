@@ -55,12 +55,15 @@ export default async function Page({ searchParams, params }) {
   throw new Error(JSON.stringify(errorDetails)); // Serialize error details
  }
 
+
  if (data.status === "submitted" || isAfter(new Date(), addMinutes(new Date(data.startedAt), data.durationMin))) return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={!studentData.resultReady ? <BookCheck size={40} /> : <BookOpenCheck size={40} />} content={!studentData.resultReady ? "Looks like you've already made a submission." : "Your results are ready"} footer={!studentData.resultReady ? "This test was submitted, either by you or automatically after time expired. If you think this is wrong, contact your supervisor." : "You're seeing this because you've made a submission. If you think this is wrong, contact your supervisor."} resultReady={studentData.resultReady} accessToken={token} testId={studentData.testInfo.id} /></div>
+
+ if (studentData.testInfo.isRevoked && !studentData.isTouched) return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={<Ban size={40} />} content="Sorry, this test is not accepting responses at this time." footer={"If you think this is wrong, contact your supervisor."} /></div>
 
 
  // if (isAfter(new Date(), addMinutes(new Date(data.startedAt), data.durationMin))) return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={<Clock size={40} />} content="You've run out of time." footer={"If you think this is wrong, contact your supervisor."} /></div>;
  return <ErrorBoundary FallbackComponent={GlobalErrorFallback}>
-  <QuestionAnswerPage companyName={""} data={data} accessToken={token} resultReady={studentData.resultReady}/>
+  <QuestionAnswerPage companyName={""} data={data} accessToken={token} resultReady={studentData.resultReady} />
  </ErrorBoundary>
 }
 
