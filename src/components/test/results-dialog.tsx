@@ -29,7 +29,7 @@ const ResultsDialog = ({ accessToken, testId }: { accessToken: string, testId: s
  });
 
  if (isLoading) {
-  return <Button variant={'outline'} className={`w-full ${isLoading ? "cursor-not-allowed" : null}`} disabled={isLoading}> <Loader className='animate-spin' /> Loading results</Button>
+  return <Button variant={'outline'} className={`w-full ${isLoading ? "cursor-not-allowed" : null}`} disabled={isLoading}> <Loader className='animate-spin' /> Loading results...</Button>
  }
 
  // If an error occurred, it will be handled by React Error Boundary
@@ -43,7 +43,7 @@ const ResultsDialog = ({ accessToken, testId }: { accessToken: string, testId: s
     <Button variant={'outline'} className="w-full" disabled={isLoading}>View Results</Button>
    </DialogTrigger>
    <DialogContent>
-    <DialogTitle>{data.title} Results</DialogTitle>
+    <DialogTitle>Your result for "{data.title}"</DialogTitle>
     <div className='flex gap-3 flex-col'>
 
      <div className='flex flex-col gap-2 items-center justify-center'>

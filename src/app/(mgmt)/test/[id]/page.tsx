@@ -26,6 +26,7 @@ import LocalErrorFallback from '../../../../components/errors/local-error-fallba
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { TestDetails } from '../../../../types/test'
 import { TestAnalytics } from '../../../../components/dashboard/analytics'
+import { Switch } from '../../../../components/ui/switch'
 
 export default function EnhancedTestQuestionManagement({ params }: { params: { id: string } }) {
  const { showBoundary } = useErrorBoundary()
@@ -209,15 +210,27 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
   router.replace(`${pathname}?${newSearchParams.toString()}`)
  }
 
+ const toggleRevoked = async () => {
+  
+ }
+
  // if (isLoading) return <div className="flex items-center justify-center h-full"><Loader className={'animate-spin text-gray-600'} size={'70'} /></div>
 
  if (!isLoading) return (
   <div className="lg:w-[60vw] w-screen px-6">
    <Card className={cn('p-0 mb-4')}>
     <CardHeader className="flex justify-between flex-wrap gap-3">
-     <h1 className="lg:text-3xl text-2xl font-bold">
-      {showResponses ? 'Submissions for "' : null}{testDetails.title}{showResponses ? '"' : null}
-     </h1>
+     <div className='flex justify-between'>
+      <h1 className="lg:text-3xl text-2xl font-bold">
+       {showResponses ? 'Submissions for "' : null}{testDetails.title}{showResponses ? '"' : null}
+      </h1>
+      <div className='flex items-center space-x-2 text-sm'>
+       <Switch checked={!!testDetails.isRevoked} onCheckedChange={(checked) => toggleRevoked()} />
+       <span>
+        Accept responses
+       </span>
+      </div>
+     </div>
      <div className="flex justify-between w-full">
       <div className="flex gap-2">
        {!showResponses ? (

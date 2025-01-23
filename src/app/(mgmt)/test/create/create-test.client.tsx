@@ -38,7 +38,6 @@ export default function CreateTestClient() {
   preventTabSwitching: false,
   disableCopyPaste: false,
   requireFullScreen: false,
-  provideExplanations: false,
  })
 
 
@@ -132,7 +131,7 @@ export default function CreateTestClient() {
           />
           <Label
            htmlFor='desktop'
-           className={`cursor-pointer flex items-center p-1 gap-2 border-2 rounded-lg flex-1 justify-center ${value === "desktop" ? "font-bold bg-slate-200 text-black border-black" : "border-gray-300 text-gray-600"}`}
+           className={`cursor-pointer flex items-center p-1 gap-2 border-2 rounded-lg flex-1 justify-center transition-all duration-300 ${value === "desktop" ? "font-bold bg-slate-200 text-black border-black shadow-lg" : "border-gray-300 text-gray-600"}`}
           >
            <Laptop /> Desktop only
           </Label>
@@ -146,7 +145,7 @@ export default function CreateTestClient() {
           />
           <Label
            htmlFor='mobileAndDesktop'
-           className={`cursor-pointer flex items-center p-1 gap-2 border-2 rounded-lg flex-1 justify-center ${value === "mobileAndDesktop" ? "font-bold bg-slate-200 text-black border-black" : "border-gray-300 text-gray-600"}`}
+           className={`cursor-pointer flex items-center p-1 gap-2 border-2 rounded-lg flex-1 justify-center transition-all duration-300 ${value === "mobileAndDesktop" ? "font-bold bg-slate-200 text-black border-black shadow-lg" : "border-gray-300 text-gray-600"}`}
           >
            <span className='flex'><Smartphone /> <Laptop /></span> Mobile & Desktop
           </Label>
@@ -192,30 +191,6 @@ export default function CreateTestClient() {
             />
             <input
              type='hidden' {...register('showResultsAfterTest', { value: advancedSettings.showResultsAfterTest })} />
-           </div>
-          </div>
-          <div className="flex flex-col space-y-2">
-           {/* <div className="flex items-center gap-2 flex-row-reverse">
-                                                <Label htmlFor="show-correct-answers" className="flex-grow">Show Correct
-                                                    Answers</Label>
-                                                <Switch
-                                                    id="show-correct-answers"
-                                                    checked={advancedSettings.showCorrectAnswers}
-                                                    onCheckedChange={(checked) => handleSwitchChange("showCorrectAnswers", checked)}
-                                                />
-                                                <input
-                                                    type='hidden' {...register('showCorrectAnswers', {value: advancedSettings.showCorrectAnswers})} />
-                                            </div> */}
-           <div className="flex items-center gap-2 flex-row-reverse">
-            <Label htmlFor="provide-explanations" className="flex-grow">Provide
-             Explanations</Label>
-            <Switch
-             id="provide-explanations"
-             checked={advancedSettings.provideExplanations}
-             onCheckedChange={(checked) => handleSwitchChange("provideExplanations", checked)}
-            />
-            <input
-             type='hidden' {...register('provideExplanations', { value: advancedSettings.provideExplanations })} />
            </div>
           </div>
          </div>

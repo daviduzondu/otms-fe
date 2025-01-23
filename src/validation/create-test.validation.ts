@@ -6,7 +6,6 @@ export const CreateTestSchema = z.object({
  durationMin: z.number().int().min(30).max(180),
  requireFullScreen: z.boolean(),
  disableCopyPaste: z.boolean(),
- provideExplanations: z.boolean(),
  showResultsAfterTest: z.boolean(),
  randomizeQuestions: z.boolean(),
  platform: z.enum(['desktop', 'mobileAndDesktop'])

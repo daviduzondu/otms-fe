@@ -74,4 +74,5 @@ export interface TestDetails {
  disableCopyPaste: boolean;
  requireFullScreen: boolean;
  platform: 'mobileAndDesktop' | 'desktop';
+ isRevoked: Boolean;
 }
