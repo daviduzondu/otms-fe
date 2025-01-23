@@ -75,6 +75,9 @@ const groupActivities = (activities: ActivityItem[]): GroupedActivity[] => {
     case 'update_question':
      message = `${items.length} ${items.length === 1 ? 'question' : 'questions'} updated`
      break
+    case 'update_test':
+     message = `${items.length} ${items.length === 1 ? 'test' : 'tests'} updated`
+     break
     default:
      message = `${items.length} ${type} ${items.length === 1 ? 'activity' : 'activities'}`
    }

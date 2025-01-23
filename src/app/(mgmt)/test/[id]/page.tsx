@@ -216,7 +216,7 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
    <Card className={cn('p-0 mb-4')}>
     <CardHeader className="flex justify-between flex-wrap gap-3">
      <h1 className="lg:text-3xl text-2xl font-bold">
-      {showResponses ? "Submissions for " : null}{testDetails.title}
+      {showResponses ? 'Submissions for "' : null}{testDetails.title}{showResponses ? '"' : null}
      </h1>
      <div className="flex justify-between w-full">
       <div className="flex gap-2">

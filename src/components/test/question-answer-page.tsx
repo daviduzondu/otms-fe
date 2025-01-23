@@ -452,7 +452,7 @@ export function QuestionAnswerPage({ companyName, data, accessToken, resultReady
   )
  }
 
- if (currentQuestion) return (
+ if (currentQuestion && !isTestComplete) return (
   <div className="min-h-screen w-screen">
    {!isTestComplete ? <WebcamFeed className='absolute invisible' triggerScreenshot={triggerScreenshot} onScreenshotTaken={handleScreenshotTaken} /> : null}
    <header className="bg-white shadow-md">
