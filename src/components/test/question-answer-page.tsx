@@ -20,6 +20,7 @@ import { differenceInSeconds, addSeconds, isValid } from 'date-fns'
 import Webcam from 'react-webcam'
 import WebcamFeed from './webcam-feed'
 import { useErrorBoundary } from 'react-error-boundary'
+import ResultsDialog from './results-dialog'
 
 interface Question {
  id: string;
@@ -37,6 +38,7 @@ interface Question {
 interface QuestionPageProps {
  companyName: string
  accessToken: string
+ resultReady: Boolean
  data: {
   title: string
   instructions: string
@@ -51,7 +53,7 @@ interface QuestionPageProps {
  }
 }
 
-export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionPageProps) {
+export function QuestionAnswerPage({ companyName, data, accessToken, resultReady }: QuestionPageProps) {
  const [triggerScreenshot, setTriggerScreenshot] = useState(false);
  const [screenshot, setScreenshot] = useState<string | null>(null);
  const [isLoadingQuestion, setIsLoadingQuestion] = useState(false);
@@ -442,7 +444,9 @@ export function QuestionAnswerPage({ companyName, data, accessToken }: QuestionP
      <CardContent className="font-bold text-lg -mt-3">
       Submission successful
      </CardContent>
-     <CardFooter className="text-sm -mt-3">You can close this page now</CardFooter>
+     <CardFooter className="text-sm -mt-3 flex flex-col w-full gap-2">
+      {resultReady ? <ResultsDialog accessToken={accessToken} testId={data.id} /> : "You can close this page now"}
+     </CardFooter>
     </Card>
    </div>
   )

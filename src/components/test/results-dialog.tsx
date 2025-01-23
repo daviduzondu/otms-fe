@@ -43,31 +43,40 @@ const ResultsDialog = ({ accessToken, testId }: { accessToken: string, testId: s
     <Button variant={'outline'} className="w-full" disabled={isLoading}>View Results</Button>
    </DialogTrigger>
    <DialogContent>
-    <DialogTitle>Results</DialogTitle>
-    <DialogDescription>
-     Here are the results of your test.
-    </DialogDescription>
-    <div>
-     <h2>{data.title}</h2>
-     <p><strong>Final Score:</strong> {data.results[0].finalScore}</p>
+    <DialogTitle>{data.title} Results</DialogTitle>
+    <div className='flex gap-3 flex-col'>
 
-     <h3>Breakdown</h3>
-     <Table>
-      <TableHeader>
-       <TableRow className="uppercase [&>*]:border [&>*]:border-black [&>*]:text-black [&>*]:font-bold [&>*]:p-2">
-        <TableHead>Partially Correct Answers</TableHead>
-        <TableHead>Correct Answers</TableHead>
-        <TableHead>Incorrect Answers</TableHead>
-       </TableRow>
-      </TableHeader>
-      <TableBody>
-       <TableRow className="[&>*]:border-black [&>*]:p-2">
-        <TableCell>{data.results[0].breakdown.partiallyCorrectAnswerCount}</TableCell>
-        <TableCell>{data.results[0].breakdown.correctAnswerCount}</TableCell>
-        <TableCell>{data.results[0].breakdown.incorrectAnswerCount}</TableCell>
-       </TableRow>
-      </TableBody>
-     </Table>
+     <div className='flex flex-col gap-2 items-center justify-center'>
+      <span>
+       Your score is:
+      </span>
+      <span className='text-7xl font-semibold'>{data.results[0].finalScore}<span className='text-5xl'>/{data.totalTestPoints}</span>
+      </span>
+     </div>
+
+     <div className='flex flex-col gap-2 items-center justify-center text-black'>
+      <Table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden ">
+       <TableHeader className="bg-gray-100 [&>*]:text-black">
+        <TableRow className="uppercase text-black text-sm leading-normal">
+         <TableHead className="py-3 px-6 text-left">BREAKDOWN</TableHead>
+        </TableRow>
+       </TableHeader>
+       <TableBody className="text-black text-sm [&>*]:text-black">
+        <TableRow className="border-b border-gray-200 hover:bg-gray-100 [&>*]:text-black">
+         <TableCell className="py-3 px-6 text-left whitespace-nowrap">Correct Answers</TableCell>
+         <TableCell className="py-3 px-6 text-left whitespace-nowrap">{data.results[0].breakdown.correctAnswerCount}</TableCell>
+        </TableRow>
+        <TableRow className="border-b border-gray-200 hover:bg-gray-100 [&>*]:text-black">
+         <TableCell className="py-3 px-6 text-left whitespace-nowrap">Incorrect Answers</TableCell>
+         <TableCell className="py-3 px-6 text-left whitespace-nowrap">{data.results[0].breakdown.incorrectAnswerCount}</TableCell>
+        </TableRow>
+        <TableRow className="border-b border-gray-200 hover:bg-gray-100 [&>*]:text-black">
+         <TableCell className="py-3 px-6 text-left whitespace-nowrap">Partially Correct Answers</TableCell>
+         <TableCell className="py-3 px-6 text-left whitespace-nowrap">{data.results[0].breakdown.partiallyCorrectAnswerCount}</TableCell>
+        </TableRow>
+       </TableBody>
+      </Table>
+     </div>
     </div>
    </DialogContent>
   </Dialog>

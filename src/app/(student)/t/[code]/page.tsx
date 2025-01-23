@@ -66,7 +66,7 @@ export default async function Page({ searchParams, params }) {
 
 
 
-function ErrorCard({ icon, content, footer, resultReady, testId, accessToken }: { icon: React.ReactNode, content: string, footer: string, resultReady: Boolean, accessToken: string, testId: string }) {
+function ErrorCard({ icon, content, footer, resultReady, testId, accessToken }: { icon: React.ReactNode, content: string, footer: string, resultReady?: Boolean, accessToken?: string, testId?: string }) {
  return <Card className="lg:w-[25vw] w-screen">
   <CardHeader className="flex">{icon}</CardHeader>
   <CardContent className="font-bold text-lg -mt-3">
@@ -74,7 +74,7 @@ function ErrorCard({ icon, content, footer, resultReady, testId, accessToken }: 
   </CardContent>
   <CardFooter className="text-sm -mt-2 flex flex-col w-full gap-3 text-left items-start">
    {resultReady ?
-    <ResultsDialog accessToken={accessToken} testId={testId} />
+    <ResultsDialog accessToken={accessToken!} testId={testId!} />
     : null}{footer}
   </CardFooter>
  </Card>
