@@ -60,7 +60,7 @@ export default async function Page({ searchParams, params }) {
 
  // if (isAfter(new Date(), addMinutes(new Date(data.startedAt), data.durationMin))) return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={<Clock size={40} />} content="You've run out of time." footer={"If you think this is wrong, contact your supervisor."} /></div>;
  return <ErrorBoundary FallbackComponent={GlobalErrorFallback}>
-  <QuestionAnswerPage companyName={""} data={data} accessToken={token} />
+  <QuestionAnswerPage companyName={""} data={data} accessToken={token} resultReady={studentData.resultReady}/>
  </ErrorBoundary>
 }
 

@@ -41,7 +41,8 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
  const [isLoading, setIsLoading] = useState(true)
  const reqHeaders = { Authorization: `Bearer ${user.accessToken}` }
  const [isIndexUpdating, setIsIndexUpdating] = useState(false)
-
+ const [revokeStatus, setRevokeStatus] = useState<null | Boolean>(null);
+ const [revokeStatusUpdating, setRevokeStatusUpdating] = useState(false)
  const showResponses = searchParams.get('showResponses') === 'true'
 
  useEffect(() => {
@@ -59,6 +60,7 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
     console.log(data.id)
     setTestDetails(data)
     setQuestions(data.questions)
+    setRevokeStatus(data.isRevoked)
     setIsLoading(false)
    } catch (e) {
     showBoundary(e)
@@ -210,26 +212,51 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
   router.replace(`${pathname}?${newSearchParams.toString()}`)
  }
 
- const toggleRevoked = async () => {
-  
- }
+ const toggleRevoked = async (checked:boolean) => {
+  try {
+   setRevokeStatusUpdating(true)
+   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/${params.id}/revoke`, {
+    method: "PATCH",
+    headers: {
+     ...reqHeaders,
+     'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+     revoked: checked,
+    }),
+   })
 
+   if (!res.ok) {
+    const { message } = await res.json()
+    throw new Error(message)
+   }
+
+   await res.json()
+   setRevokeStatus(checked)
+  } catch (e: any) {
+   errorToast(e.message)
+   // setRevokeStatus(!revokeStatus)
+   // setQuestions(previousQuestions)
+  } finally {
+   setRevokeStatusUpdating(false)
+  }
+ }
  // if (isLoading) return <div className="flex items-center justify-center h-full"><Loader className={'animate-spin text-gray-600'} size={'70'} /></div>
 
  if (!isLoading) return (
   <div className="lg:w-[60vw] w-screen px-6">
    <Card className={cn('p-0 mb-4')}>
     <CardHeader className="flex justify-between flex-wrap gap-3">
-     <div className='flex justify-between'>
+     <div className='flex justify-between overflow-hidden'>
       <h1 className="lg:text-3xl text-2xl font-bold">
        {showResponses ? 'Submissions for "' : null}{testDetails.title}{showResponses ? '"' : null}
       </h1>
-      <div className='flex items-center space-x-2 text-sm'>
-       <Switch checked={!!testDetails.isRevoked} onCheckedChange={(checked) => toggleRevoked()} />
-       <span>
-        Accept responses
+      {revokeStatus !== null ? <div className='flex items-center space-x-2 text-sm overflow-hidden'>
+       {revokeStatusUpdating ? <Loader className={'animate-spin text-gray-600'} size={'20'} /> : <Switch checked={!!!revokeStatus} onCheckedChange={(checked) => toggleRevoked(!checked)} />}
+       <span className=''>
+        {revokeStatusUpdating ? "Updating" : "Accept responses"}
        </span>
-      </div>
+      </div> : null}
      </div>
      <div className="flex justify-between w-full">
       <div className="flex gap-2">
