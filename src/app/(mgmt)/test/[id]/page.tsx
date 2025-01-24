@@ -254,7 +254,7 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
       {revokeStatus !== null ? <div className='flex items-center space-x-2 text-sm overflow-hidden'>
        {revokeStatusUpdating ? <Loader className={'animate-spin text-gray-600'} size={'20'} /> : <Switch checked={!!!revokeStatus} onCheckedChange={(checked) => toggleRevoked(!checked)} />}
        <span className=''>
-        {revokeStatusUpdating ? "Updating" : "Accept responses"}
+        {revokeStatusUpdating ? "Updating" : "Allow access"}
        </span>
       </div> : null}
      </div>

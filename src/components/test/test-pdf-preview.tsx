@@ -68,7 +68,7 @@ export function TestPDFPreview({ testTitle, questions, instructions }: TestPDFPr
              className="leading-relaxed"
              dangerouslySetInnerHTML={{ __html: question.body }}
             ></span>
-            {question.type === 'trueOrFalse' ? <strong>True or False</strong> : null}
+            {/* {question.type === 'trueOrFalse' ? <strong>True or False</strong> : null} */}
            </div>
            <span className='flex-shrink-0 italic'>({question.points} points)</span>
           </div>
