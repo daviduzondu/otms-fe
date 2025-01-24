@@ -41,9 +41,17 @@ export function TestPDFPreview({ testTitle, questions, instructions }: TestPDFPr
     <div className={`overflow-y-auto max-h-[80vh] text-left font-serif`}>
      {/* Printable Content */}
      <div ref={printableRef} className={`${sourceSerif4.className} bg-white p-10 shadow-lg print:shadow-none text-gray-900`}>
+      <div>
+       <div className="flex w-full flex-col items-center gap-1">
+        <img src="https://networks.au-ibar.org/show/bayero-university-kano-buk-along-new-site-bayero-university-kano-kano-around-janbulo-second-gate-rd-n/image/2008090514-1099-3156-400x300/AU+REC+logos+-+2022-03-31T100332.997.png" width={100} height={100} alt="Logo" />
+        <div className="uppercase text-base">Bayero University Kano</div>
+        <div className="uppercase text-base">Faculty of Computing</div>
+        <div className="uppercase text-base">Department of Computer Science</div>
+       </div>
+      </div>
       {/* Test Header */}
-      <div className="pb-4 uppercase text-center">
-       <h1 className="text-2xl font-extrabold">{testTitle}</h1>
+      <div className="pb-4 uppercase text-center mt-2">
+       <h1 className="text-xl font-extrabold">{testTitle}</h1>
       </div>
 
       {/* Instructions */}
@@ -58,9 +66,9 @@ export function TestPDFPreview({ testTitle, questions, instructions }: TestPDFPr
       {/* Questions Section */}
       <div className="space-y-8 text-[16px]">
        {questions.map((question, index) => (
-        <div key={question.id} className="break-inside-avoid">
+        <div key={question.id} className="break-inside-avoid w-fit h-fit">
          {/* Question Body */}
-         <div className="flex items-start gap-2">
+         <div className="flex items-start gap-2 ">
           <span>{index + 1}.</span>
           <div className='flex justify-between w-full flex-wrap'>
            <div className='flex space-x-2 flex-wrap'>

@@ -16,14 +16,15 @@ export default function ResultSheet({ submissions, testDetails }: { submissions:
  const handlePrint = useReactToPrint({
   contentRef: printableRef,
   documentTitle: 'Results for test',
-  pageStyle: '@page { size: A4; }',
+  pageStyle: '@page { size: landscape; }',
   // onAfterPrint: () => s.,
  })
 
- const simulatedSubmissions = Array.from({ length: 100 }, (_, i) => ({
-  ...submissions[i % submissions.length], // Repeats mock data in a cycle
-  id: i + 1, // Ensure each submission has a unique id
- }));
+
+ // const simulatedSubmissions = Array.from({ length: 100 }, (_, i) => ({
+ //  ...submissions[i % submissions.length], // Repeats mock data in a cycle
+ //  id: i + 1, // Ensure each submission has a unique id
+ // }));
 
  return <Dialog>
   <DialogTrigger>
@@ -42,7 +43,7 @@ export default function ResultSheet({ submissions, testDetails }: { submissions:
     <div ref={printableRef} className={`${sourceSerif4.className}`}>
      {/* Branding */}
 
-     <div className="print-only">
+     <div className="">
       <div className="flex w-full flex-col items-center gap-1">
        <img src="https://networks.au-ibar.org/show/bayero-university-kano-buk-along-new-site-bayero-university-kano-kano-around-janbulo-second-gate-rd-n/image/2008090514-1099-3156-400x300/AU+REC+logos+-+2022-03-31T100332.997.png" width={100} height={100} alt="Logo" />
        <div className="uppercase text-base">Bayero University Kano</div>
@@ -50,7 +51,7 @@ export default function ResultSheet({ submissions, testDetails }: { submissions:
        <div className="uppercase text-base">Department of Computer Science</div>
       </div>
      </div>
-     <div className="print-only my-4">
+     <div className=" my-4">
       <div className="text-center w-full uppercase">
        <div className="text-xl font-bold "> {testDetails.title} <br /> TEST RESULTS </div>
       </div>
@@ -61,7 +62,6 @@ export default function ResultSheet({ submissions, testDetails }: { submissions:
         <TableHead>S/N</TableHead>
         <TableHead>Name</TableHead>
         <TableHead>Registration Number</TableHead>
-        <TableHead>Email</TableHead>
         <TableHead>Score</TableHead>
        </TableRow>
       </TableHeader>
@@ -75,17 +75,16 @@ export default function ResultSheet({ submissions, testDetails }: { submissions:
 
 
        {/* Loop through each sub. and render a row */}
-       {simulatedSubmissions.map((submission, index) => (<TableRow key={submission.id} className={cn(`[&>*]:border-black [&>*]:p-2 ${submissions.map(x => x.totalScore).sort((a, b) => b - a)[0] === submission.totalScore && submission.totalScore > 0 ? "font-bold" : ""}`)}>
+       {submissions.map((submission, index) => (<TableRow key={submission.id} className={cn(`[&>*]:border-black [&>*]:p-2 ${submissions.map(x => x.totalScore).sort((a, b) => b - a)[0] === submission.totalScore && submission.totalScore > 0 ? "font-bold" : ""}`)}>
         <TableCell className="w-fit">{index + 1}</TableCell>
         <TableCell>{submission.firstName} {" "}{submission?.middleName && submission.middleName + " "}{submission.lastName}</TableCell>
         <TableCell>{submission.regNumber || "N/A"}</TableCell>
-        <TableCell>{submission.email}</TableCell>
         <TableCell className="text-left">{submission.totalScore}</TableCell>
        </TableRow>))}
       </TableBody>
      </Table>
 
-     {/* <div className="print-only absolute bottom-0">
+     {/* <div className=" absolute bottom-0">
      <div className={`flex flex-col items-center justify-center ${ibm.variable}`}>
       <span className="font-plex flex gap-2 items-center justify-center">
        <GraduationCap /> ONLINE TEST MANAGEMENT SYSTEM
