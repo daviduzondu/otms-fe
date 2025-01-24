@@ -38,21 +38,35 @@ export default function ResultSheet({ submissions, testDetails }: { submissions:
      Results for the test
     </DialogTitle>
    </DialogHeader>
-   <div className={`${sourceSerif4.className} overflow-y-scroll max-h-[80vh]`}>
-    {/* Branding */}
+   <div className=" overflow-y-auto max-h-[80vh]">
+    <div ref={printableRef} className={`${sourceSerif4.className}`}>
+     {/* Branding */}
 
-    <Table className="">
-     <TableHeader>
-      <TableRow className={cn("uppercase [&>*]:border [&>*]:border-black [&>*]:text-black [&>*]:font-bold [&>*]:p-2")} >
-       <TableHead>S/N</TableHead>
-       <TableHead>Name</TableHead>
-       <TableHead>Registration Number</TableHead>
-       <TableHead>Email</TableHead>
-       <TableHead>Score</TableHead>
-      </TableRow>
-     </TableHeader>
-     <TableBody className="">
-      {/* <TableRow>
+     <div className="print-only">
+      <div className="flex w-full flex-col items-center gap-1">
+       <img src="https://networks.au-ibar.org/show/bayero-university-kano-buk-along-new-site-bayero-university-kano-kano-around-janbulo-second-gate-rd-n/image/2008090514-1099-3156-400x300/AU+REC+logos+-+2022-03-31T100332.997.png" width={100} height={100} alt="Logo" />
+       <div className="uppercase text-base">Bayero University Kano</div>
+       <div className="uppercase text-base">Faculty of Computing</div>
+       <div className="uppercase text-base">Department of Computer Science</div>
+      </div>
+     </div>
+     <div className="print-only my-4">
+      <div className="text-center w-full uppercase">
+       <div className="text-xl font-bold "> {testDetails.title} <br /> TEST RESULTS </div>
+      </div>
+     </div>
+     <Table>
+      <TableHeader>
+       <TableRow className={cn("uppercase [&>*]:border [&>*]:border-black [&>*]:text-black [&>*]:font-bold [&>*]:p-2")} >
+        <TableHead>S/N</TableHead>
+        <TableHead>Name</TableHead>
+        <TableHead>Registration Number</TableHead>
+        <TableHead>Email</TableHead>
+        <TableHead>Score</TableHead>
+       </TableRow>
+      </TableHeader>
+      <TableBody>
+       {/* <TableRow>
       <TableCell className="font-medium">David Uzondu</TableCell>
       <TableCell>CST/19/COM/00341</TableCell>
       <TableCell>daviduzondu@duck.com</TableCell>
@@ -60,18 +74,18 @@ export default function ResultSheet({ submissions, testDetails }: { submissions:
      </TableRow> */}
 
 
-      {/* Loop through each sub. and render a row */}
-      {simulatedSubmissions.map((submission, index) => (<TableRow key={submission.id} className={cn(`[&>*]:border-black [&>*]:p-2 ${submissions.map(x => x.totalScore).sort((a, b) => b - a)[0] === submission.totalScore && submission.totalScore > 0 ? "font-bold" : ""}`)}>
-       <TableCell className="w-fit">{index + 1}</TableCell>
-       <TableCell>{submission.firstName} {" "}{submission?.middleName && submission.middleName + " "}{submission.lastName}</TableCell>
-       <TableCell>{submission.regNumber || "N/A"}</TableCell>
-       <TableCell>{submission.email}</TableCell>
-       <TableCell className="text-left">{submission.totalScore}</TableCell>
-      </TableRow>))}
-     </TableBody>
-    </Table>
+       {/* Loop through each sub. and render a row */}
+       {simulatedSubmissions.map((submission, index) => (<TableRow key={submission.id} className={cn(`[&>*]:border-black [&>*]:p-2 ${submissions.map(x => x.totalScore).sort((a, b) => b - a)[0] === submission.totalScore && submission.totalScore > 0 ? "font-bold" : ""}`)}>
+        <TableCell className="w-fit">{index + 1}</TableCell>
+        <TableCell>{submission.firstName} {" "}{submission?.middleName && submission.middleName + " "}{submission.lastName}</TableCell>
+        <TableCell>{submission.regNumber || "N/A"}</TableCell>
+        <TableCell>{submission.email}</TableCell>
+        <TableCell className="text-left">{submission.totalScore}</TableCell>
+       </TableRow>))}
+      </TableBody>
+     </Table>
 
-    {/* <div className="print-only absolute bottom-0">
+     {/* <div className="print-only absolute bottom-0">
      <div className={`flex flex-col items-center justify-center ${ibm.variable}`}>
       <span className="font-plex flex gap-2 items-center justify-center">
        <GraduationCap /> ONLINE TEST MANAGEMENT SYSTEM
@@ -79,61 +93,8 @@ export default function ResultSheet({ submissions, testDetails }: { submissions:
       <span className={`text-xs`}>Final year project by David Uzondu</span>
      </div>
     </div> */}
-   </div>
-   <div ref={printableRef} className={`${sourceSerif4.className} print-only`}>
-    {/* Branding */}
-
-    <div className="print-only">
-     <div className="flex w-full flex-col items-center gap-1">
-      <img src="https://networks.au-ibar.org/show/bayero-university-kano-buk-along-new-site-bayero-university-kano-kano-around-janbulo-second-gate-rd-n/image/2008090514-1099-3156-400x300/AU+REC+logos+-+2022-03-31T100332.997.png" width={100} height={100} alt="Logo" />
-      <div className="uppercase text-base">Bayero University Kano</div>
-      <div className="uppercase text-base">Faculty of Computing</div>
-      <div className="uppercase text-base">Department of Computer Science</div>
-     </div>
     </div>
-    <div className="print-only my-4">
-     <div className="text-center w-full uppercase">
-      <div className="text-xl font-bold "> {testDetails.title} <br /> TEST RESULTS </div>
-     </div>
-    </div>
-    <Table className="">
-     <TableHeader>
-      <TableRow className={cn("uppercase [&>*]:border [&>*]:border-black [&>*]:text-black [&>*]:font-bold [&>*]:p-2")} >
-       <TableHead>S/N</TableHead>
-       <TableHead>Name</TableHead>
-       <TableHead>Registration Number</TableHead>
-       <TableHead>Email</TableHead>
-       <TableHead>Score</TableHead>
-      </TableRow>
-     </TableHeader>
-     <TableBody className="">
-      {/* <TableRow>
-      <TableCell className="font-medium">David Uzondu</TableCell>
-      <TableCell>CST/19/COM/00341</TableCell>
-      <TableCell>daviduzondu@duck.com</TableCell>
-      <TableCell className="text-left">23</TableCell>
-     </TableRow> */}
 
-
-      {/* Loop through each sub. and render a row */}
-      {simulatedSubmissions.map((submission, index) => (<TableRow key={submission.id} className={cn(`[&>*]:border-black [&>*]:p-2 ${submissions.map(x => x.totalScore).sort((a, b) => b - a)[0] === submission.totalScore && submission.totalScore > 0 ? "font-bold" : ""}`)}>
-       <TableCell className="w-fit">{index + 1}</TableCell>
-       <TableCell>{submission.firstName} {" "}{submission?.middleName && submission.middleName + " "}{submission.lastName}</TableCell>
-       <TableCell>{submission.regNumber || "N/A"}</TableCell>
-       <TableCell>{submission.email}</TableCell>
-       <TableCell className="text-left">{submission.totalScore}</TableCell>
-      </TableRow>))}
-     </TableBody>
-    </Table>
-
-    {/* <div className="print-only absolute bottom-0">
-     <div className={`flex flex-col items-center justify-center ${ibm.variable}`}>
-      <span className="font-plex flex gap-2 items-center justify-center">
-       <GraduationCap /> ONLINE TEST MANAGEMENT SYSTEM
-      </span>
-      <span className={`text-xs`}>Final year project by David Uzondu</span>
-     </div>
-    </div> */}
    </div>
    <DialogFooter>
     <Button onClick={() => handlePrint()}>Download as PDF</Button>
