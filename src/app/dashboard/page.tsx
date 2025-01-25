@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,10 +16,29 @@ import DashboardSummary from '../../components/dashboard/summary'
 import { DashboardActivityLog } from '../../components/dashboard/dashboard-activity-log'
 import { ErrorBoundary } from 'react-error-boundary'
 import LocalErrorFallback from '../../components/errors/local-error-fallback'
+import { useShellContext } from '../../contexts/providers/main-action-btn.provider'
 
 export default function Page() {
  const { user } = useContext(AuthContext);
+ const { setComponentProps } = useShellContext();
 
+ useEffect(() => {
+  const setCustomComponent = () => {
+   setComponentProps({
+    Component: Link, // The outer Link component
+    props: {
+     href: '/test/create', // Link's href prop
+     children: (
+      <Button className="absolute right-5 bottom-5 lg:relative lg:right-auto lg:bottom-auto">
+       <PlusCircle className="w-4 h-4 mr-2" />
+       Create New Test
+      </Button>
+     ),
+    },
+   });
+  };
+  setCustomComponent();
+ }, [setComponentProps]);
 
  return (
   <div className="flex flex-col h-full">

@@ -1,7 +1,7 @@
 'use client'
 
 import { useQuery } from "@tanstack/react-query"
-import { useContext, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { AuthContext } from "../../../contexts/auth.context"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../components/ui/table"
 import { Button } from "../../../components/ui/button"
@@ -18,11 +18,12 @@ import {
  ColumnFiltersState,
  getFilteredRowModel,
 } from "@tanstack/react-table"
-import { BarChartIcon as ChartNoAxesColumn, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Eye, Loader, Search, SearchIcon, Trash2 } from 'lucide-react'
+import { BarChartIcon as ChartNoAxesColumn, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Eye, Loader, PlusCircle, Search, SearchIcon, Trash2 } from 'lucide-react'
 import { TestDetails } from "../../../types/test"
 import Skeleton from "react-loading-skeleton"
 import Link from "next/link"
 import { TestAnalytics } from "../../../components/dashboard/analytics"
+import { useShellContext } from "../../../contexts/providers/main-action-btn.provider"
 
 
 
@@ -86,6 +87,7 @@ const columns: ColumnDef<TestDetails>[] = [
 
 export default function DashboardTests() {
  const { user } = useContext(AuthContext)
+ const { setComponentProps } = useShellContext();
  const [sorting, setSorting] = useState<SortingState>([
   { id: "createdAt", desc: true }
  ])
@@ -98,6 +100,24 @@ export default function DashboardTests() {
   enabled: !!user?.accessToken,
  })
 
+
+ useEffect(() => {
+  const setCustomComponent = () => {
+   setComponentProps({
+    Component: Link, // The outer Link component
+    props: {
+     href: '/test/create', // Link's href prop
+     children: (
+      <Button className="absolute right-5 bottom-5 lg:relative lg:right-auto lg:bottom-auto">
+       <PlusCircle className="w-4 h-4 mr-2" />
+       Create New Test
+      </Button>
+     ),
+    },
+   });
+  };
+  setCustomComponent();
+ }, [setComponentProps]);
  const table = useReactTable({
   data: data || [],
   columns,
@@ -109,7 +129,7 @@ export default function DashboardTests() {
   onColumnFiltersChange: setColumnFilters,
   getFilteredRowModel: getFilteredRowModel(),
   initialState: {
-    sorting: [{ id: "createdAt", desc: true }]
+   sorting: [{ id: "createdAt", desc: true }]
   },
   state: {
    sorting,

@@ -11,9 +11,12 @@ import { signOut } from "next-auth/react"
 import { ErrorBoundary } from "react-error-boundary"
 import LocalErrorFallback from "../errors/local-error-fallback"
 import { ibm } from "../../app/fonts"
+import { useShellContext } from "../../contexts/providers/main-action-btn.provider"
 
 export default function DashboardShell({ children }) {
  const [sidebarOpen, setSidebarOpen] = useState(false)
+ const { componentProps } = useShellContext();
+ const { Component, props } = componentProps;
  const [topBar, setTopBar] = useState<{ icon: JSX.Element, text: string }>({
   icon: <Home />,
   text: "Overview"
@@ -36,7 +39,7 @@ export default function DashboardShell({ children }) {
   <nav className="mt-6 relative flex-1">
    <NavItem setTopBar={setTopBar} icon={<Home />} label="Overview" href={'/dashboard'} />
    <NavItem setTopBar={setTopBar} icon={<ClipboardList />} label="Tests" href={'/dashboard/tests'} />
-   <NavItem setTopBar={setTopBar} icon={<GraduationCap />} label="Classes" />
+   <NavItem setTopBar={setTopBar} icon={<GraduationCap />} label="Classes" href={'/dashboard/classes'} />
    <NavItem setTopBar={setTopBar} icon={<Users />} label="Students" />
    <NavItem setTopBar={setTopBar} icon={<LogOut />} label="Logout" onClick={() => confirm("Are you sure you want to log out?") && signOut({ callbackUrl: '/' })} className={"absolute bottom-0 w-full"} />
   </nav>
@@ -61,12 +64,13 @@ export default function DashboardShell({ children }) {
      </div>
     </div>
     <div className="flex items-center space-x-4">
-     <Link href='/test/create'>
+     {/* <Link href='/test/create'>
       <Button className='absolute right-5 bottom-5 lg:relative lg:right-auto lg:bottom-auto'>
        <PlusCircle className="w-4 h-4 mr-2" />
        Create New Test
       </Button>
-     </Link>
+     </Link> */}
+     {Component ? <Component {...props} /> : <p>No component set.</p>}
     </div>
    </header>
    <main className="flex-1 flex overflow-x-hidden overflow-y-auto">

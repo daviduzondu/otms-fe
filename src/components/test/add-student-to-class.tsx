@@ -95,6 +95,7 @@ export default function AddStudentToClass({ isAddStudentOpen, setIsAddStudentOpe
 
  const onSubmit = async (data: StudentSchemaProps) => {
   setIsLoading(true)
+  console.log(data)
   try {
    let response
    if (studentExists) {

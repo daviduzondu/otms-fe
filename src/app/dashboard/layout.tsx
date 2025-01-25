@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import DashboardShell from "../../components/dashboard/shell.client";
 import { ErrorBoundary } from "react-error-boundary";
 import LocalErrorFallback from "../../components/errors/local-error-fallback";
+import { ShellProvider } from "../../contexts/providers/main-action-btn.provider";
 
 export const metadata = {
  title: 'OTMS | Dashboard',
@@ -23,12 +24,14 @@ export default function DashboardLayout({
    <AuthProvider>
     <AuthGuard next={pathname}>
 
-     <div className="flex ">
-      <DashboardShell>{children}</DashboardShell>
-      {/* <div className="flex-1 flex flex-col overflow-hidden">
+     <ShellProvider>
+      <div className="flex ">
+       <DashboardShell>{children}</DashboardShell>
+       {/* <div className="flex-1 flex flex-col overflow-hidden">
 
       </div> */}
-     </div>
+      </div>
+     </ShellProvider>
     </AuthGuard>
    </AuthProvider>
   </AuthSessionProvider>
