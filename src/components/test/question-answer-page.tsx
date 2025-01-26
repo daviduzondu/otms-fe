@@ -445,7 +445,7 @@ export function QuestionAnswerPage({ companyName, data, accessToken, resultReady
       Submission successful
      </CardContent>
      <CardFooter className="text-sm -mt-3 flex flex-col w-full gap-2">
-      {resultReady ? <ResultsDialog accessToken={accessToken} testId={data.id} /> : "You can close this page now"}
+      {resultReady ? <ResultsDialog accessToken={accessToken} testId={data.id} /> : <div className='flex items-start'>You can close this page now.</div>}
      </CardFooter>
     </Card>
    </div>
