@@ -3,7 +3,7 @@
 import { ReactNode, useContext, useEffect, useState } from "react"
 import { AuthContext } from "../../contexts/auth.context"
 import { Button } from "../ui/button"
-import { Activity, Bell, ClipboardList, GraduationCap, Home, HomeIcon, LogOut, Menu, PlusCircle, School, Settings, Sparkles, Users, X } from "lucide-react"
+import { Activity, Bell, ClipboardList, GraduationCap, Home, HomeIcon, Loader, LogOut, Menu, PlusCircle, School, Settings, Sparkles, Users, X } from "lucide-react"
 import Link from 'next/link'
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { usePathname } from "next/navigation"
@@ -13,6 +13,8 @@ import LocalErrorFallback from "../errors/local-error-fallback"
 import { ibm } from "../../app/fonts"
 import { useShellContext } from "../../contexts/providers/main-action-btn.provider"
 import { BrandingDialog } from "../branding-dialog"
+import { useQuery } from "@tanstack/react-query"
+import { Branding } from "../../types/test"
 
 type NavMap = {
  [path: string]: [string, JSX.Element];
@@ -25,7 +27,23 @@ const navMap: NavMap = {
  "/dashboard/students": ["Students", <Users />],
 };
 
+async function fetchBranding(accessToken: string) {
+ const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/branding/`, {
+  headers: {
+   'Authorization': `Bearer ${accessToken}`,
+  },
+ })
+
+ const { message, data } = await res.json()
+ if (!res.ok) {
+  throw new Error(message || "Failed to fetch branding")
+ }
+
+ return data
+}
+
 export default function DashboardShell({ children }) {
+ const { user } = useContext(AuthContext);
  const [sidebarOpen, setSidebarOpen] = useState(false)
  const pathname = usePathname();
  const { componentProps } = useShellContext();
@@ -35,6 +53,14 @@ export default function DashboardShell({ children }) {
   icon: navMap[pathname][1]
  });
 
+
+
+ const { data: branding, isError, isLoading, error, refetch, isRefetching } = useQuery<Branding>({
+  queryKey: ['branding'],
+  queryFn: () => fetchBranding(user?.accessToken),
+  staleTime: 10000,
+  enabled: !!user?.accessToken,
+ })
 
 
  return <div className="flex w-full h-screen overflow-hidden"><aside className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col`}
@@ -77,14 +103,17 @@ export default function DashboardShell({ children }) {
       </h1>
      </div>
     </div>
-    <div className="flex items-center space-x-4">
+    <div className="flex items-center space-x-4 z-50">
      {/* <Link href='/test/create'>
       <Button className='absolute right-5 bottom-5 lg:relative lg:right-auto lg:bottom-auto'>
        <PlusCircle className="w-4 h-4 mr-2" />
        Create New Test
       </Button>
      </Link> */}
-     <BrandingDialog />
+     {isLoading || isRefetching ? <Button variant="outline" className="z-10 absolute right-5 bottom-20 lg:relative lg:right-auto lg:bottom-auto" disabled={true}>
+      <Loader className="w-4 h-4 mr-2 animate-spin" />
+      Loading...</Button> : null}
+     {branding ? <BrandingDialog initialData={branding} /> : null}
      {Component ? <Component {...props} /> : <p>No component set.</p>}
     </div>
    </header>

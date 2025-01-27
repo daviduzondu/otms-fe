@@ -18,7 +18,7 @@ type FormValues = {
  textFields: string[]
 }
 
-export function BrandingDialog({ children, initialData }: { children?: JSX.Element }) {
+export function BrandingDialog({ children, initialData }: { children?: JSX.Element, initialData?: Branding }) {
  const [isOpen, setIsOpen] = useState(false)
  const { user } = useContext(AuthContext)
  const [imagePreview, setImagePreview] = useState<string | null>(null)
