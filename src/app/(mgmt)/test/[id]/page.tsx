@@ -27,6 +27,7 @@ import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigat
 import { TestDetails } from '../../../../types/test'
 import { TestAnalytics } from '../../../../components/dashboard/analytics'
 import { Switch } from '../../../../components/ui/switch'
+import EditTest from '../../../../components/test/edit-test'
 
 export default function EnhancedTestQuestionManagement({ params }: { params: { id: string } }) {
  const { showBoundary } = useErrorBoundary()
@@ -212,7 +213,7 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
   router.replace(`${pathname}?${newSearchParams.toString()}`)
  }
 
- const toggleRevoked = async (checked:boolean) => {
+ const toggleRevoked = async (checked: boolean) => {
   try {
    setRevokeStatusUpdating(true)
    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/${params.id}/revoke`, {
@@ -248,16 +249,24 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
    <Card className={cn('p-0 mb-4')}>
     <CardHeader className="flex justify-between flex-wrap gap-3">
      <div className='flex justify-between overflow-hidden'>
-      <h1 className="lg:text-3xl text-2xl font-bold">
-       {showResponses ? 'Submissions for "' : null}{testDetails.title}{showResponses ? '"' : null}
+      <h1 className="lg:text-3xl text-2xl w-fit font-bold flex-shrink">
+       {showResponses ? 'Submissions for: ' : null}{testDetails.title}
       </h1>
-      {revokeStatus !== null ? <div className='flex items-center space-x-2 text-sm overflow-hidden'>
-       {revokeStatusUpdating ? <Loader className={'animate-spin text-gray-600'} size={'20'} /> : <Switch checked={!!!revokeStatus} onCheckedChange={(checked) => toggleRevoked(!checked)} />}
-       <span className=''>
-        {revokeStatusUpdating ? "Updating" : "Allow access"}
-       </span>
-      </div> : null}
+      {revokeStatus !== null ? (
+       <div className='flex w-fit space-x-2 text-sm overflow-hidden h-fit flex-shrink-0'>
+        {revokeStatusUpdating ? (
+         <Loader className={'animate-spin text-gray-600'} size={'20'} />
+        ) : (
+         <Switch checked={!!!revokeStatus} onCheckedChange={(checked) => toggleRevoked(!checked)} />
+        )}
+        <span className='whitespace-nowrap flex items-center'>
+         {revokeStatusUpdating ? "Updating" : "Allow access"}
+        </span>
+       </div>
+      ) : null}
      </div>
+
+
      <div className="flex justify-between w-full">
       <div className="flex gap-2">
        {!showResponses ? (
@@ -267,10 +276,7 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
           questions={questions}
           instructions={testDetails.instructions}
          />
-         <Button variant="outline" size="sm" className="flex items-center gap-2">
-          <Settings className="w-4 h-4" />
-          <span className="hidden lg:block">Edit Test</span>
-         </Button>
+         <EditTest testDetails={testDetails}/>
          <Button variant="outline" size="sm" className="flex gap-2" onClick={toggleResponses}>
           <BookText className="w-4 h-4" />
           <span className="hidden lg:block">Submissions</span>

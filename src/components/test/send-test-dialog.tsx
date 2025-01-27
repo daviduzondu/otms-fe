@@ -19,7 +19,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Check, Copy, LoaderCircle, Mail, Plus, PlusCircle, SendHorizonal, UserPlus, Users, X } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Badge } from "@/components/ui/badge"
-import AddStudentToClass from "@/components/test/add-student-to-class"
+import AddStudent from "@/components/test/add-student"
 import { AuthContext } from "@/contexts/auth.context"
 import { errorToast, successToast } from "@/helpers/show-toasts"
 import { useParams } from "next/navigation"
@@ -522,7 +522,7 @@ export function SendTest({ test, questions, revokeStatus }) {
     </DialogContent>
    </Dialog>
 
-   <AddStudentToClass setIsAddStudentOpen={setIsAddStudentOpen} isAddStudentOpen={isAddStudentOpen}
+   <AddStudent setIsAddStudentOpen={setIsAddStudentOpen} isAddStudentOpen={isAddStudentOpen}
     classId={selectedClass} handleAddStudent={handleAddStudent} />
   </>
  )

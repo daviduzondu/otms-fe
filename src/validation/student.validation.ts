@@ -13,7 +13,7 @@ export const StudentSchema = z.object({
     lastName: z.string().min(2, {message: "Last name must be at least 2 characters long"}),
     regNumber: z.string().optional(),
     email: z.string().email({message: "Invalid email address"}),
-    removeAfter: z.string({message: "Please select a valid removal date"}).datetime({message: "Please select a valid removal date"}), // Required and datetime format
+    removeAfter: z.string({message: "Please select a valid removal date"}).datetime({message: "Please select a valid removal date"}).optional(), // Required and datetime format
     classId: z.string().uuid({message: "classId must be a valid UUID"}).nullable().optional(),
 });
 

@@ -3,7 +3,7 @@
 import React, { useRef, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { FileText, TriangleAlert } from 'lucide-react'
+import { CircleMinus, Edit, Edit2, FileText, TriangleAlert } from 'lucide-react'
 import { useReactToPrint } from 'react-to-print'
 import { sourceSerif4 } from '../../app/fonts'
 import { Question } from '../../types/test'
@@ -66,7 +66,7 @@ export function TestPDFPreview({ testTitle, questions, instructions }: TestPDFPr
       {/* Questions Section */}
       <div className="space-y-8 text-[16px]">
        {questions.map((question, index) => (
-        <div key={question.id} className="break-inside-avoid w-fit h-fit">
+        <div key={question.id} className="break-inside-avoid h-fit">
          {/* Question Body */}
          <div className="flex items-start gap-2 ">
           <span>{index + 1}.</span>
@@ -119,8 +119,20 @@ export function TestPDFPreview({ testTitle, questions, instructions }: TestPDFPr
     </div>
     {/* Print Button */}
     <div className="flex justify-between items-center mt-6">
-     <span className={`text-red-500 text-sm bg-red-200 px-3 py-2 rounded-full flex justify-center items-center gap-1 font-medium ${questions.map(q => q?.media?.type).includes('audio') || questions.map(q => q?.media?.type).includes('video') ? "visible" : "invisible"}`}><TriangleAlert size={15} />Your test contains non-image media (audio or video)</span>
-     <Button onClick={() => handlePrint()}>{questions.map(q => q?.media?.type).includes('audio') || questions.map(q => q?.media?.type).includes('video') ? "Print anyway" : "Print"}</Button>
+     <div className='flex '>
+      <Button variant="link" size="sm">
+       <Edit2 className="w-4 h-4" />
+       Edit Branding
+      </Button>
+      <Button variant="link" size="sm">
+       <CircleMinus className="w-4 h-4" />
+       Remove Branding
+      </Button>
+     </div>
+     <div className='flex gap-2'>
+      <span className={`text-red-500 text-sm bg-red-200 px-3 py-2 rounded-full flex justify-center items-center gap-1 font-medium ${questions.map(q => q?.media?.type).includes('audio') || questions.map(q => q?.media?.type).includes('video') ? "visible" : "invisible"}`}><TriangleAlert size={15} />Your test contains non-image media (audio or video)</span>
+      <Button onClick={() => handlePrint()}>{questions.map(q => q?.media?.type).includes('audio') || questions.map(q => q?.media?.type).includes('video') ? "Print anyway" : "Print"}</Button>
+     </div>
     </div>
    </DialogContent>
   </Dialog>

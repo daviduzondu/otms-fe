@@ -17,9 +17,11 @@ import { CreateTestSchema, CreateTestSchemaProps } from '../../../../validation/
 import { useRouter } from 'next/navigation';
 import { Slider } from '../../../../components/ui/slider'
 import { RadioGroup, RadioGroupItem } from '../../../../components/ui/radio-group'
-import { Laptop, Smartphone } from 'lucide-react'
+import { Laptop, Loader, Smartphone } from 'lucide-react'
+import { TestDetails } from '../../../../types/test'
+import { cn } from '../../../../lib/utils'
 
-export default function CreateTestClient() {
+export default function CreateTestClient({ initialData }: { initialData?: TestDetails }) {
  const router = useRouter();
  const { user } = useContext(AuthContext);
  const {
@@ -30,14 +32,19 @@ export default function CreateTestClient() {
   getValues,
   setValue,
   formState: { errors, isSubmitting }
- } = useForm<CreateTestSchemaProps>({ resolver: zodResolver(CreateTestSchema) })
+ } = useForm<CreateTestSchemaProps>({
+  resolver: zodResolver(CreateTestSchema), defaultValues: {
+   title: initialData?.title,
+   instructions: initialData?.instructions,
+   platform: initialData?.platform,
+   // instructions: initialData?.instructions
+  }
+ })
  const [advancedSettings, setAdvancedSettings] = useState({
-  maxAttempts: 1,
-  randomizeQuestions: false,
-  showResultsAfterTest: false,
-  preventTabSwitching: false,
-  disableCopyPaste: false,
-  requireFullScreen: false,
+  randomizeQuestions: !!initialData?.randomizeQuestions,
+  showResultsAfterTest: !!initialData?.showResultsAfterTest,
+  disableCopyPaste: !!initialData?.disableCopyPaste,
+  requireFullScreen: !!initialData?.requireFullScreen,
  })
 
 
@@ -54,7 +61,7 @@ export default function CreateTestClient() {
  }, [])
 
  return (
-  <Form className="w-full max-w-3xl flex items-center pb-4 justify-center" control={control}
+  <Form className={`w-full max-w-3xl flex items-center ${!initialData && "pb-4"} justify-center`} control={control}
    action={`${process.env.NEXT_PUBLIC_API_URL}/api/tests/create`} headers={{
     "Content-Type": "application/json",
     "Authorization": `Bearer ${user?.accessToken}`
@@ -66,12 +73,12 @@ export default function CreateTestClient() {
    }}
    onError={async (e) => errorToast((await e.response?.json())?.message || "Network error")}
    method="post">
-   <Card className={"lg:min-w-[40vw] h-full flex flex-col"}>
-    <CardHeader>
+   <Card className={cn(`${initialData ? "w-full border-0 p-0" : "lg:min-w-[40vw] "} h-full flex flex-col`)}>
+    {!initialData ? <CardHeader>
      <CardTitle className="text-xl font-bold">Create New Test</CardTitle>
      <CardDescription>Set up your new test parameters</CardDescription>
-    </CardHeader>
-    <CardContent className="space-y-6 flex-1">
+    </CardHeader> : null}
+    <CardContent className={`space-y-6 flex-1 ${initialData ? "p-0" : ''}`}>
      <div className="space-y-2">
       <Label htmlFor="title">Test Title <RequiredAsterisk /></Label>
       <Input id="title" placeholder="Introduction to Python" {...register("title")} />
@@ -85,7 +92,7 @@ export default function CreateTestClient() {
        placeholder="Enter instructions for this test..." {...register("instructions")} />
      </div>
 
-     <div className="space-y-3">
+     {!initialData ? <div className="space-y-3">
       <Label htmlFor="instructions">Duration (minutes)</Label>
       <Controller
        name="durationMin"
@@ -107,7 +114,7 @@ export default function CreateTestClient() {
         </>
        )}
       />
-     </div>
+     </div> : null}
 
      {/*<input type='hidden' value={calculateDuration()} name="duration" />*/}
 
@@ -131,7 +138,7 @@ export default function CreateTestClient() {
           />
           <Label
            htmlFor='desktop'
-           className={`cursor-pointer flex items-center p-1 gap-2 border-2 rounded-lg flex-1 justify-center transition-all duration-300 ${value === "desktop" ? "font-bold bg-slate-200 text-black border-black shadow-lg" : "border-gray-300 text-gray-600"}`}
+           className={`cursor-pointer flex items-center p-1 gap-2 border-2 rounded-lg flex-1 justify-center transition-all duration-300 ${value === "desktop" ? "font-bold bg-slate-300 text-black border-black shadow-lg" : "border-gray-300 text-gray-600"}`}
           >
            <Laptop /> Desktop only
           </Label>
@@ -145,7 +152,7 @@ export default function CreateTestClient() {
           />
           <Label
            htmlFor='mobileAndDesktop'
-           className={`cursor-pointer flex items-center p-1 gap-2 border-2 rounded-lg flex-1 justify-center transition-all duration-300 ${value === "mobileAndDesktop" ? "font-bold bg-slate-200 text-black border-black shadow-lg" : "border-gray-300 text-gray-600"}`}
+           className={`cursor-pointer flex items-center p-1 gap-2 border-2 rounded-lg flex-1 justify-center transition-all duration-300 ${value === "mobileAndDesktop" ? "font-bold bg-slate-300 text-black border-black shadow-lg" : "border-gray-300 text-gray-600"}`}
           >
            <span className='flex'><Smartphone /> <Laptop /></span> Mobile & Desktop
           </Label>
@@ -155,14 +162,11 @@ export default function CreateTestClient() {
       />
      </div>
 
-
-
-
      <Accordion type="single" collapsible className="w-full" value={"advanced-settings"}>
-      <AccordionItem value="advanced-settings">
-       <AccordionTrigger className='flex items-center justify-center gap-2'>Advanced
+      <AccordionItem value="advanced-settings" className={"border-0"}>
+       <AccordionTrigger className='flex items-center justify-center gap-2 [&>svg]:hidden'>Advanced
         Settings</AccordionTrigger>
-       <AccordionContent>
+       <AccordionContent >
         <div className="space-x-4 flex justify-between">
          <div className="space-y-2">
           <Label className="text-base text-muted-foreground">Test Options</Label>
@@ -237,9 +241,10 @@ export default function CreateTestClient() {
       </AccordionItem>
      </Accordion>
     </CardContent>
-    <CardFooter>
-     <Button type="submit" className="w-full" disabled={isSubmitting}>
-      {isSubmitting ? "Creating Test" : "Create Test"}</Button>
+    <CardFooter className={cn(`${initialData ? 'p-0 items-end justify-end' : ''}`)}>
+     <Button type="submit" className={`${initialData ? "" : "w-full"} mt-2`} disabled={isSubmitting}>
+      {isSubmitting ? <Loader className="animate-spin" /> : null}
+      {isSubmitting ? `${initialData ? "Editing" : "Creating"} Test` : `${initialData ? "Save changes" : "Create Test"}`}</Button>
     </CardFooter>
    </Card>
   </Form>

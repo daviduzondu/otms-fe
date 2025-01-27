@@ -24,7 +24,7 @@ import { Label } from "../../../components/ui/label"
 import { errorToast, successToast } from "../../../helpers/show-toasts"
 import { ScrollArea } from "../../../components/ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar"
-import AddStudentToClass from "../../../components/test/add-student-to-class"
+import AddStudent from "../../../components/test/add-student"
 import React from "react"
 import { useShellContext } from "../../../contexts/providers/main-action-btn.provider"
 
@@ -376,12 +376,8 @@ export default function Classes() {
        {selectedClass?.students.length} students enrolled in this class
       </DialogDescription>
      </DialogHeader>
-     <Button variant="outline"
-      onClick={() => setIsAddStudentOpen(true)}>
-      <UserPlus className="mr-2 h-4 w-4" />
-      Add student to class
-     </Button>
-     <AddStudentToClass setIsAddStudentOpen={setIsAddStudentOpen} isAddStudentOpen={isAddStudentOpen}
+
+     <AddStudent setIsAddStudentOpen={setIsAddStudentOpen} isAddStudentOpen={isAddStudentOpen}
       classId={selectedClass?.id} handleAddStudent={handleAddStudent} />
      <ScrollArea className="h-[400px] w-full rounded-md border p-4 relative">
       {selectedClass?.students.length === 0 ? (
@@ -405,6 +401,11 @@ export default function Classes() {
        </div>
       )}
      </ScrollArea>
+     <Button variant="outline"
+      onClick={() => setIsAddStudentOpen(true)}>
+      <UserPlus className="mr-2 h-4 w-4" />
+      Add student to class
+     </Button>
     </DialogContent>
    </Dialog>
   </div>

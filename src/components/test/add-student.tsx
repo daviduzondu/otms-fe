@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useContext, useEffect, useState } from "react"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
@@ -15,7 +15,7 @@ import { AuthContext } from "@/contexts/auth.context"
 import { AddStudentToClassSchema, StudentSchema, StudentSchemaProps } from '@/validation/student.validation'
 import { errorToast } from "@/helpers/show-toasts";
 
-export default function AddStudentToClass({ isAddStudentOpen, setIsAddStudentOpen, classId, handleAddStudent }) {
+export default function AddStudent({ isAddStudentOpen, setIsAddStudentOpen, classId, handleAddStudent }) {
  const { user } = useContext(AuthContext)
  const defaultRemoveAfter = new Date(new Date().getFullYear(), new Date().getMonth() + 6)
 
@@ -25,6 +25,7 @@ export default function AddStudentToClass({ isAddStudentOpen, setIsAddStudentOpe
   setError,
   getValues,
   setValue,
+  control,
   setFocus,
   formState: { errors, isValid },
   handleSubmit,
@@ -32,10 +33,7 @@ export default function AddStudentToClass({ isAddStudentOpen, setIsAddStudentOpe
   reset
  } = useForm<StudentSchemaProps>({
   resolver: zodResolver(StudentSchema),
-  mode: "all",
-  defaultValues: {
-   removeAfter: defaultRemoveAfter.toISOString()
-  }
+  mode: "all"
  })
 
  const [studentExists, setStudentExists] = useState(false)
@@ -63,12 +61,14 @@ export default function AddStudentToClass({ isAddStudentOpen, setIsAddStudentOpe
     reset({ email: email })
    }
   } catch (error) {
+   errorToast("Failed to search student", { description: (error as Error)?.message || "Something went wrong. Please try again!" });
    setError("email", { type: "manual", message: "Server error, try again" })
   } finally {
    setIsSearching(false)
    setIsLoaded(true)
   }
  }
+
 
  useEffect(() => {
   // Trigger validation for removeAfter field on component mount
@@ -78,6 +78,7 @@ export default function AddStudentToClass({ isAddStudentOpen, setIsAddStudentOpe
 
  useEffect(() => {
   const email = watch("email")
+  console.log(errors)
 
   if (email) {
    const debounceTimer = setTimeout(async () => {
@@ -102,7 +103,7 @@ export default function AddStudentToClass({ isAddStudentOpen, setIsAddStudentOpe
     const addStudentData = AddStudentToClassSchema.parse({
      studentId: data.id,
      classId,
-     removeAfter: data.removeAfter.toString()
+     removeAfter: data?.removeAfter.toString()
     })
     response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/class/add-student`, {
      method: 'POST',
@@ -116,7 +117,7 @@ export default function AddStudentToClass({ isAddStudentOpen, setIsAddStudentOpe
     const newStudentData = StudentSchema.parse({
      ...data,
      classId,
-     removeAfter: data.removeAfter.toString()
+     removeAfter: classId ? data?.removeAfter.toString() : undefined
     })
     response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/add-student`, {
      method: 'POST',
@@ -130,13 +131,13 @@ export default function AddStudentToClass({ isAddStudentOpen, setIsAddStudentOpe
    const result = await response.json();
    if (!response.ok) {
     console.log(result);
-    errorToast("Failed to add student", { description: result?.message || "Something went wrong. Please try again!" });
+    throw new Error(result.message);
    } else {
     handleAddStudent(Object.assign(data, { ...result.data }));
    }
 
   } catch (error) {
-   console.log(error)
+   errorToast("Failed to add student", { description: (error as Error)?.message || "Something went wrong. Please try again!" });
    setError("root", { type: "manual", message: "Failed to add student. Please try again." })
   } finally {
    setIsLoading(false)
@@ -148,8 +149,8 @@ export default function AddStudentToClass({ isAddStudentOpen, setIsAddStudentOpe
   <Dialog open={isAddStudentOpen} onOpenChange={setIsAddStudentOpen}>
    <DialogContent className="max-w-xl">
     <DialogHeader>
-     <DialogTitle>Add Student to Class</DialogTitle>
-     <DialogDescription>Let&apos;s find your student and add them to the class.</DialogDescription>
+     <DialogTitle>{classId ? "Add student to class" : "Add student"}</DialogTitle>
+     <DialogDescription>{classId ? "Let's find your student and add them to the class." : "Start by entering your student's email"}</DialogDescription>
     </DialogHeader>
 
     <ScrollArea className="max-h-[70vh] -mx-3">
@@ -181,7 +182,7 @@ export default function AddStudentToClass({ isAddStudentOpen, setIsAddStudentOpe
           <CardHeader>
            <CardTitle className="flex items-center text-green-700 text-base">
             <UserCheck className="mr-2 h-5 w-5" />
-            Student Found
+            {classId ? "Student Found" : "Student already exists"}
            </CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-4 text-sm">
@@ -207,7 +208,7 @@ export default function AddStudentToClass({ isAddStudentOpen, setIsAddStudentOpe
 
         {isLoaded && !studentExists && (
          <>
-          <Card className="border-red-200 bg-red-50 shadow-card">
+          {classId ? <Card className="border-red-200 bg-red-50 shadow-card">
            <CardHeader>
             <CardTitle className="flex items-center text-red-700 text-base">
              <UserX className="mr-2 h-5 w-5" />
@@ -220,7 +221,7 @@ export default function AddStudentToClass({ isAddStudentOpen, setIsAddStudentOpe
              Please enter the student&apos;s details below to add them.
             </p>
            </CardContent>
-          </Card>
+          </Card> : null}
           <div className="space-y-4">
            <div className="space-y-2">
             <Label htmlFor="firstName">First Name</Label>
@@ -250,37 +251,46 @@ export default function AddStudentToClass({ isAddStudentOpen, setIsAddStudentOpe
        </>
       )}
 
-      {!isSearching && isLoaded && (
+      {!isSearching && isLoaded && classId && (
        <div className="space-y-2 flex flex-col">
         <Label htmlFor="removeAfter">Remove student from this class on</Label>
-        <DatePicker
-         date={removeAfter}
-         setDate={(date) => {
-          if (date) {
-           const isoString = new Date(date.toString()).toISOString();
-           setRemoveAfter(date);
-           setValue("removeAfter", isoString, { shouldValidate: true }); // Ensure it's a string
-           // trigger("removeAfter");
-          }
-         }}
+        <Controller
+         name="removeAfter"
+         control={control}
+         defaultValue={defaultRemoveAfter.toISOString()}
+         rules={{ required: "Please select a date" }}
+         render={({ field: { onChange, value }, fieldState: { error } }) => (
+          <>
+           <DatePicker
+            date={new Date(value)}
+            setDate={(date) => {
+             if (date) {
+              const isoString = new Date(date.toString()).toISOString();
+              onChange(isoString); // Update the form value
+              // setRemoveAfter(date); // Update local state if needed
+             }
+            }}
+           />
+           {error && <p className="text-red-500 text-sm">{error.message}</p>}
+          </>
+         )}
         />
-        {errors.removeAfter &&
-         <p className="text-red-500 text-sm">{errors.removeAfter.message}</p>}
        </div>
       )}
+
 
       {errors.root && <p className="text-red-500 text-sm">{errors.root.message}</p>}
 
       <DialogFooter>
-       <Button type="submit" disabled={isSearching || isLoading || !isValid}>
+       <Button type="submit" disabled={isSearching || isLoading || !isValid || (studentExists && !classId)}>
         {(isSearching || isLoading) ? (
          <>
           <div><Loader className="animate-spin" /></div>
           Please wait
          </>
-        ) : (
-         'Add Student to Class'
-        )}
+        ) : classId ? (
+         'Add student to Class'
+        ) : "Add student"}
        </Button>
       </DialogFooter>
      </form>

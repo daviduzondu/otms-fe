@@ -7,7 +7,9 @@ export interface Question {
  options?: string[]
  correctAnswer?: string | string[]
  points: number
- media : {
+ timeLimit: number
+ mediaId: string
+ media: {
   id: string
   type: string
   url: string
@@ -49,6 +51,11 @@ export interface Answer {
  isWithinTime: boolean | null
  autoGraded: boolean
  maxPoints: number
+ media: {
+  id: string
+  type: string
+  url: string
+ }
 }
 
 export interface WebcamCapture {
@@ -68,7 +75,7 @@ export interface TestDetails {
  passingScore: number;
  accessCode?: string;
  randomizeQuestions: boolean;
- showResults: boolean;
+ showResultsAfterTest: boolean;
  showCorrectAnswers: boolean;
  provideExplanations: boolean;
  disableCopyPaste: boolean;

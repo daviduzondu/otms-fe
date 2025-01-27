@@ -110,6 +110,7 @@ export function StudentAnswerCard({
        <span className="text-xs">{QuestionTypeMap[answer.type]}{" "}{answer.questionId}</span>
       </CardDescription>
      </div>
+
      {!updatingScore ? <div className="flex items-center space-x-2 whitespace-nowrap">
       <span className={`text-sm font-medium ${getGradeStatusColor(localGradeStatus)}`}>
        {localGradeStatus}
@@ -124,6 +125,22 @@ export function StudentAnswerCard({
     </div>
    </CardHeader>
    <CardContent className="py-3 relative">
+    {answer.media ? <div className="space-y-2 flex items-center justify-center relative">
+     {
+
+      answer.media.type === "image" ? (
+       <img src={new URL(answer.media.url).toString()} width={400} height={400} alt="media" />
+      ) :
+       // Check if mediaUrl is an mp3
+       answer.media.type === "audio" ? (
+        <audio controls src={new URL(answer.media.url).toString()} className="w-full" />
+       ) :
+        // Check if mediaUrl is an mp4
+        answer.media.type === "video" ? (
+         <video controls src={new URL(answer.media.url).toString()} />
+        ) : null
+     }
+    </div> : null}
     <div className="text-sm mb-2">
      <strong>Student&apos;s Answer:</strong> {answer.answer || 'No answer provided'}
     </div>
@@ -209,7 +226,6 @@ export function StudentAnswerCard({
          checked={!answer.autoGraded}
          onCheckedChange={() => {
           onOverrideAutoGrade(answer.questionId);
-          console.log(answer)
           if (!answer.autoGraded) handleGrade(undefined, true)
           // return handleGrade(prevPoints);
          }}

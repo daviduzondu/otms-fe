@@ -7,6 +7,7 @@ import DashboardShell from "../../components/dashboard/shell.client";
 import { ErrorBoundary } from "react-error-boundary";
 import LocalErrorFallback from "../../components/errors/local-error-fallback";
 import { ShellProvider } from "../../contexts/providers/main-action-btn.provider";
+import { Toaster } from "sonner";
 
 export const metadata = {
  title: 'OTMS | Dashboard',
@@ -27,6 +28,8 @@ export default function DashboardLayout({
      <ShellProvider>
       <div className="flex ">
        <DashboardShell>{children}</DashboardShell>
+       <Toaster richColors position="top-center" theme="light" className="text-3xl" />
+
        {/* <div className="flex-1 flex flex-col overflow-hidden">
 
       </div> */}

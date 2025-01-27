@@ -8,6 +8,7 @@ import { AuthContext } from "../../contexts/auth.context";
 import { errorToast } from "../../helpers/show-toasts";
 import { QuestionSchemaProps } from "@/validation/create-question.validation";
 import { useParams } from "next/navigation";
+import { Question } from "../../types/test";
 
 export const QuestionTypeMap = {
  "mcq": "Multiple Choice",
@@ -17,7 +18,7 @@ export const QuestionTypeMap = {
 }
 
 export default function QuestionCard({ question, setEditingQuestion, handleDeleteQuestion, index, testId }: {
- question: QuestionSchemaProps,
+ question: Question,
  setEditingQuestion: React.Dispatch<React.SetStateAction<QuestionSchemaProps | null>>,
  handleDeleteQuestion: (data: string) => void,
  index: number
@@ -61,7 +62,25 @@ export default function QuestionCard({ question, setEditingQuestion, handleDelet
      {question?.timeLimit ? <Timer size={16} /> : <TimerOff size={16} />}
      {question?.timeLimit ? question.timeLimit + "min" : "No limit"} </p>
    </div>
+
    <span className="mb-2 text-lg" dangerouslySetInnerHTML={{ __html: question.body }}></span>
+   {question.media ? <div className="space-y-2 flex items-center justify-center relative">
+    {
+
+     question.media.type === "image" ? (
+      <img src={new URL(question.media.url).toString()} width={400} height={400} alt="media" />
+     ) :
+      // Check if mediaUrl is an mp3
+      question.media.type === "audio" ? (
+       <audio controls src={new URL(question.media.url).toString()} className="w-full" />
+      ) :
+       // Check if mediaUrl is an mp4
+       question.media.type === "video" ? (
+        <video controls src={new URL(question.media.url).toString()} />
+       ) : null
+    }
+   </div> : null}
+
    {question.type === "mcq" && (
     <div className={"bg-muted p-4 relative"}>
      <div className={"-mt-2 text-sm pb-2 text-muted-foreground"}>Options</div>

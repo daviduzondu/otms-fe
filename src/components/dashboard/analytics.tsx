@@ -5,7 +5,7 @@ import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, D
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, CartesianGrid } from "recharts"
-import { BarChartIcon as ChartColumn, Eye, Info, LayoutPanelLeft } from 'lucide-react'
+import { BarChartIcon as ChartColumn, Eye, Info, LayoutPanelLeft, Loader } from 'lucide-react'
 import { AuthContext } from "../../contexts/auth.context"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import Skeleton from "react-loading-skeleton"
@@ -81,7 +81,10 @@ export const TestAnalytics: React.FC<{ testId: string, children?: ReactNode }> =
 
  // While the data is loading, show the skeleton loader
  if (isLoading) {
-  return <Skeleton count={5} height={10} style={{ width: "100%" }} />
+  return <Button variant={'outline'}>
+   <Loader className="animate-spin" />
+   Loading...
+  </Button>
  }
 
  // If an error occurred, it will be handled by React Error Boundary
@@ -176,7 +179,7 @@ export const TestAnalytics: React.FC<{ testId: string, children?: ReactNode }> =
       <span className="text-base">Nothing to analyze because no one has submitted.</span>
      </div> :
       <div className="space-y-8 relative">
-       {Number(data.totalParticipants) !== Number(stats.totalAttempts) ?  <div className="bg-yellow-300 p-3 rounded-sm flex gap-2 items-center"><Info size={20}/> Analytics is incomplete because some students are yet to submit or haven't taken the test yet.</div> : null}
+       {Number(data.totalParticipants) !== Number(stats.totalAttempts) ? <div className="bg-yellow-300 p-3 rounded-sm flex gap-2 items-center"><Info size={20} /> Analytics is incomplete because some students are yet to submit or haven't taken the test yet.</div> : null}
        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 [&>*]:bg-slate-100">
         <Card>
          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

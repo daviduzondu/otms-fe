@@ -1,5 +1,5 @@
 'use client'
-import { Users, GraduationCap, ClipboardList, Activity } from "lucide-react"
+import { Users, GraduationCap, ClipboardList, Activity, School } from "lucide-react"
 import { Card } from "../ui/card"
 import { useQuery } from "@tanstack/react-query";
 import Skeleton from "react-loading-skeleton";
@@ -45,7 +45,7 @@ export default function DashboardSummary() {
  }
  return <div className={"grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4"}>
   <StatCard title="Total Students" value={data.totalStudents} icon={<Users className="h-8 w-8" />} />
-  <StatCard title="Active Classes" value={data.classes} icon={<GraduationCap className="h-8 w-8" />} />
+  <StatCard title="Active Classes" value={data.classes} icon={<School className="h-8 w-8" strokeWidth="2"/>} />
   <StatCard title="Tests Created" value={data.testCount} icon={<ClipboardList className="h-8 w-8" />} />
   <StatCard title="Avg. Performance" value={`${Math.round(data.averagePerformance)}%`} icon={<Activity className="h-8 w-8" />} />
  </div>
@@ -54,7 +54,7 @@ export default function DashboardSummary() {
 function StatCard({ title, value, icon }) {
  return (
   <Card className="flex items-center p-6">
-   <div className="p-3 rounded-full bg-violet-500 bg-opacity-10">
+   <div className="p-3 rounded-full border-2 border-black bg-opacity-10">
     {icon}
    </div>
    <div className="ml-4">

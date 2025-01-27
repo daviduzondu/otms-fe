@@ -262,7 +262,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
    });
    const { message } = await response.json();
    if (!response.ok) throw new Error(message || "Failed to send results")
-    successToast("Successfully sent results to students")
+   successToast("Successfully sent results to students")
   } catch (error) {
    errorToast((error as Error).message)
    console.error((error as Error).message)
@@ -301,7 +301,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
 
       <div className="flex flex-col space-y-2">
        <ResultSheet testDetails={testDetails} submissions={submissions.map(s => ({ ...s, totalScore: calculateTotalScore(s) }))} />
-       <Button className="w-full" variant={'outline'} onClick={sendResultsEmail} disabled={submissions.length <= 0 || sendingResult}>
+       <Button className="w-full" variant={'outline'} onClick={() => confirm("Are you sure?") && sendResultsEmail()} disabled={submissions.length <= 0 || sendingResult}>
         {!sendingResult ? <Mail className="mr-2 h-4 w-4" /> : <Loader className='animate-spin' />}
         {!sendingResult ? "Send results via email" : "Sending..."}
        </Button>

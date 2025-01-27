@@ -354,7 +354,7 @@ export default function QuestionForm({ initialData, onSubmit, onCancel, minLeft 
       size={100}
      />
      <div>
-      <p className={"font-semibold"}>Setting a time limit has been disabled because:</p>
+      <p className={"font-semibold"}>Setting a time limit for this question has been disabled because:</p>
       <ul className="list-disc list-inside">
        <li>You&apos;ve used up all available minutes.</li>
       </ul>
@@ -362,7 +362,6 @@ export default function QuestionForm({ initialData, onSubmit, onCancel, minLeft 
      <div>
       <p className={"font-semibold"}>To free up time, you can:</p>
       <ul className="list-disc list-inside">
-       <li>Increase the test duration in this test&apos;s settings.</li>
        <li>Reduce the time allocated to other questions.</li>
       </ul>
      </div>

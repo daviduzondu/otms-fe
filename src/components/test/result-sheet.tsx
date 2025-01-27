@@ -1,4 +1,4 @@
-import { FileSpreadsheet, GraduationCap } from "lucide-react";
+import { FileSpreadsheet, FileText, GraduationCap } from "lucide-react";
 import { Dialog, DialogHeader, DialogTrigger, DialogContent, DialogTitle, DialogFooter } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
@@ -15,7 +15,7 @@ export default function ResultSheet({ submissions, testDetails }: { submissions:
 
  const handlePrint = useReactToPrint({
   contentRef: printableRef,
-  documentTitle: 'Results for test',
+  documentTitle: `Results for test (${testDetails.title})`,
   pageStyle: '@page { size: landscape; }',
   // onAfterPrint: () => s.,
  })
@@ -29,7 +29,7 @@ export default function ResultSheet({ submissions, testDetails }: { submissions:
  return <Dialog>
   <DialogTrigger>
    <Button className="w-full" disabled={submissions.length <= 0}>
-    <FileSpreadsheet className="mr-2 h-4 w-4" />
+    <FileText className="mr-2 h-4 w-4" />
     Generate results sheet
    </Button>
   </DialogTrigger>

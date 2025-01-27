@@ -3,7 +3,7 @@
 import { ReactNode, useContext, useEffect, useState } from "react"
 import { AuthContext } from "../../contexts/auth.context"
 import { Button } from "../ui/button"
-import { Activity, Bell, ClipboardList, GraduationCap, Home, HomeIcon, LogOut, Menu, PlusCircle, Settings, Users, X } from "lucide-react"
+import { Activity, Bell, ClipboardList, GraduationCap, Home, HomeIcon, LogOut, Menu, PlusCircle, School, Settings, Sparkles, Users, X } from "lucide-react"
 import Link from 'next/link'
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { usePathname } from "next/navigation"
@@ -13,14 +13,27 @@ import LocalErrorFallback from "../errors/local-error-fallback"
 import { ibm } from "../../app/fonts"
 import { useShellContext } from "../../contexts/providers/main-action-btn.provider"
 
+type NavMap = {
+ [path: string]: [string, JSX.Element];
+};
+
+const navMap: NavMap = {
+ "/dashboard": ["Overview", <Home />],
+ "/dashboard/tests": ["Tests", <ClipboardList />],
+ "/dashboard/classes": ["Classes", <School />],
+ "/dashboard/students": ["Students", <Users />],
+};
+
 export default function DashboardShell({ children }) {
  const [sidebarOpen, setSidebarOpen] = useState(false)
+ const pathname = usePathname();
  const { componentProps } = useShellContext();
  const { Component, props } = componentProps;
  const [topBar, setTopBar] = useState<{ icon: JSX.Element, text: string }>({
-  icon: <Home />,
-  text: "Overview"
+  text: navMap[pathname][0],
+  icon: navMap[pathname][1]
  });
+
 
 
  return <div className="flex w-full h-screen overflow-hidden"><aside className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col`}
@@ -39,8 +52,8 @@ export default function DashboardShell({ children }) {
   <nav className="mt-6 relative flex-1">
    <NavItem setTopBar={setTopBar} icon={<Home />} label="Overview" href={'/dashboard'} />
    <NavItem setTopBar={setTopBar} icon={<ClipboardList />} label="Tests" href={'/dashboard/tests'} />
-   <NavItem setTopBar={setTopBar} icon={<GraduationCap />} label="Classes" href={'/dashboard/classes'} />
-   <NavItem setTopBar={setTopBar} icon={<Users />} label="Students" />
+   <NavItem setTopBar={setTopBar} icon={<School />} label="Classes" href={'/dashboard/classes'} />
+   <NavItem setTopBar={setTopBar} icon={<Users />} label="Students" href={'/dashboard/students'} />
    <NavItem setTopBar={setTopBar} icon={<LogOut />} label="Logout" onClick={() => confirm("Are you sure you want to log out?") && signOut({ callbackUrl: '/' })} className={"absolute bottom-0 w-full"} />
   </nav>
 
@@ -70,6 +83,8 @@ export default function DashboardShell({ children }) {
        Create New Test
       </Button>
      </Link> */}
+     <Button variant="outline" className="z-10 absolute right-5 bottom-20 lg:relative lg:right-auto lg:bottom-auto">       <Sparkles className="w-4 h-4 mr-2" />
+      My Branding</Button>
      {Component ? <Component {...props} /> : <p>No component set.</p>}
     </div>
    </header>
