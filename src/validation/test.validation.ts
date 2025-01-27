@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
-export const CreateTestSchema = z.object({
+export const CreateOrEditTestSchema = z.object({
+ testId: z.string().uuid().optional(),
  title: z.string({ required_error: "Title cannot be empty" }).min(5, "Title cannot have fewer than 5 Characters"),
  instructions: z.string().optional(),
  durationMin: z.number().int().min(30).max(180),
@@ -11,4 +12,4 @@ export const CreateTestSchema = z.object({
  platform: z.enum(['desktop', 'mobileAndDesktop'])
 })
 
-export type CreateTestSchemaProps = z.infer<typeof CreateTestSchema>;
+export type CreateorEditTestSchemaProps = z.infer<typeof CreateOrEditTestSchema>;

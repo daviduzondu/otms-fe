@@ -29,6 +29,8 @@ import { TestAnalytics } from '../../../../components/dashboard/analytics'
 import { Switch } from '../../../../components/ui/switch'
 import EditTest from '../../../../components/test/edit-test'
 
+
+
 export default function EnhancedTestQuestionManagement({ params }: { params: { id: string } }) {
  const { showBoundary } = useErrorBoundary()
  const { user } = useContext(AuthContext)
@@ -84,6 +86,10 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
 
  const handleDeleteQuestion = (id: string) => {
   setQuestions(prevQuestions => prevQuestions.filter(q => q.id !== id))
+ }
+
+ const handleEditTest = (data: TestDetails) => {
+  setTestDetails(prevData => ({ ...prevData, ...data }));
  }
 
  const onDragEnd = async (event: DragEndEvent) => {
@@ -276,7 +282,7 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
           questions={questions}
           instructions={testDetails.instructions}
          />
-         <EditTest testDetails={testDetails}/>
+         <EditTest testDetails={testDetails} onEditSuccessful={handleEditTest} />
          <Button variant="outline" size="sm" className="flex gap-2" onClick={toggleResponses}>
           <BookText className="w-4 h-4" />
           <span className="hidden lg:block">Submissions</span>

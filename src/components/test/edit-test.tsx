@@ -3,25 +3,41 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "../ui/button";
 import { Settings } from "lucide-react";
 import CreateTestClient from "../../app/(mgmt)/test/create/create-test.client";
+import { useState } from "react";
 
-export default function EditTest({ testDetails }: { testDetails: TestDetails }) {
+export default function EditTest({
+  testDetails,
+  onEditSuccessful,
+}: {
+  testDetails: TestDetails;
+  onEditSuccessful: (data: TestDetails) => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
 
- return <Dialog>
+  const handleEditSuccess = (data: TestDetails) => {
+    setIsOpen(false); 
+    onEditSuccessful(data); 
+  };
 
-  <DialogTrigger asChild>
-   <Button variant="outline" size="sm" className="flex items-center gap-2">
-    <Settings className="w-4 h-4" />
-    <span className="hidden lg:block">Edit Test</span>
-   </Button>
-  </DialogTrigger>
-  <DialogContent className="max-w-3xl">
-   <DialogHeader>
-    <DialogTitle>Edit Test</DialogTitle>
-   </DialogHeader>
-   <div className="w-full">
-    <CreateTestClient initialData={testDetails} />
-   </div>
-  </DialogContent>
- </Dialog>
-
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm" className="flex items-center gap-2">
+          <Settings className="w-4 h-4" />
+          <span className="hidden lg:block">Edit Test</span>
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-3xl">
+        <DialogHeader>
+          <DialogTitle>Edit Test</DialogTitle>
+        </DialogHeader>
+        <div className="w-full">
+          <CreateTestClient
+            initialData={testDetails}
+            onEditSuccessful={handleEditSuccess} 
+          />
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 }

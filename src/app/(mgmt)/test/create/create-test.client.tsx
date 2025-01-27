@@ -11,9 +11,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { addMinutes, differenceInMinutes } from 'date-fns'
 import { AuthContext } from '../../../../contexts/auth.context'
-import { errorToast, successToast } from '../../../../helpers/show-toasts'
+import { errorToast, infoToast, successToast } from '../../../../helpers/show-toasts'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CreateTestSchema, CreateTestSchemaProps } from '../../../../validation/create-test.validation'
+import { CreateOrEditTestSchema, CreateorEditTestSchemaProps } from '../../../../validation/test.validation'
 import { useRouter } from 'next/navigation';
 import { Slider } from '../../../../components/ui/slider'
 import { RadioGroup, RadioGroupItem } from '../../../../components/ui/radio-group'
@@ -21,7 +21,7 @@ import { Laptop, Loader, Smartphone } from 'lucide-react'
 import { TestDetails } from '../../../../types/test'
 import { cn } from '../../../../lib/utils'
 
-export default function CreateTestClient({ initialData }: { initialData?: TestDetails }) {
+export default function CreateTestClient({ initialData, onEditSuccessful }: { initialData?: TestDetails, onEditSuccessful: (data: TestDetails) => void }) {
  const router = useRouter();
  const { user } = useContext(AuthContext);
  const {
@@ -32,8 +32,8 @@ export default function CreateTestClient({ initialData }: { initialData?: TestDe
   getValues,
   setValue,
   formState: { errors, isSubmitting }
- } = useForm<CreateTestSchemaProps>({
-  resolver: zodResolver(CreateTestSchema), defaultValues: {
+ } = useForm<CreateorEditTestSchemaProps>({
+  resolver: zodResolver(CreateOrEditTestSchema), defaultValues: {
    title: initialData?.title,
    instructions: initialData?.instructions,
    platform: initialData?.platform,
@@ -51,7 +51,7 @@ export default function CreateTestClient({ initialData }: { initialData?: TestDe
 
  const RequiredAsterisk = () => <span className="text-red-500">*</span>
 
- const handleSwitchChange = (fieldName: keyof CreateTestSchemaProps, value: boolean) => {
+ const handleSwitchChange = (fieldName: keyof CreateorEditTestSchemaProps, value: boolean) => {
   setAdvancedSettings((prevSettings) => ({ ...prevSettings, [fieldName]: value }));
   setValue(fieldName, value); // Update form state with setValue
  };
@@ -62,17 +62,19 @@ export default function CreateTestClient({ initialData }: { initialData?: TestDe
 
  return (
   <Form className={`w-full max-w-3xl flex items-center ${!initialData && "pb-4"} justify-center`} control={control}
-   action={`${process.env.NEXT_PUBLIC_API_URL}/api/tests/create`} headers={{
+   action={`${process.env.NEXT_PUBLIC_API_URL}/api/tests/${!initialData ? "create" : "edit"}`} headers={{
     "Content-Type": "application/json",
     "Authorization": `Bearer ${user?.accessToken}`
    }}
    onSuccess={async ({ response }) => {
     const { data } = await response.json();
-    router.replace(`/test/${data.id}`)
-    successToast("Test created successfully")
+    if (!initialData) router.replace(`/test/${data.id}`);
+    onEditSuccessful(data);
+    !initialData ? successToast("Test created successfully") : infoToast("Test edited successfully")
    }}
    onError={async (e) => errorToast((await e.response?.json())?.message || "Network error")}
-   method="post">
+   method={initialData ? 'put' : 'post'}
+  >
    <Card className={cn(`${initialData ? "w-full border-0 p-0" : "lg:min-w-[40vw] "} h-full flex flex-col`)}>
     {!initialData ? <CardHeader>
      <CardTitle className="text-xl font-bold">Create New Test</CardTitle>
@@ -117,6 +119,7 @@ export default function CreateTestClient({ initialData }: { initialData?: TestDe
      </div> : null}
 
      {/*<input type='hidden' value={calculateDuration()} name="duration" />*/}
+     {initialData ? <input type='hidden' {...register("testId", { value: initialData?.id })} /> : null}
 
      <div className='w-full space-y-3 flex flex-col'>
       <Label className='text-sm text-left'>Device restrictions</Label>
@@ -164,7 +167,7 @@ export default function CreateTestClient({ initialData }: { initialData?: TestDe
 
      <Accordion type="single" collapsible className="w-full" value={"advanced-settings"}>
       <AccordionItem value="advanced-settings" className={"border-0"}>
-       <AccordionTrigger className='flex items-center justify-center gap-2 [&>svg]:hidden'>Advanced
+       <AccordionTrigger className='flex items-center justify-center gap-2 [&>svg]:hidden pointer-events-none'>Advanced
         Settings</AccordionTrigger>
        <AccordionContent >
         <div className="space-x-4 flex justify-between">
