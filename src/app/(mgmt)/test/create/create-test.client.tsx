@@ -69,7 +69,7 @@ export default function CreateTestClient({ initialData, onEditSuccessful }: { in
    onSuccess={async ({ response }) => {
     const { data } = await response.json();
     if (!initialData) router.replace(`/test/${data.id}`);
-    onEditSuccessful(data);
+    if (initialData) onEditSuccessful(data);
     !initialData ? successToast("Test created successfully") : infoToast("Test edited successfully")
    }}
    onError={async (e) => errorToast((await e.response?.json())?.message || "Network error")}
@@ -191,10 +191,7 @@ export default function CreateTestClient({ initialData, onEditSuccessful }: { in
             <Switch
              id="show-results"
              checked={advancedSettings.showResultsAfterTest}
-             onCheckedChange={(checked) => setAdvancedSettings({
-              ...advancedSettings,
-              showResultsAfterTest: checked
-             })}
+             onCheckedChange={(checked) => handleSwitchChange("showResultsAfterTest", checked)}
             />
             <input
              type='hidden' {...register('showResultsAfterTest', { value: advancedSettings.showResultsAfterTest })} />

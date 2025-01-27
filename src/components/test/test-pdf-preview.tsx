@@ -1,21 +1,40 @@
 'use client'
 
-import React, { useRef, useState } from 'react'
+import React, { useContext, useRef, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { CircleMinus, Edit, Edit2, FileText, TriangleAlert } from 'lucide-react'
 import { useReactToPrint } from 'react-to-print'
 import { sourceSerif4 } from '../../app/fonts'
-import { Question } from '../../types/test'
+import { Branding, Question } from '../../types/test'
+import { AuthContext } from '../../contexts/auth.context'
+import { useQuery } from '@tanstack/react-query'
 
 
 interface TestPDFPreviewProps {
  testTitle: string
  questions: Question[]
  instructions?: string
+ brandingEnabled: Boolean
 }
 
-export function TestPDFPreview({ testTitle, questions, instructions }: TestPDFPreviewProps) {
+async function fetchBranding(accessToken: string) {
+ const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/branding/`, {
+  headers: {
+   'Authorization': `Bearer ${accessToken}`,
+  },
+ })
+
+ const { message, data } = await res.json()
+ if (!res.ok) {
+  throw new Error(message || "Failed to fetch branding")
+ }
+
+ return data
+}
+
+export function TestPDFPreview({ testTitle, questions, instructions, brandingEnabled }: TestPDFPreviewProps) {
+ const { user } = useContext(AuthContext)
  const [isOpen, setIsOpen] = useState(false)
  const printableRef = useRef<HTMLDivElement>(null)
 
@@ -24,6 +43,13 @@ export function TestPDFPreview({ testTitle, questions, instructions }: TestPDFPr
   documentTitle: testTitle || 'Test PDF',
   onAfterPrint: () => setIsOpen(false),
   pageStyle: '@page { size: A4; }',
+ })
+
+ const { data: branding, isError, isLoading, error } = useQuery<Branding>({
+  queryKey: ['branding', user?.accessToken],
+  queryFn: () => fetchBranding(user?.accessToken || ''),
+  staleTime: 10000,
+  enabled: !!user?.accessToken,
  })
 
  return (
@@ -44,9 +70,11 @@ export function TestPDFPreview({ testTitle, questions, instructions }: TestPDFPr
       <div>
        <div className="flex w-full flex-col items-center gap-1">
         <img src="https://networks.au-ibar.org/show/bayero-university-kano-buk-along-new-site-bayero-university-kano-kano-around-janbulo-second-gate-rd-n/image/2008090514-1099-3156-400x300/AU+REC+logos+-+2022-03-31T100332.997.png" width={100} height={100} alt="Logo" />
-        <div className="uppercase text-base">Bayero University Kano</div>
-        <div className="uppercase text-base">Faculty of Computing</div>
-        <div className="uppercase text-base">Department of Computer Science</div>
+        {brandingEnabled ? <>
+         <div className="uppercase text-base">{branding?.field1}</div>
+         {branding?.field2 ?<div className="uppercase text-base">{branding.field2}</div>: null}
+         {branding?.field3 ?<div className="uppercase text-base">{branding?.field3}</div>:null}
+        </> : null}
        </div>
       </div>
       {/* Test Header */}

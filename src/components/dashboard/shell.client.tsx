@@ -12,6 +12,7 @@ import { ErrorBoundary } from "react-error-boundary"
 import LocalErrorFallback from "../errors/local-error-fallback"
 import { ibm } from "../../app/fonts"
 import { useShellContext } from "../../contexts/providers/main-action-btn.provider"
+import { BrandingDialog } from "../branding-dialog"
 
 type NavMap = {
  [path: string]: [string, JSX.Element];
@@ -83,8 +84,7 @@ export default function DashboardShell({ children }) {
        Create New Test
       </Button>
      </Link> */}
-     <Button variant="outline" className="z-10 absolute right-5 bottom-20 lg:relative lg:right-auto lg:bottom-auto">       <Sparkles className="w-4 h-4 mr-2" />
-      My Branding</Button>
+     <BrandingDialog />
      {Component ? <Component {...props} /> : <p>No component set.</p>}
     </div>
    </header>

@@ -39,6 +39,7 @@ interface QuestionPageProps {
  companyName: string
  accessToken: string
  resultReady: Boolean
+ disableCopyPaste: Boolean
  data: {
   title: string
   instructions: string
@@ -53,11 +54,41 @@ interface QuestionPageProps {
  }
 }
 
-export function QuestionAnswerPage({ companyName, data, accessToken, resultReady }: QuestionPageProps) {
+export function QuestionAnswerPage({ companyName, data, accessToken, resultReady, disableCopyPaste }: QuestionPageProps) {
  const [triggerScreenshot, setTriggerScreenshot] = useState(false);
  const [screenshot, setScreenshot] = useState<string | null>(null);
  const [isLoadingQuestion, setIsLoadingQuestion] = useState(false);
  const { showBoundary } = useErrorBoundary();
+
+
+ useEffect(() => {
+  if (disableCopyPaste) {
+   const handleCopy = (e) => {
+    e.preventDefault();
+    alert('Copying is disabled.');
+   };
+
+   const handlePaste = (e) => {
+    e.preventDefault();
+    alert('Pasting is disabled.');
+   };
+
+   const handleContextMenu = (e) => {
+    e.preventDefault();
+    alert('Right-click is disabled.');
+   };
+
+   document.addEventListener('copy', handleCopy);
+   document.addEventListener('paste', handlePaste);
+   document.addEventListener('contextmenu', handleContextMenu);
+
+   return () => {
+    document.removeEventListener('copy', handleCopy);
+    document.removeEventListener('paste', handlePaste);
+    document.removeEventListener('contextmenu', handleContextMenu);
+   };
+  }
+ }, [disableCopyPaste]); 
 
 
  const handleScreenshotTaken = async (imageSrc: string | null) => {

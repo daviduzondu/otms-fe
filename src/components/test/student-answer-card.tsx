@@ -141,9 +141,19 @@ export function StudentAnswerCard({
         ) : null
      }
     </div> : null}
-    <div className="text-sm mb-2">
-     <strong>Student&apos;s Answer:</strong> {answer.answer || 'No answer provided'}
+    <div className="text-sm mb-2 bg-gray-100 rounded-lg -m-2 p-2" >
+     <strong className='text-gray-600'>Student&apos;s Answer</strong>
+     <br />
+     {answer.answer
+      ? answer.answer.split('\n').map((line, index) => (
+       <span key={index}>
+        {line}
+        <br />
+       </span>
+      ))
+      : 'No answer provided'}
     </div>
+
     {!updatingScore ? <div className="flex items-center justify-between mt-2 gap-2">
      <Badge
       variant="default"

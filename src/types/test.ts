@@ -63,6 +63,16 @@ export interface WebcamCapture {
  url: string
  timestamp: string
 }
+export interface Branding {
+ id: string
+ field1: string
+ field2?: string
+ field3?: string
+ media: {
+  id: string
+  url: string
+ }
+}
 
 export interface TestDetails {
  id: string;
@@ -80,6 +90,7 @@ export interface TestDetails {
  provideExplanations: boolean;
  disableCopyPaste: boolean;
  requireFullScreen: boolean;
+ brandingEnabled: Boolean;
  platform: 'mobileAndDesktop' | 'desktop';
  isRevoked: Boolean;
 }
