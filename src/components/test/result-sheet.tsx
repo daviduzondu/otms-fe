@@ -1,16 +1,34 @@
-import { FileSpreadsheet, FileText, GraduationCap } from "lucide-react";
+import { Edit2, FileSpreadsheet, FileText, GraduationCap, Loader, PlusIcon } from "lucide-react";
 import { Dialog, DialogHeader, DialogTrigger, DialogContent, DialogTitle, DialogFooter } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
-import { Submission, TestDetails } from "../../types/test";
-import { useRef } from "react";
+import { Branding, Submission, TestDetails } from "../../types/test";
+import { useContext, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import { ibm, sourceSerif4 } from "../../app/fonts";
 import { cn } from "../../lib/utils";
-import Link from "next/link";
-import Image from 'next/image';
+import { useQuery } from '@tanstack/react-query'
+import { BrandingDialog } from '../branding-dialog'
+import { AuthContext } from "../../contexts/auth.context";
+
+async function fetchBranding(accessToken: string) {
+ const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/branding/`, {
+  headers: {
+   'Authorization': `Bearer ${accessToken}`,
+  },
+ })
+
+ const { message, data } = await res.json()
+ if (!res.ok) {
+  throw new Error(message || "Failed to fetch branding")
+ }
+
+ return data
+}
 
 export default function ResultSheet({ submissions, testDetails }: { submissions: (Submission & { totalScore: number })[], testDetails: TestDetails }) {
+ const { user } = useContext(AuthContext)
+
  const printableRef = useRef<HTMLTableElement>(null)
 
  const handlePrint = useReactToPrint({
@@ -20,6 +38,13 @@ export default function ResultSheet({ submissions, testDetails }: { submissions:
   // onAfterPrint: () => s.,
  })
 
+
+ const { data: branding, isError, isLoading, error, refetch, isRefetching } = useQuery<Branding>({
+  queryKey: ['branding'],
+  queryFn: () => fetchBranding(user?.accessToken),
+  staleTime: 10000,
+  enabled: !!user?.accessToken,
+ })
 
  // const simulatedSubmissions = Array.from({ length: 100 }, (_, i) => ({
  //  ...submissions[i % submissions.length], // Repeats mock data in a cycle
@@ -43,14 +68,16 @@ export default function ResultSheet({ submissions, testDetails }: { submissions:
     <div ref={printableRef} className={`${sourceSerif4.className}`}>
      {/* Branding */}
 
-     <div className="">
-      <div className="flex w-full flex-col items-center gap-1">
-       <img src="https://networks.au-ibar.org/show/bayero-university-kano-buk-along-new-site-bayero-university-kano-kano-around-janbulo-second-gate-rd-n/image/2008090514-1099-3156-400x300/AU+REC+logos+-+2022-03-31T100332.997.png" width={100} height={100} alt="Logo" />
-       <div className="uppercase text-base">Bayero University Kano</div>
-       <div className="uppercase text-base">Faculty of Computing</div>
-       <div className="uppercase text-base">Department of Computer Science</div>
+     {branding ?
+      <div>
+       <div className="flex w-full flex-col items-center gap-1">
+        <img src={branding?.media.url} width={100} height={100} alt="Logo" />
+        <div className="uppercase text-lg">{branding?.field1}</div>
+        {branding?.field2 ? <div className="uppercase text-base">{branding.field2}</div> : null}
+        {branding?.field3 ? <div className="uppercase text-base">{branding?.field3}</div> : null}
+       </div>
       </div>
-     </div>
+      : null}
      <div className=" my-4">
       <div className="text-center w-full uppercase">
        <div className="text-xl font-bold "> {testDetails.title} <br /> TEST RESULTS </div>
@@ -95,7 +122,27 @@ export default function ResultSheet({ submissions, testDetails }: { submissions:
     </div>
 
    </div>
-   <DialogFooter>
+   <DialogFooter className="flex justify-between items-center w-full">
+    <div className='flex gap-2 items-start flex-1'>
+     {isError ? <div className='flex items-center justify-center text-sm'>Failed to load branding info <Button size={'sm'} variant={'outline'} className='ml-2' onClick={() => refetch()}>Retry</Button></div> : null}
+     {isLoading || isRefetching ? <div className='flex items-center text-sm gap-2'><Loader className="animate-spin" />Loading...</div> : null}
+
+     {branding ? (
+      <BrandingDialog initialData={branding}>
+       <Button variant="link" size="sm">
+        <Edit2 className="w-4 h-4" />
+        Edit Branding
+       </Button>
+      </BrandingDialog>
+     ) : (
+      <BrandingDialog>
+       <Button variant="outline" size="sm">
+        <PlusIcon className="w-4 h-4" />
+        Add Branding
+       </Button>
+      </BrandingDialog>
+     )}
+    </div>
     <Button onClick={() => handlePrint()}>Download as PDF</Button>
    </DialogFooter>
   </DialogContent>

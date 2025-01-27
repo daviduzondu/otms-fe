@@ -1,6 +1,6 @@
 "use client"
 
-import { useContext, useState, type FormEvent } from "react"
+import { useContext, useEffect, useState, type FormEvent } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,21 +10,33 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { DialogTrigger } from "@radix-ui/react-dialog"
 import { errorToast, successToast } from "../helpers/show-toasts"
 import { AuthContext } from "../contexts/auth.context"
+import { useQueryClient } from "@tanstack/react-query"
+import { Branding } from "../types/test"
 
 type FormValues = {
  image: File | null
  textFields: string[]
 }
 
-export function BrandingDialog({ children }: { children?: JSX.Element }) {
+export function BrandingDialog({ children, initialData }: { children?: JSX.Element }) {
  const [isOpen, setIsOpen] = useState(false)
  const { user } = useContext(AuthContext)
  const [imagePreview, setImagePreview] = useState<string | null>(null)
  const [formValues, setFormValues] = useState<FormValues>({
   image: null,
-  textFields: [""],
+  textFields: initialData
+   ? [initialData.field1, initialData.field2, initialData.field3].filter(
+    (value) => value != null
+   )
+   : [""],
  })
  const [errors, setErrors] = useState<{ [key: string]: string }>({})
+ const queryClient = useQueryClient();
+
+
+ useEffect(() => {
+  if (initialData) setImagePreview(initialData.media.url);
+ }, [])
 
  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   const file = e.target.files?.[0]
@@ -43,7 +55,7 @@ export function BrandingDialog({ children }: { children?: JSX.Element }) {
    setFormValues({ ...formValues, image: file })
    setErrors({ ...errors, image: "" })
   } else {
-   setImagePreview(null)
+   if (!initialData) setImagePreview(null)
    setFormValues({ ...formValues, image: null })
   }
  }
@@ -67,7 +79,7 @@ export function BrandingDialog({ children }: { children?: JSX.Element }) {
 
  const validateForm = (): boolean => {
   const newErrors: { [key: string]: string } = {}
-  if (!formValues.image) {
+  if (!formValues.image && !initialData) {
    newErrors.image = "Image is required"
   }
   formValues.textFields.forEach((field, index) => {
@@ -92,8 +104,8 @@ export function BrandingDialog({ children }: { children?: JSX.Element }) {
   })
 
   try {
-   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/branding/upload`, {
-    method: "POST",
+   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/branding/${!initialData ? "create" : "edit"}`, {
+    method: initialData ? "PUT" : "POST",
     headers: {
      Authorization: `Bearer ${user?.accessToken}`,
     },
@@ -107,6 +119,11 @@ export function BrandingDialog({ children }: { children?: JSX.Element }) {
    }
 
    successToast("Branding updated successfully")
+   if (initialData) queryClient.setQueryData(['branding'], (oldData: Branding | undefined) => {
+    if (!oldData) return oldData;
+    // console.log(data);
+    return { ...oldData, ...data };
+   })
    setIsOpen(false)
   } catch (error) {
    errorToast((error as Error).message || "Network error")
@@ -123,20 +140,20 @@ export function BrandingDialog({ children }: { children?: JSX.Element }) {
    </DialogTrigger>
    <DialogContent className="sm:max-w-[425px]">
     <DialogHeader>
-     <DialogTitle>Branding</DialogTitle>
+     <DialogTitle>{initialData ? "Edit" : "Create"} Branding</DialogTitle>
     </DialogHeader>
     {imagePreview && (
-     <div className="mt-2 mb-4 h-30">
+     <div className="mt-2 mb-4 h-36">
       <img
        src={imagePreview || "/placeholder.svg"}
        alt="Preview"
-       className="w-full h-full rounded-lg object-cover"
+       className="w-full h-full rounded-lg object-contain"
       />
      </div>
     )}
     <form onSubmit={handleSubmit} className="space-y-4">
      <div className="space-y-2">
-      <Label htmlFor="image">Upload Image (Max 2MB; Best with white background)</Label>
+      <Label htmlFor="image">{!initialData ? "Upload" : "Replace"} logo (Max 2MB)</Label>
       <Input id="image" type="file" accept="image/*" onChange={handleImageChange} className="cursor-pointer" />
       {errors.image && (
        <Alert variant="destructive">

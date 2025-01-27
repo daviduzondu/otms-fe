@@ -90,7 +90,6 @@ export interface TestDetails {
  provideExplanations: boolean;
  disableCopyPaste: boolean;
  requireFullScreen: boolean;
- brandingEnabled: Boolean;
  platform: 'mobileAndDesktop' | 'desktop';
  isRevoked: Boolean;
 }
