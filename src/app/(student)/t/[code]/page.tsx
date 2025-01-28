@@ -42,7 +42,7 @@ export default async function Page({ searchParams, params }) {
 
   if (!ri && !studentData.isTouched) return <BeforeTest studentName={`${studentData.firstName} ${studentData.lastName}`} testDetails={studentData.testInfo} />
 
-  if (device.type === 'mobile' && studentData.testInfo.platform === 'desktop') return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={<Ban size={40} />} content="Sorry, you cannot access this test on this device." footer={"Switch to Desktop and try again."} /></div>
+  if (device.type === 'mobile' && studentData.testInfo.platform === 'desktop') return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={<Shield size={40} />} content="Sorry, you cannot access this test on this device." footer={"Switch to Desktop and try again."} /></div>
 
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/take/${token}`, { cache: 'no-store' });
   const { data, message } = await response.json();

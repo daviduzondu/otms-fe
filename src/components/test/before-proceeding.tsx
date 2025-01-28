@@ -108,12 +108,17 @@ function WebcamFeed({ cameraError, setCameraError }) {
  const [permissionStatus, setPermissionStatus] = useState<'granted' | 'denied' | 'prompt' | null>(null);
 
  useEffect(() => {
+  if (permissionStatus !== 'granted') setCameraError(true);
+ }, [permissionStatus, setCameraError])
+
+ useEffect(() => {
   const checkPermissions = async () => {
    try {
     const status = await navigator.permissions.query({ name: 'camera' as PermissionName });
     setPermissionStatus(status.state);
 
     if (status.state === 'granted') setCameraError(false);
+    else setCameraError(true);
 
     status.onchange = () => {
      setPermissionStatus(status.state);
