@@ -1,5 +1,5 @@
 'use client'
-import { Users, GraduationCap, ClipboardList, Activity, School } from "lucide-react"
+import { Users, ClipboardList, Activity, School } from "lucide-react";
 import { Card } from "../ui/card"
 import { useQuery } from "@tanstack/react-query";
 import Skeleton from "react-loading-skeleton";
@@ -26,12 +26,10 @@ export default function DashboardSummary() {
 
 
  const { data, isError, isLoading, error } = useQuery({
-  queryKey: ['analytics-summary', user?.accessToken], // Unique key that includes accessToken
+  queryKey: ['analytics-summary', user?.accessToken], 
   queryFn: () => fetchDashboardSummary(user.accessToken),
   staleTime: 10000,
-  enabled: !!user?.accessToken, // Only run if user has an accessToken
-  // throwOnError: (error) => error.message,
-  // onError: , // React Query's error handling
+  enabled: !!user?.accessToken, 
  });
 
  // While the data is loading, show the skeleton loader

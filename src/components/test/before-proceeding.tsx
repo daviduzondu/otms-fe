@@ -21,8 +21,8 @@ export default function BeforeTest({
  const router = useRouter();
  const searchParams = useSearchParams();
  const [cameraError, setCameraError] = useState(true);
- useEffect(() => {
 
+ useEffect(() => {
   if (proceedBtn.current && testDetails.requireFullScreen) document.addEventListener('click', () => {
    document.body.requestFullscreen();
   })

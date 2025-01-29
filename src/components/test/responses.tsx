@@ -68,7 +68,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
     if (!oldData) return [];
     return oldData.map(submission => ({
      ...submission,
-     completed: submission.answers.filter(x => x.answer !== null).every(answer => answer.point !== null && answer.point >= 0)
+     completed: submission.answers.filter(x => x.answer !== null && x.point !== null).every(answer => answer.point !== null && answer.point >= 0)
     }));
    }
   );
@@ -389,7 +389,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
          </div>
         </div>
        </CardContent>
-       {/* <CardFooter className="justify-end">
+       <CardFooter className="justify-end">
         {calculateGradedQuestions(selectedSubmission) === selectedSubmission.answers.filter(answer => answer.graded && answer.answer).length && (
          <>
           {selectedSubmission.completed ? (
@@ -405,7 +405,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
           )}
          </>
         )}
-       </CardFooter> */}
+       </CardFooter>
       </Card>
       <Collapsible
        open={isWebcamSectionOpen}

@@ -528,17 +528,25 @@ export function QuestionAnswerPage({ companyName, data, accessToken, resultReady
   <div className="min-h-screen w-screen">
    {!isTestComplete ? <WebcamFeed className='absolute invisible' triggerScreenshot={triggerScreenshot} onScreenshotTaken={handleScreenshotTaken} /> : null}
    <header className="bg-white shadow-md">
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-     <div className="flex justify-between items-center">
-      <h1 className="text-3xl font-bold tracking-tight text-gray-900">{data.title}</h1>
-      <div className="flex items-center space-x-4">
+    <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+      {/* Title */}
+      <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900">
+       {data.title}
+      </h1>
+
+      {/* Action Section */}
+      <div className="flex flex-wrap items-center gap-3">
+       {/* Test Time */}
        <div className="flex items-center space-x-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
         <Clock className="h-4 w-4" />
         <span className="text-sm font-medium">Test time: {formatTime(testTimeRemaining)}</span>
        </div>
+
+       {/* Instructions Dialog */}
        <Dialog>
         <DialogTrigger asChild>
-         <Button variant="outline">
+         <Button variant="outline" className="flex items-center">
           <HelpCircle className="mr-1 h-4 w-4" />
           Instructions
          </Button>
@@ -546,20 +554,21 @@ export function QuestionAnswerPage({ companyName, data, accessToken, resultReady
         <DialogContent className="sm:max-w-[425px]">
          <DialogHeader>
           <DialogTitle>Test Instructions</DialogTitle>
-          <DialogDescription>
-           {data.instructions}
-          </DialogDescription>
+          <DialogDescription>{data.instructions}</DialogDescription>
          </DialogHeader>
         </DialogContent>
        </Dialog>
+
+       {/* Next/Submit Button */}
        <Button onClick={() => handleNextOrSubmit()} disabled={!selectedAnswer || isSubmitting}>
-        {isSubmitting ? <Loader className='animate-spin mr-2' /> : null}
-        {!isSubmitting ? currentQuestionIndex < data.questions.length - 1 ? 'Next Question' : 'Submit Test' : "Submitting"}
+        {isSubmitting ? <Loader className="animate-spin mr-2" /> : null}
+        {!isSubmitting ? (currentQuestionIndex < data.questions.length - 1 ? 'Next Question' : 'Submit Test') : 'Submitting'}
        </Button>
       </div>
      </div>
     </div>
    </header>
+
    <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
     <div className="mb-4 flex items-center justify-between">
      <h2 className="text-xl font-semibold text-gray-900">{companyName}</h2>
