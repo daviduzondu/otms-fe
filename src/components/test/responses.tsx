@@ -389,7 +389,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
          </div>
         </div>
        </CardContent>
-       <CardFooter className="justify-end">
+       {/* <CardFooter className="justify-end">
         {calculateGradedQuestions(selectedSubmission) === selectedSubmission.answers.filter(answer => answer.graded && answer.answer).length && (
          <>
           {selectedSubmission.completed ? (
@@ -405,7 +405,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
           )}
          </>
         )}
-       </CardFooter>
+       </CardFooter> */}
       </Card>
       <Collapsible
        open={isWebcamSectionOpen}
