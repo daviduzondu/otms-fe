@@ -90,7 +90,9 @@ export default function Students() {
 
  const columns = useMemo<ColumnDef<Student>[]>(() => [
   {
-   accessorKey: "fullName",
+   accessorFn: (student) =>
+    `${student.firstName} ${student.middleName || ''} ${student.lastName}`.trim(),
+   id: "fullName",
    header: "Full Name",
    cell: ({ row }) => {
     const student = row.original
