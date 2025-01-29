@@ -148,7 +148,7 @@ export function TestPDFPreview({ testTitle, questions, instructions }: TestPDFPr
     <div className="flex justify-between items-center mt-6">
      <div className='flex gap-2'>
       {isError ? <div className='flex items-center justify-center text-sm'>Failed to load branding info <Button size={'sm'} variant={'outline'} className='ml-2' onClick={() => refetch()}>Retry</Button></div> : null}
-      {isLoading || isRefetching ? <div className='flex items-center text-sm gap-2'><Loader className="animate-spin" />Loading...</div> : null}
+      {isLoading ? <div className='flex items-center text-sm gap-2'><Loader className="animate-spin" />Loading...</div> : null}
 
       {branding ? (
        <BrandingDialog initialData={branding}>

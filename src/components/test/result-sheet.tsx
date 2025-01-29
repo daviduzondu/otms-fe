@@ -125,7 +125,7 @@ export default function ResultSheet({ submissions, testDetails }: { submissions:
    <DialogFooter className="flex justify-between items-center w-full">
     <div className='flex gap-2 items-start flex-1'>
      {isError ? <div className='flex items-center justify-center text-sm'>Failed to load branding info <Button size={'sm'} variant={'outline'} className='ml-2' onClick={() => refetch()}>Retry</Button></div> : null}
-     {isLoading || isRefetching ? <div className='flex items-center text-sm gap-2'><Loader className="animate-spin" />Loading...</div> : null}
+     {isLoading ? <div className='flex items-center text-sm gap-2'><Loader className="animate-spin" />Loading...</div> : null}
 
      {branding ? (
       <BrandingDialog initialData={branding}>
