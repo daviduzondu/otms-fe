@@ -179,7 +179,7 @@ export const TestAnalytics: React.FC<{ testId: string, children?: ReactNode }> =
       <span className="text-base">Nothing to analyze because no one has submitted.</span>
      </div> :
       <div className="space-y-8 relative">
-       {Number(data.totalParticipants) !== Number(stats.totalAttempts) ? <div className="bg-yellow-300 p-3 rounded-sm flex gap-2 items-center"><Info size={20} /> Analytics is incomplete because some students are yet to submit or haven't taken the test yet.</div> : null}
+       {Number(data.totalParticipants) !== Number(stats.totalAttempts) ? <div className="bg-yellow-300 p-3 rounded-sm flex gap-2 items-center"><Info size={20} /> Analytics is incomplete because some students are yet to submit or haven&apos;t taken the test yet.</div> : null}
        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 [&>*]:bg-slate-100">
         <Card>
          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

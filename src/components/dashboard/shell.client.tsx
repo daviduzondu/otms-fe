@@ -3,7 +3,7 @@
 import { ReactNode, useContext, useEffect, useState } from "react"
 import { AuthContext } from "../../contexts/auth.context"
 import { Button } from "../ui/button"
-import { Activity, Bell, ClipboardList, GraduationCap, Home, HomeIcon, Loader, LogOut, Menu, PlusCircle, School, Settings, Sparkles, Users, X } from "lucide-react"
+import { Activity, Bell, ClipboardList, GraduationCap, Home, HomeIcon, Loader, LogOut, Menu, Plus, PlusCircle, School, Settings, Sparkles, Users, X } from "lucide-react"
 import Link from 'next/link'
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { usePathname } from "next/navigation"
@@ -21,10 +21,10 @@ type NavMap = {
 };
 
 const navMap: NavMap = {
- "/dashboard": ["Overview", <Home />],
- "/dashboard/tests": ["Tests", <ClipboardList />],
- "/dashboard/classes": ["Classes", <School />],
- "/dashboard/students": ["Students", <Users />],
+ "/dashboard": ["Overview", <Home key={Math.random()} />],
+ "/dashboard/tests": ["Tests", <ClipboardList key={Math.random()} />],
+ "/dashboard/classes": ["Classes", <School key={Math.random()} />],
+ "/dashboard/students": ["Students", <Users key={Math.random()} />],
 };
 
 async function fetchBranding(accessToken: string) {
@@ -112,7 +112,10 @@ export default function DashboardShell({ children }) {
      </Link> */}
      {isLoading || isRefetching ? <Button variant="outline" className="z-10 absolute right-5 bottom-20 lg:relative lg:right-auto lg:bottom-auto" disabled={true}>
       <Loader className="w-4 h-4 mr-2 animate-spin" />
-      Loading...</Button> : null}
+      Loading...</Button> : <BrandingDialog><Button variant="outline" className="z-10 absolute right-5 bottom-20 lg:relative lg:right-auto lg:bottom-auto">
+       <Plus className="w-4 h-4 mr-2" />
+       Add Branding
+      </Button></BrandingDialog>}
      {branding ? <BrandingDialog initialData={branding} /> : null}
      {Component ? <Component {...props} /> : <p>No component set.</p>}
     </div>

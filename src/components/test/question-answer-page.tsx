@@ -21,6 +21,7 @@ import Webcam from 'react-webcam'
 import WebcamFeed from './webcam-feed'
 import { useErrorBoundary } from 'react-error-boundary'
 import ResultsDialog from './results-dialog'
+import { errorToast } from '../../helpers/show-toasts'
 
 interface Question {
  id: string;
@@ -40,6 +41,7 @@ interface QuestionPageProps {
  accessToken: string
  resultReady: Boolean
  disableCopyPaste: Boolean
+ requireFullScreen: Boolean
  data: {
   title: string
   instructions: string
@@ -54,28 +56,68 @@ interface QuestionPageProps {
  }
 }
 
-export function QuestionAnswerPage({ companyName, data, accessToken, resultReady, disableCopyPaste }: QuestionPageProps) {
+function detectDevTools() {
+ const threshold = 100;
+ const start = performance.now();
+ debugger;
+ const end = performance.now();
+ return end - start > threshold;
+}
+
+export function QuestionAnswerPage({ companyName, data, accessToken, resultReady, disableCopyPaste, requireFullScreen }: QuestionPageProps) {
  const [triggerScreenshot, setTriggerScreenshot] = useState(false);
  const [screenshot, setScreenshot] = useState<string | null>(null);
  const [isLoadingQuestion, setIsLoadingQuestion] = useState(false);
  const { showBoundary } = useErrorBoundary();
 
 
+
+ useEffect(() => {
+  if (requireFullScreen) {
+   const handleFullscreen = () => {
+    if (!document.fullscreenElement) {
+     document.body.requestFullscreen().catch((err) => {
+      console.error("Failed to enter fullscreen:", err);
+     });
+    }
+   };
+
+   document.addEventListener("click", handleFullscreen);
+   document.addEventListener("keypress", handleFullscreen);
+
+   return () => {
+    document.removeEventListener("click", handleFullscreen);
+    document.removeEventListener("keypress", handleFullscreen);
+   };
+  }
+ }, [requireFullScreen]);
+
+
+ useEffect(() => {
+  const checkDevTools = setInterval(() => {
+   if (detectDevTools()) {
+    window.location.href = "about:blank";
+   }
+  }, 1000);
+
+  return () => clearInterval(checkDevTools);
+ }, []);
+
  useEffect(() => {
   if (disableCopyPaste) {
    const handleCopy = (e) => {
     e.preventDefault();
-    alert('Copying is disabled.');
+    errorToast('Copying is disabled.');
    };
 
    const handlePaste = (e) => {
     e.preventDefault();
-    alert('Pasting is disabled.');
+    errorToast('Pasting is disabled.');
    };
 
    const handleContextMenu = (e) => {
     e.preventDefault();
-    alert('Right-click is disabled.');
+    errorToast('Right-click is disabled.');
    };
 
    document.addEventListener('copy', handleCopy);
@@ -88,7 +130,7 @@ export function QuestionAnswerPage({ companyName, data, accessToken, resultReady
     document.removeEventListener('contextmenu', handleContextMenu);
    };
   }
- }, [disableCopyPaste]); 
+ }, [disableCopyPaste]);
 
 
  const handleScreenshotTaken = async (imageSrc: string | null) => {
@@ -466,7 +508,6 @@ export function QuestionAnswerPage({ companyName, data, accessToken, resultReady
  if (isLoadingQuestion) {
   return <div className='flex gap-2 h-screen items-center justify-center bg-white w-screen z-10'><Loader className='animate-spin' /> Loading next question...</div>
  }
-
  if (isTestComplete) {
   return (
    <div className='flex items-center justify-center h-screen '>

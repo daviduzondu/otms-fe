@@ -17,10 +17,16 @@ export default function BeforeTest({
  studentName: userName = "David",
  testDetails
 }: WelcomePageProps) {
-
+ const proceedBtn = useRef<HTMLButtonElement>(null);
  const router = useRouter();
  const searchParams = useSearchParams();
  const [cameraError, setCameraError] = useState(true);
+ useEffect(() => {
+
+  if (proceedBtn.current && testDetails.requireFullScreen) document.addEventListener('click', () => {
+   document.body.requestFullscreen();
+  })
+ })
 
  // useEffect(() => {
  //  addEventListener('keypress', (ev)=>console.log(ev.keyCode))
@@ -52,7 +58,7 @@ export default function BeforeTest({
         </h2>
         <div className="space-y-4 text-gray-600">
          <p>
-          You're about to start your test.
+          You&apos;re about to start your test.
          </p>
          <WebcamFeed cameraError={cameraError} setCameraError={setCameraError} />
         </div>
@@ -82,7 +88,7 @@ export default function BeforeTest({
           We recommend <strong>completing the test in one sitting</strong> without interruptions. If you leave the test, the timer will still be running.
          </li>
          <li>
-          When you're ready to start, click the <strong>Take me to test</strong> button. Good luck!
+          When you&apos;re ready to start, click the <strong>Take me to test</strong> button. Good luck!
          </li>
         </ul>
        </div>
@@ -90,6 +96,7 @@ export default function BeforeTest({
 
       <div className="mt-8 flex justify-end">
        {<Button
+        ref={proceedBtn}
         onClick={addSearchParam}
         disabled={cameraError}
         title={cameraError ? "You cannot proceed without granting access to your camera" : ''}
