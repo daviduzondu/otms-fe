@@ -121,8 +121,8 @@ export function BrandingDialog({ children, initialData }: { children?: JSX.Eleme
    }
 
    successToast("Branding updated successfully")
-   if (initialData) queryClient.setQueryData(['branding'], (oldData: Branding | undefined) => {
-    if (!oldData) return oldData;
+   queryClient.setQueryData(['branding'], (oldData: Branding | undefined) => {
+    // if (!oldData) return oldData;
     // console.log(data);
     return { ...oldData, ...data };
    })

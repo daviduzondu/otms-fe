@@ -195,7 +195,7 @@ export function SendTest({ test, questions, revokeStatus }) {
    if (!response.ok) throw new Error(result.message || "An error occurred.");
 
    successToast('Invitations Sent', {
-    description: `Sent invitations to ${participants.length} student${participants.length > 1 ? "s" : ""}.`,
+    description: `Participants should get an email within 5 minutes.`,
    });
   } catch (e) {
    errorToast("Failed to send invitations", {

@@ -554,7 +554,9 @@ export function QuestionAnswerPage({ companyName, data, accessToken, resultReady
         <DialogContent className="sm:max-w-[425px]">
          <DialogHeader>
           <DialogTitle>Test Instructions</DialogTitle>
-          <DialogDescription>{data.instructions}</DialogDescription>
+          <DialogDescription>
+           <p className="leading-relaxed whitespace-pre-wrap">{data.instructions}</p>
+          </DialogDescription>
          </DialogHeader>
         </DialogContent>
        </Dialog>
