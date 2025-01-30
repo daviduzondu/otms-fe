@@ -1,9 +1,10 @@
-'use client'
 
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import GlobalErrorFallback from "../../components/errors/global-error-fallback";
 import { ibm } from "../fonts";
+import "@/app/globals.css";
+
 import Link from "next/link";
 import { GraduationCap, Loader } from "lucide-react";
 import { Toaster } from "../../components/ui/sonner";
