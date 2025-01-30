@@ -90,7 +90,16 @@ export default function Students() {
 
  const columns = useMemo<ColumnDef<Student>[]>(() => [
   {
-   accessorKey: "fullName",
+   accessorFn: (student) =>
+    `${student.firstName} ${student.middleName || ''} ${student.lastName}`.trim(),
+   id: "fullName",
+   filterFn: (row, columnId, filterValue) => {
+    const name = row.getValue(columnId) as string;
+    return filterValue
+     .toLowerCase()
+     .split(" ") // Split input into words
+     .every((word: string) => name.toLowerCase().includes(word)); // Check if all words match
+   },
    header: "Full Name",
    cell: ({ row }) => {
     const student = row.original

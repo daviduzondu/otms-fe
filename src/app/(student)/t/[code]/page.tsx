@@ -30,41 +30,46 @@ async function verifyStudent(token: string) {
 
 
 export default async function Page({ searchParams, params }) {
- const { code } = params
- const { token, ri } = searchParams;
- const { device } = userAgent({ headers: headers() });
+ try {
+  const { code } = params
+  const { token, ri } = searchParams;
+  const { device } = userAgent({ headers: headers() });
+
+  if (!token) return <div className={"flex items-center justify-center h-screen"}><TokenRequestCard code={code} /></div>
+
+  const studentData = await verifyStudent(token);
 
 
- if (!token) return <div className={"flex items-center justify-center h-screen"}><TokenRequestCard code={code} /></div>
- const studentData = await verifyStudent(token);
+  if (!ri && !studentData.isTouched) return <BeforeTest studentName={`${studentData.firstName} ${studentData.lastName}`} testDetails={studentData.testInfo} />
+
+  if (device.type === 'mobile' && studentData.testInfo.platform === 'desktop') return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={<Shield size={40} />} content="Sorry, you cannot access this test on this device." footer={"Switch to Desktop and try again."} /></div>
+
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/take/${token}`, { cache: 'no-store' });
+  const { data, message } = await response.json();
 
 
- if (!ri && !studentData.isTouched) return <BeforeTest studentName={`${studentData.firstName} ${studentData.lastName}`} testDetails={studentData.testInfo} />
+  if (!response.ok) {
+   const errorDetails = {
+    message,
+    statusCode: response.status,
+    heading: "Failed to retrieve test",
+   };
+   throw new Error(JSON.stringify(errorDetails)); // Serialize error details
+  }
 
- if (device.type === 'mobile' && studentData.testInfo.platform === 'desktop') return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={<Ban size={40} />} content="Sorry, you cannot access this test on this device." footer={"Switch to Desktop and try again."} /></div>
 
- const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/take/${token}`, { cache: 'no-store' });
- const { data, message } = await response.json();
+  if (data.status === "submitted" || isAfter(new Date(), addMinutes(new Date(data.startedAt), data.durationMin))) return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={!studentData.resultReady ? <BookCheck size={40} /> : <BookOpenCheck size={40} />} content={!studentData.resultReady ? "Looks like you've already made a submission." : "Your results are ready"} footer={!studentData.resultReady ? "This test was submitted, either by you or automatically after time expired. If you think this is wrong, contact your supervisor." : "You're seeing this because you've made a submission. If you think this is wrong, contact your supervisor."} resultReady={studentData.resultReady} accessToken={token} testId={studentData.testInfo.id} /></div>
 
- if (!response.ok) {
-  const errorDetails = {
-   message,
-   statusCode: response.status,
-   heading: "Failed to retrieve test",
-  };
-  throw new Error(JSON.stringify(errorDetails)); // Serialize error details
+  if (studentData.testInfo.isRevoked && !studentData.isTouched) return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={<Ban size={40} />} content="Sorry, this test is not accepting responses at this time." footer={"If you think this is wrong, contact your supervisor."} /></div>
+
+
+  // if (isAfter(new Date(), addMinutes(new Date(data.startedAt), data.durationMin))) return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={<Clock size={40} />} content="You've run out of time." footer={"If you think this is wrong, contact your supervisor."} /></div>;
+  return <ErrorBoundary FallbackComponent={GlobalErrorFallback}>
+   <QuestionAnswerPage companyName={""} data={data} accessToken={token} resultReady={studentData.resultReady} disableCopyPaste={studentData.testInfo.disableCopyPaste} requireFullScreen={studentData.testInfo.requireFullScreen}/>
+  </ErrorBoundary>
+ } catch (error) {
+  return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={<Shield size={40} />} content={(error as Error).message} footer={"Please try again or contact your supervisor."} /></div>
  }
-
-
- if (data.status === "submitted" || isAfter(new Date(), addMinutes(new Date(data.startedAt), data.durationMin))) return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={!studentData.resultReady ? <BookCheck size={40} /> : <BookOpenCheck size={40} />} content={!studentData.resultReady ? "Looks like you've already made a submission." : "Your results are ready"} footer={!studentData.resultReady ? "This test was submitted, either by you or automatically after time expired. If you think this is wrong, contact your supervisor." : "You're seeing this because you've made a submission. If you think this is wrong, contact your supervisor."} resultReady={studentData.resultReady} accessToken={token} testId={studentData.testInfo.id} /></div>
-
- if (studentData.testInfo.isRevoked && !studentData.isTouched) return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={<Ban size={40} />} content="Sorry, this test is not accepting responses at this time." footer={"If you think this is wrong, contact your supervisor."} /></div>
-
-
- // if (isAfter(new Date(), addMinutes(new Date(data.startedAt), data.durationMin))) return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={<Clock size={40} />} content="You've run out of time." footer={"If you think this is wrong, contact your supervisor."} /></div>;
- return <ErrorBoundary FallbackComponent={GlobalErrorFallback}>
-  <QuestionAnswerPage companyName={""} data={data} accessToken={token} resultReady={studentData.resultReady} disableCopyPaste={studentData.testInfo.disableCopyPaste} />
- </ErrorBoundary>
 }
 
 

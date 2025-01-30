@@ -22,6 +22,7 @@ export function BrandingDialog({ children, initialData }: { children?: JSX.Eleme
  const [isOpen, setIsOpen] = useState(false)
  const { user } = useContext(AuthContext)
  const [imagePreview, setImagePreview] = useState<string | null>(null)
+ const [isSubmitting, setIsSubmitting] = useState(false);
  const [formValues, setFormValues] = useState<FormValues>({
   image: null,
   textFields: initialData
@@ -94,6 +95,7 @@ export function BrandingDialog({ children, initialData }: { children?: JSX.Eleme
  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
   e.preventDefault()
   if (!validateForm()) return
+  setIsSubmitting(true);
 
   const formData = new FormData()
   if (formValues.image) {
@@ -119,8 +121,8 @@ export function BrandingDialog({ children, initialData }: { children?: JSX.Eleme
    }
 
    successToast("Branding updated successfully")
-   if (initialData) queryClient.setQueryData(['branding'], (oldData: Branding | undefined) => {
-    if (!oldData) return oldData;
+   queryClient.setQueryData(['branding'], (oldData: Branding | undefined) => {
+    // if (!oldData) return oldData;
     // console.log(data);
     return { ...oldData, ...data };
    })
@@ -128,6 +130,7 @@ export function BrandingDialog({ children, initialData }: { children?: JSX.Eleme
   } catch (error) {
    errorToast((error as Error).message || "Network error")
   }
+  setIsSubmitting(false);
  }
 
  return (
@@ -208,7 +211,7 @@ export function BrandingDialog({ children, initialData }: { children?: JSX.Eleme
        Add field
       </Button>
      )}
-     <Button type="submit" className="w-full">
+     <Button type="submit" className="w-full" disabled={isSubmitting}>
       Submit
      </Button>
     </form>

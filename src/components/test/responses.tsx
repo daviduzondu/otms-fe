@@ -68,7 +68,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
     if (!oldData) return [];
     return oldData.map(submission => ({
      ...submission,
-     completed: submission.answers.filter(x => x.answer !== null).every(answer => answer.point !== null && answer.point >= 0)
+     completed: submission.answers.filter(x => x.answer !== null && x.point !== null).every(answer => answer.point !== null && answer.point >= 0)
     }));
    }
   );
@@ -287,7 +287,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
  return (
   <div className="flex gap-4">
    <div className='block md:w-1/3'>
-    <Card className="bg-white border-r sticky top-4">
+    <Card className="bg-white border-r sticky top-4 ">
      <div className={'p-6 flex flex-col-reverse gap-3 border-b'}>
       <div className={`text-sm text-gray-500 text-center flex items-center gap-2 justify-center  ${submissions.length <= 0 ? "invisible" : "visible"}`}>
        <Progress
@@ -343,19 +343,21 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
 
       </div>
      </div>
-     {submissions.map(submission => (
-      <div
-       key={submission.id}
-       className={`p-4 cursor-pointer hover:bg-gray-100 ${selectedSubmission?.id === submission.id ? 'bg-gray-200' : ''}`}
-       onClick={() => handleSubmissionSelect(submission)}
-      >
-       <h3 className="font-medium">{submission.firstName} {submission.lastName}</h3>
-       <p className="text-sm text-gray-500 text-ellipsis">{submission.email} {submission.regNumber && "•"} {submission.regNumber}</p>
-       <Badge variant="secondary" className={`mt-1 ${submission.completed ? "visible" : "invisible"}`}>
-        Graded
-       </Badge>
-      </div>
-     ))}
+     <div className='max-h-72 overflow-y-auto'>
+      {submissions.map(submission => (
+       <div
+        key={submission.id}
+        className={`p-4 cursor-pointer hover:bg-gray-100 ${selectedSubmission?.id === submission.id ? 'bg-gray-200' : ''}`}
+        onClick={() => handleSubmissionSelect(submission)}
+       >
+        <h3 className="font-medium">{submission.firstName} {submission.lastName}</h3>
+        <p className="text-sm text-gray-500 text-ellipsis">{submission.email} {submission.regNumber && "•"} {submission.regNumber}</p>
+        <Badge variant="secondary" className={`mt-1 ${submission.completed ? "visible" : "invisible"}`}>
+         Graded
+        </Badge>
+       </div>
+      ))}
+     </div>
      {submissions[0]?.pendingSubmissionsCount ? <CardFooter className=' p-2 border-t flex items-center justify-center text-sm text-gray-600'>{submissions[0]?.pendingSubmissionsCount} student{submissions[0]?.pendingSubmissionsCount > 1 ? "s" : ""} yet to submit</CardFooter> : null}
     </Card>
    </div>

@@ -84,10 +84,9 @@ export function TestPDFPreview({ testTitle, questions, instructions }: TestPDFPr
 
       {/* Instructions */}
       {instructions && (
-       <div className="pb-4 italic">
+       <div className="-m-3 p-3 mb-4 border-black border ">
         <h2 className="font-semibold mb-2 underline">Instructions:</h2>
         <p className="leading-relaxed whitespace-pre-wrap">{instructions}</p>
-        <hr />
        </div>
       )}
 
@@ -149,7 +148,7 @@ export function TestPDFPreview({ testTitle, questions, instructions }: TestPDFPr
     <div className="flex justify-between items-center mt-6">
      <div className='flex gap-2'>
       {isError ? <div className='flex items-center justify-center text-sm'>Failed to load branding info <Button size={'sm'} variant={'outline'} className='ml-2' onClick={() => refetch()}>Retry</Button></div> : null}
-      {isLoading || isRefetching ? <div className='flex items-center text-sm gap-2'><Loader className="animate-spin" />Loading...</div> : null}
+      {isLoading ? <div className='flex items-center text-sm gap-2'><Loader className="animate-spin" />Loading...</div> : null}
 
       {branding ? (
        <BrandingDialog initialData={branding}>
