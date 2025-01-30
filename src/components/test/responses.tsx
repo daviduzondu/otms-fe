@@ -1,22 +1,16 @@
 'use client'
 
 import React, { useState, useContext, useEffect, useRef } from 'react'
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Check, X, Edit2, Clock, FileText, Mail, Download, Eye, EyeOff, CheckCircle, ChevronDown, ChevronUp, AlertTriangle, FileSpreadsheet, Settings, FileUp, CameraOff, File, ArrowLeftCircle, ArrowRightCircle, Loader } from 'lucide-react'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { Switch } from "@/components/ui/switch"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { infoToast, successToast, errorToast } from '../../helpers/show-toasts'
 import { StudentAnswerCard } from './student-answer-card'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { AuthContext } from '../../contexts/auth.context'
-import test from 'node:test'
 import ResultSheet from './result-sheet'
 import { Submission, Answer, WebcamCapture, TestDetails } from '../../types/test'
 import Papa from 'papaparse';

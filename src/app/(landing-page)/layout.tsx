@@ -1,7 +1,7 @@
 
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "../../app/globals.css"
+import "@/app/globals.css"
 import { ibm } from "../fonts";
 import Navbar from "../../components/navbar/navbar";
 import { AuthProvider } from "../../contexts/auth.context";

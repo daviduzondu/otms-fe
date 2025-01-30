@@ -1,5 +1,6 @@
 // app/auth/layout.tsx
 'use client'
+import "@/app/globals.css"
 import React, { ReactNode, useEffect } from 'react';
 import { ViewTransitions } from 'next-view-transitions';
 import { useRouter } from 'next/navigation';
