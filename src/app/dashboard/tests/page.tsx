@@ -76,9 +76,9 @@ const columns: ColumnDef<TestDetails>[] = [
        View</Button>
      </Link>
      <TestAnalytics testId={test.id} />
-     <Button variant="destructive" size="sm" onClick={() => console.log("Delete", test.id)}>
+     {/* <Button variant="destructive" size="sm" onClick={() => console.log("Delete", test.id)}>
       <Trash2 />
-      Delete</Button>
+      Delete</Button> */}
     </div>
    )
   },
