@@ -278,7 +278,7 @@ export function SendTest({ test, questions, revokeStatus }) {
       </TooltipTrigger>
      </Tooltip>
     </TooltipProvider>
-    <DialogContent className="max-w-6xl">
+    <DialogContent className="max-w-6xl max-h-[95%] overflow-y-scroll">
      <DialogHeader>
       <DialogTitle>Send Test</DialogTitle>
       <DialogDescription>
