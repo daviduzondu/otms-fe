@@ -482,7 +482,7 @@ export function SendTest({ test, questions, revokeStatus }) {
       <Button onClick={handleSendInvitation}
        className={'flex items-center gap-2'}
        disabled={participants.length === 0 || isTestMailSending || addingParticipants.length > 0 || removingParticipants.length > 0 || !selectedClass}>
-       {isTestMailSending ? <Loader color={'white'} size={'15'} /> : <Mail className="h-4 w-4" />}
+       {isTestMailSending ? <Loader className='animate-spin' /> : <Mail className="h-4 w-4" />}
        {isTestMailSending ? "Sending..." : "Send Invitation Email"}
       </Button>
      </DialogFooter>

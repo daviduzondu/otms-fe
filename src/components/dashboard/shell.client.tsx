@@ -110,7 +110,7 @@ export default function DashboardShell({ children }) {
        Create New Test
       </Button>
      </Link> */}
-     {isLoading || isRefetching ? <Button variant="outline" className="z-10 absolute right-5 bottom-20 lg:relative lg:right-auto lg:bottom-auto" disabled={true}>
+     {isLoading ? <Button variant="outline" className="z-10 absolute right-5 bottom-20 lg:relative lg:right-auto lg:bottom-auto" disabled={true}>
       <Loader className="w-4 h-4 mr-2 animate-spin" />
       Loading...</Button> : !branding ? <BrandingDialog><Button variant="outline" className="z-10 absolute right-5 bottom-20 lg:relative lg:right-auto lg:bottom-auto">
        <Plus className="w-4 h-4 mr-2" />
