@@ -3,13 +3,14 @@
 import React, { useContext, useRef, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { CircleMinus, Edit, PlusIcon, FileText, TriangleAlert, Edit2, Loader } from 'lucide-react'
+import { CircleMinus, Edit, PlusIcon, FileText, TriangleAlert, Edit2, Loader, Trash2 } from 'lucide-react'
 import { useReactToPrint } from 'react-to-print'
 import { sourceSerif4 } from '../../app/fonts'
 import { Branding, Question } from '../../types/test'
 import { AuthContext } from '../../contexts/auth.context'
 import { useQuery } from '@tanstack/react-query'
 import { BrandingDialog } from '../branding-dialog'
+import { errorToast } from '../../helpers/show-toasts'
 
 
 interface TestPDFPreviewProps {
@@ -33,11 +34,30 @@ async function fetchBranding(accessToken: string) {
  return data
 }
 
+
+async function removeBranding(accessToken: string) {
+ const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/branding/`, {
+  method: "Delete",
+  headers: {
+   'Authorization': `Bearer ${accessToken}`,
+  },
+ })
+
+ const { message, data } = await res.json()
+ if (!res.ok) {
+  errorToast("Failed to remove branding", { description: message })
+  throw new Error(message || "Failed to fetch branding")
+ }
+
+ return true
+}
+
+
 export function TestPDFPreview({ testTitle, questions, instructions }: TestPDFPreviewProps) {
  const { user } = useContext(AuthContext)
  const [isOpen, setIsOpen] = useState(false)
  const printableRef = useRef<HTMLDivElement>(null)
-
+ const [isDeleting, setIsDeleting] = useState(false)
  const handlePrint = useReactToPrint({
   contentRef: printableRef,
   documentTitle: testTitle || 'Test PDF',
@@ -150,13 +170,24 @@ export function TestPDFPreview({ testTitle, questions, instructions }: TestPDFPr
       {isError ? <div className='flex items-center justify-center text-sm'>Failed to load branding info <Button size={'sm'} variant={'outline'} className='ml-2' onClick={() => refetch()}>Retry</Button></div> : null}
       {isLoading ? <div className='flex items-center text-sm gap-2'><Loader className="animate-spin" />Loading...</div> : null}
 
-      {branding ? (
-       <BrandingDialog initialData={branding}>
-        <Button variant="link" size="sm">
-         <Edit2 className="w-4 h-4" />
-         Edit Branding
+      {branding && !isLoading ? (
+       <div>
+        <BrandingDialog initialData={branding}>
+         <Button variant="link" size="sm">
+          <Edit2 className="w-4 h-4" />
+          Edit Branding
+         </Button>
+        </BrandingDialog>
+        <Button variant="link" className="text-red-600" size="sm" disabled={isDeleting} onClick={async () => {
+         setIsDeleting(true);
+         confirm("Are you sure you want to remove branding?") && (await removeBranding(user?.accessToken)) && refetch()
+         setIsDeleting(false)
+        }
+        }>
+         <Trash2 className="w-4 h-4" />
+         {isDeleting ? "Removing Branding..." : "Remove Branding"}
         </Button>
-       </BrandingDialog>
+       </div>
       ) : (
        <BrandingDialog>
         <Button variant="outline" size="sm">

@@ -1,15 +1,19 @@
-import { Edit2, FileSpreadsheet, FileText, GraduationCap, Loader, PlusIcon } from "lucide-react";
+'use client'
+
+
+import { DeleteIcon, Edit2, FileSpreadsheet, FileText, Trash2, Loader, PlusIcon } from "lucide-react";
 import { Dialog, DialogHeader, DialogTrigger, DialogContent, DialogTitle, DialogFooter } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { Branding, Submission, TestDetails } from "../../types/test";
-import { useContext, useRef } from "react";
+import { useContext, useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import { ibm, sourceSerif4 } from "../../app/fonts";
 import { cn } from "../../lib/utils";
 import { useQuery } from '@tanstack/react-query'
 import { BrandingDialog } from '../branding-dialog'
 import { AuthContext } from "../../contexts/auth.context";
+import { errorToast } from "../../helpers/show-toasts";
 
 async function fetchBranding(accessToken: string) {
  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/branding/`, {
@@ -26,19 +30,33 @@ async function fetchBranding(accessToken: string) {
  return data
 }
 
+async function removeBranding(accessToken: string) {
+ const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/branding/`, {
+  method: "Delete",
+  headers: {
+   'Authorization': `Bearer ${accessToken}`,
+  },
+ })
+
+ const { message, data } = await res.json()
+ if (!res.ok) {
+  errorToast("Failed to remove branding", { description: message })
+  throw new Error(message || "Failed to fetch branding")
+ }
+
+ return true
+}
+
 export default function ResultSheet({ submissions, testDetails }: { submissions: (Submission & { totalScore: number })[], testDetails: TestDetails }) {
  const { user } = useContext(AuthContext)
-
  const printableRef = useRef<HTMLTableElement>(null)
-
+ const [isDeleting, setIsDeleting] = useState(false)
  const handlePrint = useReactToPrint({
   contentRef: printableRef,
   documentTitle: `Results for test (${testDetails.title})`,
   pageStyle: '@page { size: landscape; }',
   // onAfterPrint: () => s.,
  })
-
-
  const { data: branding, isError, isLoading, error, refetch, isRefetching } = useQuery<Branding>({
   queryKey: ['branding'],
   queryFn: () => fetchBranding(user?.accessToken),
@@ -127,13 +145,24 @@ export default function ResultSheet({ submissions, testDetails }: { submissions:
      {isError ? <div className='flex items-center justify-center text-sm'>Failed to load branding info <Button size={'sm'} variant={'outline'} className='ml-2' onClick={() => refetch()}>Retry</Button></div> : null}
      {isLoading ? <div className='flex items-center text-sm gap-2'><Loader className="animate-spin" />Loading...</div> : null}
 
-     {branding ? (
-      <BrandingDialog initialData={branding}>
-       <Button variant="link" size="sm">
-        <Edit2 className="w-4 h-4" />
-        Edit Branding
+     {branding && !isLoading ? (
+      <div>
+       <BrandingDialog initialData={branding}>
+        <Button variant="link" size="sm">
+         <Edit2 className="w-4 h-4" />
+         Edit Branding
+        </Button>
+       </BrandingDialog>
+       <Button variant="link" className="text-red-600" size="sm" disabled={isDeleting} onClick={async () => {
+        setIsDeleting(true);
+        confirm("Are you sure you want to remove branding?") && (await removeBranding(user?.accessToken)) && refetch()
+        setIsDeleting(false)
+       }
+       }>
+        <Trash2 className="w-4 h-4" />
+        {isDeleting ? "Removing Branding..." : "Remove Branding"}
        </Button>
-      </BrandingDialog>
+      </div>
      ) : (
       <BrandingDialog>
        <Button variant="outline" size="sm">
