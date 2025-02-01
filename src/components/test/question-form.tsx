@@ -22,7 +22,7 @@ import FileUpload from "../file-upload";
 type QuestionFormProps = {
  initialData?: QuestionSchemaProps & { media?: { id: string, url: string, type: string } };
  questions: Array<any>,
- onSubmit: (data: QuestionSchemaProps) => void;
+ onSubmit: (data: QuestionSchemaProps & { media?: { id: string, url: string, type: string } }) => void;
  onCancel: () => void;
  minLeft: number;
 };
@@ -73,11 +73,12 @@ export default function QuestionForm({ initialData, onSubmit, onCancel, minLeft 
  }, [editorContent, setValue]);
 
  const handleQuestionSubmit = (data: QuestionSchemaProps) => {
-  onSubmit({ ...data, body: editorContent, id: initialData?.id || data.id, index: getValues('index') });
+  onSubmit({ ...data, body: editorContent, id: initialData?.id || data.id, index: getValues('index'), media: mediaData });
  }
 
 
  function onUpload(data: { mediaId: string, mediaUrl: string, mediaType: string }) {
+  console.log("onUpload", data);
   setValue('mediaId', data.mediaId);
   setMediaData({ id: data.mediaId, url: data.mediaUrl, type: data.mediaType })
   // setMediaUrl(data.mediaUrl);
@@ -171,7 +172,7 @@ export default function QuestionForm({ initialData, onSubmit, onCancel, minLeft 
 
    {/* Question Text Input */}
    <Input type="hidden" {...register("testId", { value: location.pathname.split("/")[2] })} />
-   {mediaData ?<Input type="hidden" {...register("mediaId")} />: null}
+   {mediaData ? <Input type="hidden" {...register("mediaId")} /> : null}
    <div className="space-y-2">
     <Label htmlFor="questionText">Question Text</Label>
     <div className="flex flex-col items-start gap-12">
@@ -204,7 +205,7 @@ export default function QuestionForm({ initialData, onSubmit, onCancel, minLeft 
      ) :
       // Check if mediaUrl is an mp3
       mediaData.type === "audio" ? (
-       <audio controls src={new URL(mediaData.url).toString()} className="w-full"/>
+       <audio controls src={new URL(mediaData.url).toString()} className="w-full" />
       ) :
        // Check if mediaUrl is an mp4
        mediaData.type === "video" ? (

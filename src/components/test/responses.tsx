@@ -54,6 +54,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
 
   // submission.answers.filter(x => x.answer !== null).every(answer => answer.point !== null && answer.point >= 0)
 
+  console.log(submissions.map(sub => sub.answers.filter(x => x.answer !== null && x.point !== null)));
 
   if (manualUpdateRef.current) return;
   queryClient.setQueryData(
@@ -62,12 +63,14 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
     if (!oldData) return [];
     return oldData.map(submission => ({
      ...submission,
-     completed: submission.answers.filter(x => x.answer !== null && x.point !== null).every(answer => answer.point !== null && answer.point >= 0)
+     completed: submission.answers.filter(x => x.answer !== null && x.point !== null).length > 0 && submission.answers.filter(x => x.answer !== null && x.point !== null).every(answer => answer.point !== null && answer.point >= 0)
     }));
    }
   );
  });
 
+
+ // answer.answer && answer.point === null
 
  const handleSubmissionSelect = (submission: Submission) => {
   setSelectedSubmission(submission)

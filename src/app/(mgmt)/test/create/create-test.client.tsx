@@ -61,7 +61,7 @@ export default function CreateTestClient({ initialData, onEditSuccessful }: { in
  }, [])
 
  return (
-  <Form className={`w-full max-w-3xl flex items-center ${!initialData && "pb-4"} justify-center`} control={control}
+  <Form className={`w-full max-w-3xl flex items-center  justify-center`} control={control}
    action={`${process.env.NEXT_PUBLIC_API_URL}/api/tests/${!initialData ? "create" : "edit"}`} headers={{
     "Content-Type": "application/json",
     "Authorization": `Bearer ${user?.accessToken}`
@@ -75,12 +75,12 @@ export default function CreateTestClient({ initialData, onEditSuccessful }: { in
    onError={async (e) => errorToast((await e.response?.json())?.message || "Network error")}
    method={initialData ? 'put' : 'post'}
   >
-   <Card className={cn(`${initialData ? "w-full border-0 p-0" : "lg:min-w-[40vw] "} h-full flex flex-col`)}>
+   <Card className={cn(`${initialData ? "w-full border-0 p-0" : "lg:min-w-[40vw] "} h-fit flex flex-col`)}>
     {!initialData ? <CardHeader>
      <CardTitle className="text-xl font-bold">Create New Test</CardTitle>
      <CardDescription>Set up your new test parameters</CardDescription>
     </CardHeader> : null}
-    <CardContent className={`space-y-6 flex-1 ${initialData ? "p-0" : ''}`}>
+    <CardContent className={cn(`space-y-6 flex-1 pb-0 ${initialData ? "p-0" : ''}`)}>
      <div className="space-y-2">
       <Label htmlFor="title">Test Title <RequiredAsterisk /></Label>
       <Input id="title" placeholder="Introduction to Python" {...register("title")} />
