@@ -271,14 +271,14 @@ export function SendTest({ test, questions, revokeStatus }) {
         </DialogTrigger>
         {questions.length === 0 || revokeStatus && (
          <TooltipContent>
-          <p>{revokeStatus ? "You must accept responses first" : "You must add questions to your test first"}</p>
+          <p>{revokeStatus ? "You must allow access first" : "You must add questions to your test first"}</p>
          </TooltipContent>
         )}
        </div>
       </TooltipTrigger>
      </Tooltip>
     </TooltipProvider>
-    <DialogContent className="max-w-6xl max-h-[95%] overflow-y-scroll">
+    <DialogContent className="max-w-6xl max-h-[95%] overflow-y-auto">
      <DialogHeader>
       <DialogTitle>Send Test</DialogTitle>
       <DialogDescription>
