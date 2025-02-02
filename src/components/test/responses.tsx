@@ -454,7 +454,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
     )}
    </div>
    {selectedWebcamCapture && (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 " onClick={() => setSelectedWebcamCapture(null)}>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 " >
      <div className="bg-white p-4 rounded-lg max-w-3xl max-h-[90vh] flex flex-col overflow-hidden relative">
       {/* Image Container */}
       <div className="relative flex-1 h-full bg-black">
@@ -484,9 +484,11 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
        </span>
       </div>
       {/* Close Button */}
-      <Button className="mt-4 self-end flex" onClick={() => setSelectedWebcamCapture(null)}>
-       Close
-      </Button>
+      <div className='flex h-fit justify-end'>
+       <Button className="mt-4" onClick={() => setSelectedWebcamCapture(null)}>
+        Close
+       </Button>
+      </div>
      </div>
     </div>
    )}
