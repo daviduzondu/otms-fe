@@ -15,6 +15,9 @@ import ResultSheet from './result-sheet'
 import { Submission, Answer, WebcamCapture, TestDetails } from '../../types/test'
 import Papa from 'papaparse';
 import * as xlsx from 'xlsx';
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 const fetchSubmissions = async (testId: string, accessToken: string) => {
  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/${testId}/responses`, {
@@ -63,7 +66,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
     if (!oldData) return [];
     return oldData.map(submission => ({
      ...submission,
-     completed: submission.answers.filter(x => x.answer !== null && x.point !== null).length > 0 && submission.answers.filter(x => x.answer !== null && x.point !== null).every(answer => answer.point !== null && answer.point >= 0)
+     completed: submission.answers.map(x => ({ ...x, point: x.answer === null ? 0 : x.point })).filter(x => x.answer !== null).every(answer => answer.point !== null && answer.point >= 0)
     }));
    }
   );
@@ -454,45 +457,33 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
      <div className="bg-white p-4 rounded-lg max-w-3xl max-h-[90vh] overflow-hidden relative">
       {/* Image Container */}
-      <div className="relative">
-       <img
-        src={new URL(selectedWebcamCapture.url).toString()}
-        alt="Selected webcam capture"
-        className="w-full object-contain mb-4"
-       />
-       {/* Arrow Controls */}
-       <div className="absolute inset-0 flex items-center justify-between px-4">
-        <button
-         className="bg-[#c5c5c594] rounded-full text-white  p-2 shadow-lg backdrop-blur-md"
-         onClick={() => {
-          if (!selectedSubmission) return;
-          const newIndex = Math.max(0, currentCaptureIndex - 1);
-          handleWebcamCaptureSelect(selectedSubmission.webcamCaptures[newIndex]);
-         }}
-         disabled={currentCaptureIndex === 0}
-        >
-         <ArrowLeftCircle size={35} strokeWidth={1.2} />
-        </button>
-        <button
-         className="bg-[#c5c5c594] rounded-full text-white p-2 shadow-lg backdrop-blur-md"
-         onClick={() => {
-          if (!selectedSubmission) return;
-          const newIndex = Math.min(selectedSubmission.webcamCaptures.length - 1, currentCaptureIndex + 1);
-          handleWebcamCaptureSelect(selectedSubmission.webcamCaptures[newIndex]);
-         }}
-         disabled={selectedSubmission && currentCaptureIndex === selectedSubmission.webcamCaptures.length - 1}
-        >
-         <ArrowRightCircle size={35} strokeWidth={1.2} />
-        </button>
-       </div>
+      <div className='relative '>
+       <Slider {...{
+        dots: true,
+        infinite: false,
+        lazyLoad: true,
+        speed: 200,
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        initialSlide: currentCaptureIndex,
+        className: "[&>.slick-prev]:left-[20px] [&>button]:z-10  [&>.slick-next]:right-[20px]",
+        afterChange: (currentSlide) => setSelectedWebcamCapture(selectedSubmission?.webcamCaptures[currentSlide] ?? null),
+        // initialSlide: currentCaptureIndex
+       }}>
+        {selectedSubmission?.webcamCaptures.map(capture => (
+         <div key={capture.id} className="flex items-center justify-center relative">
+          <img
+           src={new URL(capture.url).toString()}
+           alt="Webcam capture"
+           className="object-contain w-full "
+          />
+         </div>
+        ))}
+       </Slider>
+       <span className="text-sm absolute bg-[#ffffff5d] text-white backdrop-blur-md bottom-6 right-4 p-2 rounded-full">
+        Captured at: {new Date(selectedWebcamCapture.timestamp).toLocaleString()}
+       </span>
       </div>
-
-      {/* Timestamp */}
-      <p className="text-sm text-gray-500">
-       Captured at: {new Date(selectedWebcamCapture.timestamp).toLocaleString()}
-      </p>
-
-      {/* Close Button */}
       <Button className="mt-4" onClick={() => setSelectedWebcamCapture(null)}>
        Close
       </Button>
