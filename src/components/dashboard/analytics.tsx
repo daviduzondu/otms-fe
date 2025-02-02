@@ -103,7 +103,7 @@ export const TestAnalytics: React.FC<{ testId: string, children?: ReactNode }> =
   class: attempt.class.name,
  }));
 
- const questionStats = data.questionStats
+ const questionStats = data.questionStats.map(x => ({ ...x, responses: x.responses.map(r => ({ ...r, point: r.point === null ? 0 : r.point })) }))
   .sort((a, b) => Number(a.index) - Number(b.index))
   .map((stat) => ({
    index: `Q${stat.index + 1}`,
