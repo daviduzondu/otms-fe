@@ -474,7 +474,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
           <img
            src={new URL(capture.url).toString()}
            alt="Webcam capture"
-           className="object-cover max-h-[75vh] w-full"
+           className="object-contain max-h-[75vh] w-full"
           />
          </div>
         ))}
