@@ -457,11 +457,11 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
      <div className="bg-white p-4 rounded-lg max-w-3xl max-h-[90vh] flex flex-col overflow-hidden relative">
       {/* Image Container */}
-      <div className="relative flex-1 overflow-auto">
+      <div className="relative flex-1 h-full bg-black">
        <Slider {...{
         dots: true,
         infinite: false,
-        lazyLoad: true,
+        lazyLoad: 'progressive',
         speed: 200,
         slidesToShow: 1,
         slidesToScroll: 1,
@@ -474,7 +474,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
           <img
            src={new URL(capture.url).toString()}
            alt="Webcam capture"
-           className="object-contain max-h-[75vh] w-full"
+           className="object-cover max-h-[75vh] w-full"
           />
          </div>
         ))}
