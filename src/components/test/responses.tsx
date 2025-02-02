@@ -455,9 +455,9 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
    </div>
    {selectedWebcamCapture && (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-     <div className="bg-white p-4 rounded-lg max-w-3xl max-h-[90vh] overflow-hidden relative">
+     <div className="bg-white p-4 rounded-lg max-w-3xl max-h-[90vh] flex flex-col overflow-hidden relative">
       {/* Image Container */}
-      <div className='relative '>
+      <div className="relative flex-1 overflow-auto">
        <Slider {...{
         dots: true,
         infinite: false,
@@ -468,14 +468,13 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
         initialSlide: currentCaptureIndex,
         className: "[&>.slick-prev]:left-[20px] [&>button]:z-10  [&>.slick-next]:right-[20px]",
         afterChange: (currentSlide) => setSelectedWebcamCapture(selectedSubmission?.webcamCaptures[currentSlide] ?? null),
-        // initialSlide: currentCaptureIndex
        }}>
         {selectedSubmission?.webcamCaptures.map(capture => (
          <div key={capture.id} className="flex items-center justify-center relative">
           <img
            src={new URL(capture.url).toString()}
            alt="Webcam capture"
-           className="object-contain w-full "
+           className="object-contain max-h-[75vh] w-full"
           />
          </div>
         ))}
@@ -484,13 +483,14 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
         Captured at: {new Date(selectedWebcamCapture.timestamp).toLocaleString()}
        </span>
       </div>
-      <Button className="mt-4" onClick={() => setSelectedWebcamCapture(null)}>
+      {/* Close Button */}
+      <Button className="mt-4 self-end" onClick={() => setSelectedWebcamCapture(null)}>
        Close
       </Button>
      </div>
     </div>
-
    )}
+
   </div>
  )
 }
