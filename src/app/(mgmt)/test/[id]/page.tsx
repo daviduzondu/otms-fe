@@ -5,7 +5,7 @@ import * as z from 'zod'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { ArrowLeft, ArrowLeftCircle, BookText, ChartColumn, Edit, GripVertical, List, Loader, PlusIcon, Printer, Settings } from 'lucide-react'
+import { ArrowLeft, ArrowLeftCircle, BookText, ChartColumn, Edit, GripVertical, List, Loader, PlusIcon, Printer, RefreshCcwIcon, RefreshCwIcon, Settings } from 'lucide-react'
 import { differenceInMinutes } from 'date-fns'
 import { AuthContext } from '../../../../contexts/auth.context'
 import { errorToast } from '../../../../helpers/show-toasts'
@@ -28,6 +28,7 @@ import { TestDetails } from '../../../../types/test'
 import { TestAnalytics } from '../../../../components/dashboard/analytics'
 import { Switch } from '../../../../components/ui/switch'
 import EditTest from '../../../../components/test/edit-test'
+import { useQueryClient } from '@tanstack/react-query'
 
 
 
@@ -45,8 +46,11 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
  const reqHeaders = { Authorization: `Bearer ${user.accessToken}` }
  const [isIndexUpdating, setIsIndexUpdating] = useState(false)
  const [revokeStatus, setRevokeStatus] = useState<null | Boolean>(null);
- const [revokeStatusUpdating, setRevokeStatusUpdating] = useState(false)
- const showResponses = searchParams.get('showResponses') === 'true'
+ const [revokeStatusUpdating, setRevokeStatusUpdating] = useState(false);
+ const [refreshingResponses, setRefreshingResponses] = useState(false);
+ const showResponses = searchParams.get('showResponses') === 'true';
+ const queryClient = useQueryClient();
+
 
  useEffect(() => {
   const fetchData = async () => {
@@ -219,6 +223,12 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
   router.replace(`${pathname}?${newSearchParams.toString()}`)
  }
 
+ const refreshResponses = async () => {
+  setRefreshingResponses(true);
+  await queryClient.invalidateQueries({ queryKey: ['submissions', params.id, user?.accessToken] });
+  setRefreshingResponses(false);
+ }
+
  const toggleRevoked = async (checked: boolean) => {
   try {
    setRevokeStatusUpdating(true)
@@ -302,6 +312,10 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
            <span className="hidden lg:block">Analytics</span>
           </Button>
          </TestAnalytics>
+         <Button variant="outline" size="sm" className="flex gap-2" onClick={refreshResponses} disabled={refreshingResponses}>
+          <RefreshCwIcon className={`w-4 h-4 ${refreshingResponses ? "animate-spin" : ""}`} />
+          <span>{!refreshingResponses ? "Refresh" : "Refreshing..."}</span>
+         </Button>
         </div>
        )}
       </div>

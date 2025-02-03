@@ -12,7 +12,7 @@ import { StudentAnswerCard } from './student-answer-card'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { AuthContext } from '../../contexts/auth.context'
 import ResultSheet from './result-sheet'
-import { Submission, Answer, WebcamCapture, TestDetails } from '../../types/test'
+import { Submission, WebcamCapture, TestDetails } from '../../types/test'
 import Papa from 'papaparse';
 import * as xlsx from 'xlsx';
 import Slider from "react-slick";
@@ -54,7 +54,6 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
  })
 
  useEffect(() => {
-
   // submission.answers.filter(x => x.answer !== null).every(answer => answer.point !== null && answer.point >= 0)
 
   console.log(submissions.map(sub => sub.answers.filter(x => x.answer !== null && x.point !== null)));
@@ -252,6 +251,10 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
    students: submissions.filter(s => s.completed).map(s => s.id)
   }
   try {
+   if (process.env.NEXT_PUBLIC_NODE_ENV === "development") {
+    await new Promise(resolve => setTimeout(resolve, 2000))
+    successToast("Successfully sent results to students");
+   }
    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/send-results`, {
     method: "POST",
     body: JSON.stringify(data),
@@ -262,7 +265,9 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
    });
    const { message } = await response.json();
    if (!response.ok) throw new Error(message || "Failed to send results")
-   successToast("Successfully sent results to students")
+   if (process.env.NEXT_PUBLIC_NODE_ENV === "production") {
+    successToast("Successfully sent results to students")
+   }
   } catch (error) {
    errorToast((error as Error).message)
    console.error((error as Error).message)
