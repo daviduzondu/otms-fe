@@ -183,10 +183,11 @@ export function SendTest({ test, questions, revokeStatus }) {
 
    setIsTestMailSending(true);
    if (process.env.NEXT_PUBLIC_NODE_ENV === "development") {
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    await new Promise(resolve => setTimeout(resolve, 1200))
     successToast('Invitations Sent', {
      description: `Participants should get an email within 5 minutes.`,
     });
+    setIsTestMailSending(false);
    }
    const data = { testId: id, students: participants.map(p => p.id) };
    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/send-test/`, {

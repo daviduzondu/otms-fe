@@ -252,8 +252,9 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
   }
   try {
    if (process.env.NEXT_PUBLIC_NODE_ENV === "development") {
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    await new Promise(resolve => setTimeout(resolve, 1200))
     successToast("Successfully sent results to students");
+    setSendingResult(false);
    }
    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/send-results`, {
     method: "POST",

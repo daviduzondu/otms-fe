@@ -18,6 +18,11 @@ export default function TokenRequestCard({ code }: { code: string }) {
  async function requestToken() {
   try {
    setIsSending(true)
+   if (process.env.NEXT_PUBLIC_NODE_ENV === "development") {
+    await new Promise(resolve => setTimeout(resolve, 1200));
+    setHasPIN(true);
+    setIsSending(false);
+   }
    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/send-token`, {
     body: JSON.stringify({ email: val, code }),
     method: "POST",
@@ -62,7 +67,7 @@ export default function TokenRequestCard({ code }: { code: string }) {
       router.replace(`?token=${val}`);
       setIsSending(true)
      }
-    }} disabled={isSending|| val.length <= 0}>{isSending ? <Loader size={20} className="mr-2 animate-spin" /> : null} {isSending ? "Sending..." : !hasPIN ? "Request PIN" : "Proceed"}</Button>
+    }} disabled={isSending || val.length <= 0}>{isSending ? <Loader size={20} className="mr-2 animate-spin" /> : null} {isSending ? "Sending..." : !hasPIN ? "Request PIN" : "Proceed"}</Button>
    </form>
   </CardContent>
   <CardFooter className={cn("text-sm flex-col -mt-3 items-start")}>
