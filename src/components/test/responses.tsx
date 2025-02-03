@@ -171,7 +171,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
  }
 
  const calculateGradedQuestions = (submission: Submission) => {
-  return submission.answers.filter(answer => answer.graded && answer.answer).length
+  return submission.answers.filter(answer => answer?.point !== null && answer.point >= 0 && answer.answer).length
  }
 
  const handleCompleteGrading = () => {
@@ -396,7 +396,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
         </div>
        </CardContent>
        <CardFooter className="justify-end">
-        {calculateGradedQuestions(selectedSubmission) === selectedSubmission.answers.filter(answer => answer.graded && answer.answer).length && (
+        {calculateGradedQuestions(selectedSubmission) === selectedSubmission.answers.filter(answer => answer?.point !== null && answer.point >= 0 && answer.answer).length && (
          <>
           {selectedSubmission.completed ? (
            <Button onClick={handleReverseCompleteGrading}>
