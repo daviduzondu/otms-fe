@@ -8,6 +8,7 @@ import { useContext } from "react";
 import { AuthContext } from "../../contexts/auth.context";
 import { formatDistance, subDays } from "date-fns";
 import { FolderX } from "lucide-react";
+import { TestDetails } from "../../types/test";
 
 // Function to fetch tests
 const fetchTests = async (accessToken: string) => {
@@ -29,7 +30,7 @@ export default function TestList() {
  const { user } = useContext(AuthContext);
 
  // Use React Query to fetch the tests
- const { data, isError, isLoading, error } = useQuery({
+ const { data, isError, isLoading, error } = useQuery<(TestDetails & { createdAt: string })[]>({
   queryKey: ['tests', user?.accessToken], // Unique key that includes accessToken
   queryFn: () => fetchTests(user.accessToken),
   staleTime: 10000,
@@ -48,7 +49,7 @@ export default function TestList() {
   throw new Error("Failed to fetch tests. Check your network and try again.");
  }
 
- if (data.length === 0)
+ if (data && data.length === 0)
   return <div className="h-full w-full gap-2 flex flex-col items-center justify-center">
    <FolderX size={50} />
    <span className="text-xl">Nothing to see here...</span>
@@ -56,7 +57,7 @@ export default function TestList() {
  // Display the list of tests if available
  return (
   <ul className="space-y-4">
-   {data && data.slice().reverse().filter((x, i) => i <= 7).map((test, index) => (
+   {data && data.slice().sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).filter((x, i) => i <= 7).map((test, index) => (
     <li key={index} className="flex items-center justify-between">
      <div>
       <h3 className="font-semibold">{test.title}</h3>
