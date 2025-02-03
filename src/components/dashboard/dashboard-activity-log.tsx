@@ -147,7 +147,7 @@ export const DashboardActivityLog: React.FC = () => {
    </CardHeader>
    <ScrollArea className="p-6 pt-0 pl-0 h-full">
     <CardContent className={"flex flex-col flex-1 h-full"}>
-     {(groupActivities.length === 0) ? <div className="h-full w-full gap-2 flex flex-col items-center justify-center">
+     {(groupedActivities.length === 0) ? <div className="h-full w-full gap-2 flex flex-col items-center justify-center">
       <FolderX size={50} />
       <span className="text-xl">No activity yet...</span>
      </div> : groupedActivities.map((activity, index) => (
