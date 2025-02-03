@@ -301,7 +301,7 @@ export function QuestionAnswerPage({ companyName, data, accessToken, resultReady
 
   const timerInterval = setInterval(updateTimers, 1000)
   return () => clearInterval(timerInterval)
- }, [data.startedAt, data.durationMin, currentQuestion, getServerTime, handleNextOrSubmit, isSubmitting, isTestComplete])
+ }, [data.startedAt, data.durationMin, currentQuestion, getServerTime, isSubmitting, isTestComplete])
 
  useEffect(() => {
   if (data.questions[currentQuestionIndex]) {
