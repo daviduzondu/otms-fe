@@ -65,7 +65,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
     if (!oldData) return [];
     return oldData.map(submission => ({
      ...submission,
-     completed: submission.answers.map(x => ({ ...x, point: x.answer === null ? 0 : x.point })).filter(x => x.answer !== null).every(answer => answer.point !== null && answer.point >= 0)
+     completed: submission.answers.map(x => ({ ...x, point: !x.answer ? 0 : x.point })).filter(x => x.answer !== null).every(answer => answer.point !== null && answer.point >= 0)
     }));
    }
   );
