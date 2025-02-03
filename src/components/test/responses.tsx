@@ -464,7 +464,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
      <div className="bg-white p-4 rounded-lg max-w-3xl max-h-[90vh] flex flex-col overflow-hidden relative">
       {/* Image Container */}
       <div className="relative flex-1 h-full bg-black">
-       {selectedSubmission?.webcamCaptures.length > 1 ? (
+       {selectedSubmission?.webcamCaptures && selectedSubmission.webcamCaptures.length > 1 ? (
         <Slider
          dots={true}
          infinite={false}
@@ -480,7 +480,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
           )
          }
         >
-         {selectedSubmission.webcamCaptures.map((capture) => (
+         {selectedSubmission && selectedSubmission.webcamCaptures.map((capture) => (
           <div key={capture.id} className="flex items-center justify-center relative">
            <img
             src={new URL(capture.url).toString()}
