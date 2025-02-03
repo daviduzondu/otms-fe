@@ -11,7 +11,6 @@ import LocalErrorFallback from "../../../../components/errors/local-error-fallba
 import GlobalErrorFallback from "../../../../components/errors/global-error-fallback";
 import { headers } from "next/headers";
 import { userAgent } from "next/server";
-import { Button } from "../../../../components/ui/button";
 import ResultsDialog from "../../../../components/test/results-dialog";
 
 type Student = { id: string, email: string, regNumber: string, firstName: string, lastName: string, middleName: string, addedBy: string, isTouched: boolean, testInfo: TestDetails, resultReady: boolean }
