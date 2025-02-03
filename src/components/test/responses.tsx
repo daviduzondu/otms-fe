@@ -460,37 +460,51 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
     )}
    </div>
    {selectedWebcamCapture && (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 " >
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
      <div className="bg-white p-4 rounded-lg max-w-3xl max-h-[90vh] flex flex-col overflow-hidden relative">
       {/* Image Container */}
       <div className="relative flex-1 h-full bg-black">
-       <Slider {...{
-        dots: true,
-        infinite: false,
-        lazyLoad: 'progressive',
-        speed: 200,
-        slidesToShow: 1,
-        slidesToScroll: 1,
-        initialSlide: currentCaptureIndex,
-        className: "[&>.slick-prev]:left-[20px] [&>button]:z-10  [&>.slick-next]:right-[20px]",
-        afterChange: (currentSlide) => setSelectedWebcamCapture(selectedSubmission?.webcamCaptures[currentSlide] ?? null),
-       }}>
-        {selectedSubmission?.webcamCaptures.map(capture => (
-         <div key={capture.id} className="flex items-center justify-center relative">
-          <img
-           src={new URL(capture.url).toString()}
-           alt="Webcam capture"
-           className="object-contain max-h-[75vh] w-full"
-          />
-         </div>
-        ))}
-       </Slider>
+       {selectedSubmission?.webcamCaptures.length > 1 ? (
+        <Slider
+         dots={true}
+         infinite={false}
+         lazyLoad="progressive"
+         speed={200}
+         slidesToShow={1}
+         slidesToScroll={1}
+         initialSlide={currentCaptureIndex}
+         className="[&>.slick-prev]:left-[20px] [&>button]:z-10  [&>.slick-next]:right-[20px]"
+         afterChange={(currentSlide) =>
+          setSelectedWebcamCapture(
+           selectedSubmission?.webcamCaptures[currentSlide] ?? null
+          )
+         }
+        >
+         {selectedSubmission.webcamCaptures.map((capture) => (
+          <div key={capture.id} className="flex items-center justify-center relative">
+           <img
+            src={new URL(capture.url).toString()}
+            alt="Webcam capture"
+            className="object-contain max-h-[75vh] w-full"
+           />
+          </div>
+         ))}
+        </Slider>
+       ) : (
+        <div className="flex items-center justify-center h-full">
+         <img
+          src={new URL(selectedWebcamCapture.url).toString()}
+          alt="Webcam capture"
+          className="object-contain max-h-[75vh] w-full"
+         />
+        </div>
+       )}
        <span className="text-sm absolute bg-[#ffffff5d] text-white backdrop-blur-md bottom-6 right-4 p-2 rounded-full">
         Captured at: {new Date(selectedWebcamCapture.timestamp).toLocaleString()}
        </span>
       </div>
       {/* Close Button */}
-      <div className='flex h-fit justify-end'>
+      <div className="flex h-fit justify-end">
        <Button className="mt-4" onClick={() => setSelectedWebcamCapture(null)}>
         Close
        </Button>
@@ -498,6 +512,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
      </div>
     </div>
    )}
+
 
   </div>
  )
