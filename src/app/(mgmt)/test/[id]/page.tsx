@@ -313,7 +313,9 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
           </Button>
          </TestAnalytics>
          <Button variant="outline" size="sm" className="flex gap-2" onClick={refreshResponses} disabled={refreshingResponses}>
-          <RefreshCwIcon className={`w-4 h-4 ${refreshingResponses ? "animate-spin" : ""}`} />
+          <div className={`w-4 h-4 flex items-center justify-center ${refreshingResponses ? "animate-spin" : ""}`}>
+          <RefreshCwIcon />
+          </div>
           <span>{!refreshingResponses ? "Refresh" : "Refreshing..."}</span>
          </Button>
         </div>
