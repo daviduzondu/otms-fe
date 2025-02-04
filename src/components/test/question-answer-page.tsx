@@ -228,6 +228,7 @@ export function QuestionAnswerPage({ companyName, data, accessToken, resultReady
  const [isTestComplete, setIsTestComplete] = useState(false)
 
  const serverTimeRef = useRef<number>(new Date(data.serverTime).getTime())
+ // My suspision lies here. 
  const clientTimeRef = useRef<number>(Date.now())
 
  const getServerTime = useCallback(() => {
@@ -301,7 +302,7 @@ export function QuestionAnswerPage({ companyName, data, accessToken, resultReady
 
   const timerInterval = setInterval(updateTimers, 1000)
   return () => clearInterval(timerInterval)
- }, [data.startedAt, data.durationMin, currentQuestion, getServerTime, isSubmitting, isTestComplete])
+ }, [data.startedAt, data.durationMin, currentQuestion, getServerTime,isLoadingQuestion, isSubmitting, isTestComplete])
 
  useEffect(() => {
   if (data.questions[currentQuestionIndex]) {
