@@ -43,7 +43,7 @@ const ResultsDialog = ({ accessToken, testId }: { accessToken: string, testId: s
     <Button variant={'outline'} className="w-full" disabled={isLoading}>View Results</Button>
    </DialogTrigger>
    <DialogContent>
-    <DialogTitle>Your result for :{data.title}</DialogTitle>
+    <DialogTitle>Your result for: {data.title}</DialogTitle>
     <div className='flex gap-3 flex-col'>
 
      <div className='flex flex-col gap-2 items-center justify-center'>
