@@ -396,8 +396,8 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
       </div>
      </div>
 
-     <Dialog open={isAddQuestionOpen} onOpenChange={setIsAddQuestionOpen}>
-      <DialogContent className="max-w-3xl">
+     <Dialog open={isAddQuestionOpen} onOpenChange={setIsAddQuestionOpen} >
+      <DialogContent className="max-w-3xl" onInteractOutside={(e)=>e.preventDefault()}>
        <DialogHeader>
         <DialogTitle>Add New Question</DialogTitle>
        </DialogHeader>
@@ -411,7 +411,7 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
      </Dialog>
 
      <Dialog open={editingQuestion !== null} onOpenChange={() => setEditingQuestion(null)}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-3xl" onInteractOutside={(e)=>e.preventDefault()}>
        <DialogHeader>
         <DialogTitle>Edit Question</DialogTitle>
        </DialogHeader>

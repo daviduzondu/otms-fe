@@ -73,7 +73,7 @@ export default function QuestionForm({ initialData, onSubmit, onCancel, minLeft 
  }, [editorContent, setValue]);
 
  const handleQuestionSubmit = (data: QuestionSchemaProps) => {
-  onSubmit({ ...data, body: editorContent, id: initialData?.id || data.id, index: getValues('index'), media: mediaData });
+  onSubmit({ ...data, body: editorContent, id: initialData?.id || data.id, index: getValues('index'), media: mediaData ?? undefined });
  }
 
 
