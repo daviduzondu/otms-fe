@@ -180,7 +180,15 @@ export function SendTest({ test, questions, revokeStatus }) {
 
  const handleSendInvitation = async () => {
   try {
+
    setIsTestMailSending(true);
+   if (process.env.NEXT_PUBLIC_NODE_ENV === "development") {
+    await new Promise(resolve => setTimeout(resolve, 1200))
+    successToast('Invitations Sent', {
+     description: `Participants should get an email within 5 minutes.`,
+    });
+    setIsTestMailSending(false);
+   }
    const data = { testId: id, students: participants.map(p => p.id) };
    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/send-test/`, {
     method: "POST",
@@ -194,9 +202,11 @@ export function SendTest({ test, questions, revokeStatus }) {
    const result = await response.json();
    if (!response.ok) throw new Error(result.message || "An error occurred.");
 
-   successToast('Invitations Sent', {
-    description: `Participants should get an email within 5 minutes.`,
-   });
+   if (process.env.NEXT_PUBLIC_NODE_ENV === "production") {
+    successToast('Invitations Sent', {
+     description: `Participants should get an email within 5 minutes.`,
+    });
+   }
   } catch (e) {
    errorToast("Failed to send invitations", {
     description: (e as Error).message || "Unknown error occurred.",
@@ -258,7 +268,7 @@ export function SendTest({ test, questions, revokeStatus }) {
      <Tooltip>
       <TooltipTrigger asChild>
        <div className="inline-flex">
-        <DialogTrigger asChild disabled={questions.length === 0 || revokeStatus}>
+        <DialogTrigger asChild disabled={questions.length === 0}>
          <Button
           variant="outline"
           size="sm"
@@ -269,9 +279,9 @@ export function SendTest({ test, questions, revokeStatus }) {
           <span>Send</span>
          </Button>
         </DialogTrigger>
-        {questions.length === 0 || revokeStatus && (
+        {questions.length === 0 && (
          <TooltipContent>
-          <p>{revokeStatus ? "You must allow access first" : "You must add questions to your test first"}</p>
+          You must add questions to your test first
          </TooltipContent>
         )}
        </div>

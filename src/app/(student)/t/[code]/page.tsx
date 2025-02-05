@@ -11,10 +11,9 @@ import LocalErrorFallback from "../../../../components/errors/local-error-fallba
 import GlobalErrorFallback from "../../../../components/errors/global-error-fallback";
 import { headers } from "next/headers";
 import { userAgent } from "next/server";
-import { Button } from "../../../../components/ui/button";
 import ResultsDialog from "../../../../components/test/results-dialog";
 
-type Student = { id: string, email: string, regNumber: string, firstName: string, lastName: string, middleName: string, addedBy: string, isTouched: boolean, testInfo: TestDetails, resultReady: Boolean }
+type Student = { id: string, email: string, regNumber: string, firstName: string, lastName: string, middleName: string, addedBy: string, isTouched: boolean, testInfo: TestDetails, resultReady: boolean }
 
 async function verifyStudent(token: string) {
  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/verify-student`, {
@@ -39,42 +38,53 @@ export default async function Page({ searchParams, params }) {
 
   const studentData = await verifyStudent(token);
 
-
-  if (!ri && !studentData.isTouched) return <BeforeTest studentName={`${studentData.firstName} ${studentData.lastName}`} testDetails={studentData.testInfo} />
-
   if (device.type === 'mobile' && studentData.testInfo.platform === 'desktop') return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={<Shield size={40} />} content="Sorry, you cannot access this test on this device." footer={"Switch to Desktop and try again."} /></div>
+
+  if (!ri && !studentData.isTouched && !studentData.testInfo.isRevoked) return <BeforeTest studentName={`${studentData.firstName} ${studentData.lastName}`} testDetails={studentData.testInfo} />
 
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/take/${token}`, { cache: 'no-store' });
   const { data, message } = await response.json();
 
+  if (!response.ok) throw new Error(message || "Failed to retrieve test details");
+  
 
-  if (!response.ok) {
-   const errorDetails = {
-    message,
-    statusCode: response.status,
-    heading: "Failed to retrieve test",
-   };
-   throw new Error(JSON.stringify(errorDetails)); // Serialize error details
+  if (
+   data?.status === "submitted" ||
+   isAfter(new Date(), addMinutes(new Date(data?.startedAt || 0), data?.durationMin || 0))
+  ) {
+   const resultReady = studentData?.resultReady;
+   const testId = studentData?.testInfo?.id;
+
+   return (
+    <div className="flex items-center justify-center h-screen">
+     <ErrorCard
+      icon={resultReady ? <BookOpenCheck size={40} /> : <BookCheck size={40} />}
+      content={resultReady ? "Your results are ready" : "Looks like you've already made a submission."}
+      footer={
+       resultReady
+        ? "You're seeing this because you've made a submission. If you think this is wrong, contact your supervisor."
+        : "This test was submitted, either by you or automatically after time expired. If you think this is wrong, contact your supervisor."
+      }
+      resultReady={resultReady}
+      accessToken={token}
+      testId={testId}
+     />
+    </div>
+   );
   }
-
-
-  if (data.status === "submitted" || isAfter(new Date(), addMinutes(new Date(data.startedAt), data.durationMin))) return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={!studentData.resultReady ? <BookCheck size={40} /> : <BookOpenCheck size={40} />} content={!studentData.resultReady ? "Looks like you've already made a submission." : "Your results are ready"} footer={!studentData.resultReady ? "This test was submitted, either by you or automatically after time expired. If you think this is wrong, contact your supervisor." : "You're seeing this because you've made a submission. If you think this is wrong, contact your supervisor."} resultReady={studentData.resultReady} accessToken={token} testId={studentData.testInfo.id} /></div>
-
-  if (studentData.testInfo.isRevoked && !studentData.isTouched) return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={<Ban size={40} />} content="Sorry, this test is not accepting responses at this time." footer={"If you think this is wrong, contact your supervisor."} /></div>
-
 
   // if (isAfter(new Date(), addMinutes(new Date(data.startedAt), data.durationMin))) return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={<Clock size={40} />} content="You've run out of time." footer={"If you think this is wrong, contact your supervisor."} /></div>;
   return <ErrorBoundary FallbackComponent={GlobalErrorFallback}>
-   <QuestionAnswerPage companyName={""} data={data} accessToken={token} resultReady={studentData.resultReady} disableCopyPaste={studentData.testInfo.disableCopyPaste} requireFullScreen={studentData.testInfo.requireFullScreen}/>
+   <QuestionAnswerPage companyName={""} data={data} accessToken={token} resultReady={studentData.resultReady} disableCopyPaste={studentData.testInfo.disableCopyPaste} requireFullScreen={studentData.testInfo.requireFullScreen} />
   </ErrorBoundary>
  } catch (error) {
-  return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={<Shield size={40} />} content={(error as Error).message} footer={"Please try again or contact your supervisor."} /></div>
+  return <div className={"flex items-center justify-center h-screen"}><ErrorCard icon={<Shield size={40} />} content={(error as Error).message} footer={"If you think this is wrong, contact your teacher."} /></div>
  }
 }
 
 
 
-function ErrorCard({ icon, content, footer, resultReady, testId, accessToken }: { icon: React.ReactNode, content: string, footer: string, resultReady?: Boolean, accessToken?: string, testId?: string }) {
+function ErrorCard({ icon, content, footer, resultReady, testId, accessToken }: { icon: React.ReactNode, content: string, footer: string, resultReady?: boolean, accessToken?: string, testId?: string }) {
  return <Card className="lg:w-[25vw] w-screen">
   <CardHeader className="flex">{icon}</CardHeader>
   <CardContent className="font-bold text-lg -mt-3">

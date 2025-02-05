@@ -66,11 +66,17 @@ export default function BeforeTest({
 
        {/* Right Column */}
        <div className="space-y-6">
-        <h3 className="text-lg font-medium">A few things before you start:</h3>
-        <ul className="space-y-4 text-gray-600">
+        <h3 className="text-xl font-medium">A few things to note before you start the test:</h3>
+        <ul className="space-y-4 text-gray-600 ">
          <li>
           Please ensure your <strong>camera/webcam is enabled</strong>
-          {testDetails.requireFullScreen ? <strong> and remain in full-screen mode</strong> : ""}. Periodic snapshots may be taken during the test to maintain fairness.
+          {testDetails.requireFullScreen ? <strong> and remain in full-screen mode</strong> : ""}.
+         </li>
+         <li>
+          Make sure you&apos;re in <strong>well lit area</strong>. Periodic snapshots may be taken during the test to maintain fairness.
+         </li>
+         <li>
+          As this is an online test, ensure you have a <strong>stable internet connection </strong>before starting the test.
          </li>
          <li>
           Turn on your <strong>speakers or headphones</strong> for audio playback, if required.
@@ -79,13 +85,10 @@ export default function BeforeTest({
           This test is <strong>timed</strong>, and a timer will be displayed either per test or per question.
          </li>
          <li>
-          Be aware that the timer <strong>starts immediately</strong>, including during any preview questions.
+          Be aware that the timer <strong>starts immediately</strong> will last for  <strong>{testDetails.durationMin} minutes</strong>.
          </li>
          <li>
-          The test will take approximately <strong>{testDetails.durationMin} minutes</strong> to complete.
-         </li>
-         <li>
-          We recommend <strong>completing the test in one sitting</strong> without interruptions. If you leave the test, the timer will still be running.
+          It is recommended that you <strong>complete the test in one sitting</strong> without interruptions. If you leave the test, the timer will still be running.
          </li>
          <li>
           When you&apos;re ready to start, click the <strong>Take me to test</strong> button. Good luck!

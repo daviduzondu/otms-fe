@@ -12,7 +12,7 @@ import { StudentAnswerCard } from './student-answer-card'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { AuthContext } from '../../contexts/auth.context'
 import ResultSheet from './result-sheet'
-import { Submission, Answer, WebcamCapture, TestDetails } from '../../types/test'
+import { Submission, WebcamCapture, TestDetails } from '../../types/test'
 import Papa from 'papaparse';
 import * as xlsx from 'xlsx';
 import Slider from "react-slick";
@@ -54,7 +54,6 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
  })
 
  useEffect(() => {
-
   // submission.answers.filter(x => x.answer !== null).every(answer => answer.point !== null && answer.point >= 0)
 
   console.log(submissions.map(sub => sub.answers.filter(x => x.answer !== null && x.point !== null)));
@@ -66,7 +65,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
     if (!oldData) return [];
     return oldData.map(submission => ({
      ...submission,
-     completed: submission.answers.map(x => ({ ...x, point: x.answer === null ? 0 : x.point })).filter(x => x.answer !== null).every(answer => answer.point !== null && answer.point >= 0)
+     completed: submission.answers.map(x => ({ ...x, point: !x.answer ? 0 : x.point })).filter(x => x.answer !== null).every(answer => answer.point !== null && answer.point >= 0)
     }));
    }
   );
@@ -172,7 +171,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
  }
 
  const calculateGradedQuestions = (submission: Submission) => {
-  return submission.answers.filter(answer => answer.graded && answer.answer).length
+  return submission.answers.filter(answer => answer?.point !== null && answer.point >= 0 && answer.answer).length
  }
 
  const handleCompleteGrading = () => {
@@ -252,6 +251,11 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
    students: submissions.filter(s => s.completed).map(s => s.id)
   }
   try {
+   if (process.env.NEXT_PUBLIC_NODE_ENV === "development") {
+    await new Promise(resolve => setTimeout(resolve, 1200))
+    successToast("Successfully sent results to students");
+    setSendingResult(false);
+   }
    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tests/send-results`, {
     method: "POST",
     body: JSON.stringify(data),
@@ -262,7 +266,9 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
    });
    const { message } = await response.json();
    if (!response.ok) throw new Error(message || "Failed to send results")
-   successToast("Successfully sent results to students")
+   if (process.env.NEXT_PUBLIC_NODE_ENV === "production") {
+    successToast("Successfully sent results to students")
+   }
   } catch (error) {
    errorToast((error as Error).message)
    console.error((error as Error).message)
@@ -390,7 +396,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
         </div>
        </CardContent>
        <CardFooter className="justify-end">
-        {calculateGradedQuestions(selectedSubmission) === selectedSubmission.answers.filter(answer => answer.graded && answer.answer).length && (
+        {calculateGradedQuestions(selectedSubmission) === selectedSubmission.answers.filter(answer => answer?.point !== null && answer.point >= 0 && answer.answer).length && (
          <>
           {selectedSubmission.completed ? (
            <Button onClick={handleReverseCompleteGrading}>
@@ -454,37 +460,51 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
     )}
    </div>
    {selectedWebcamCapture && (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 " >
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
      <div className="bg-white p-4 rounded-lg max-w-3xl max-h-[90vh] flex flex-col overflow-hidden relative">
       {/* Image Container */}
       <div className="relative flex-1 h-full bg-black">
-       <Slider {...{
-        dots: true,
-        infinite: false,
-        lazyLoad: 'progressive',
-        speed: 200,
-        slidesToShow: 1,
-        slidesToScroll: 1,
-        initialSlide: currentCaptureIndex,
-        className: "[&>.slick-prev]:left-[20px] [&>button]:z-10  [&>.slick-next]:right-[20px]",
-        afterChange: (currentSlide) => setSelectedWebcamCapture(selectedSubmission?.webcamCaptures[currentSlide] ?? null),
-       }}>
-        {selectedSubmission?.webcamCaptures.map(capture => (
-         <div key={capture.id} className="flex items-center justify-center relative">
-          <img
-           src={new URL(capture.url).toString()}
-           alt="Webcam capture"
-           className="object-contain max-h-[75vh] w-full"
-          />
-         </div>
-        ))}
-       </Slider>
+       {selectedSubmission?.webcamCaptures && selectedSubmission.webcamCaptures.length > 1 ? (
+        <Slider
+         dots={true}
+         infinite={false}
+         lazyLoad="progressive"
+         speed={200}
+         slidesToShow={1}
+         slidesToScroll={1}
+         initialSlide={currentCaptureIndex}
+         className="[&>.slick-prev]:left-[20px] [&>button]:z-10  [&>.slick-next]:right-[20px]"
+         afterChange={(currentSlide) =>
+          setSelectedWebcamCapture(
+           selectedSubmission?.webcamCaptures[currentSlide] ?? null
+          )
+         }
+        >
+         {selectedSubmission && selectedSubmission.webcamCaptures.map((capture) => (
+          <div key={capture.id} className="flex items-center justify-center relative">
+           <img
+            src={new URL(capture.url).toString()}
+            alt="Webcam capture"
+            className="object-contain max-h-[75vh] w-full"
+           />
+          </div>
+         ))}
+        </Slider>
+       ) : (
+        <div className="flex items-center justify-center h-full">
+         <img
+          src={new URL(selectedWebcamCapture.url).toString()}
+          alt="Webcam capture"
+          className="object-contain max-h-[75vh] w-full"
+         />
+        </div>
+       )}
        <span className="text-sm absolute bg-[#ffffff5d] text-white backdrop-blur-md bottom-6 right-4 p-2 rounded-full">
         Captured at: {new Date(selectedWebcamCapture.timestamp).toLocaleString()}
        </span>
       </div>
       {/* Close Button */}
-      <div className='flex h-fit justify-end'>
+      <div className="flex h-fit justify-end">
        <Button className="mt-4" onClick={() => setSelectedWebcamCapture(null)}>
         Close
        </Button>
@@ -492,6 +512,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
      </div>
     </div>
    )}
+
 
   </div>
  )
