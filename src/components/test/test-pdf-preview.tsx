@@ -86,14 +86,18 @@ export function TestPDFPreview({ testTitle, questions, instructions }: TestPDFPr
     </DialogHeader>
     <div className={`overflow-y-auto max-h-[80vh] text-left font-serif`}>
      {/* Printable Content */}
-     <div ref={printableRef} className={`${sourceSerif4.className} bg-white p-10 shadow-lg print:shadow-none text-gray-900`}>
+     <div ref={printableRef} className={`${sourceSerif4.className} bg-white p-10 shadow-lg print:shadow-none text-gray-900`} style={{ fontFamily: 'serif' }}>
       {branding ?
        <div>
-        <div className="flex w-full flex-col items-center gap-1">
-         <img src={branding?.media.url} width={100} height={100} alt="Logo" />
-         <div className="uppercase text-lg">{branding?.field1}</div>
-         {branding?.field2 ? <div className="uppercase text-base">{branding.field2}</div> : null}
-         {branding?.field3 ? <div className="uppercase text-base">{branding?.field3}</div> : null}
+        <div className="flex w-full flex-row-reverse relative items-center justify-center  gap-1">
+         <div className="absolute top-0 right-0">
+          <img src={branding?.media.url} width={100} height={100} alt="Logo" />
+         </div>
+         <div className="flex flex-col text-center items-center justify-center">
+          <div className="uppercase text-xl">{branding?.field1}</div>
+          {branding?.field2 ? <div className="uppercase text-base">{branding.field2}</div> : null}
+          {branding?.field3 ? <div className="uppercase text-base">{branding?.field3}</div> : null}
+         </div>
         </div>
        </div>
        : null}

@@ -83,22 +83,26 @@ export default function ResultSheet({ submissions, testDetails }: { submissions:
     </DialogTitle>
    </DialogHeader>
    <div className=" overflow-y-auto max-h-[80vh]">
-    <div ref={printableRef} className={`${sourceSerif4.className}`}>
+    <div ref={printableRef} className={`${sourceSerif4.className}`} style={{ fontFamily: 'serif' }}>
      {/* Branding */}
 
      {branding ?
       <div>
-       <div className="flex w-full flex-col items-center gap-1">
-        <img src={branding?.media.url} width={100} height={100} alt="Logo" />
-        <div className="uppercase text-lg">{branding?.field1}</div>
-        {branding?.field2 ? <div className="uppercase text-base">{branding.field2}</div> : null}
-        {branding?.field3 ? <div className="uppercase text-base">{branding?.field3}</div> : null}
+       <div className="flex w-full flex-row-reverse relative items-center justify-center  gap-1">
+        <div className="absolute top-0 right-0">
+         <img src={branding?.media.url} width={100} height={100} alt="Logo" />
+        </div>
+        <div className="flex flex-col text-center items-center justify-center">
+         <div className="uppercase text-xl">{branding?.field1}</div>
+         {branding?.field2 ? <div className="uppercase text-base">{branding.field2}</div> : null}
+         {branding?.field3 ? <div className="uppercase text-base">{branding?.field3}</div> : null}
+        </div>
        </div>
       </div>
       : null}
      <div className=" my-4">
       <div className="text-center w-full uppercase">
-       <div className="text-xl font-bold "> {testDetails.title} <br /> TEST RESULTS </div>
+       <div className="text-base font-bold "> {testDetails.title} <br /> TEST RESULTS </div>
       </div>
      </div>
      <Table>
