@@ -38,11 +38,11 @@ export function BrandingDialog({ children, initialData }: { children?: JSX.Eleme
   if (!isOpen) {
    setFormValues({
     image: null,
-    textFields: initialData
+    textFields: initialData && initialData.field1 === formValues.textFields[0] &&  initialData.field2 === formValues.textFields[1] && initialData.field3 === formValues.textFields[2]
      ? [initialData.field1, initialData.field2, initialData.field3].filter(
       (value) => value != null
      )
-     : [""],
+     : [...formValues.textFields],
    })
    setErrors({}) 
   }
