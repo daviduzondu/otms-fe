@@ -33,27 +33,15 @@ export function BrandingDialog({ children, initialData }: { children?: JSX.Eleme
  })
  const [errors, setErrors] = useState<{ [key: string]: string }>({});
  const queryClient = useQueryClient();
+ const [resetKey, setResetKey] = useState(0);
 
  useEffect(() => {
   if (!isOpen) {
-    setFormValues((prev) => {
-      const initialFields = [initialData?.field1, initialData?.field2, initialData?.field3].filter(
-        (val): val is string => Boolean(val) // Ensure only valid strings
-      );
-
-      const isSameAsInitial =
-        prev.textFields.length === initialFields.length &&
-        prev.textFields.every((val, idx) => val === initialFields[idx]);
-
-      return {
-        image: null,
-        textFields: isSameAsInitial ? initialFields : prev.textFields.length ? prev.textFields : [""],
-      };
-    });
-
+    setResetKey((prev) => prev + 1); // Increment key to force re-render
     setErrors({});
   }
-}, [isOpen, initialData]); // Depend on initialData to handle updates properly
+}, [isOpen]);
+
 
  useEffect(() => {
 
@@ -175,7 +163,7 @@ export function BrandingDialog({ children, initialData }: { children?: JSX.Eleme
       />
      </div>
     )}
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form key={resetKey} onSubmit={handleSubmit} className="space-y-4">
      <div className="space-y-2">
       <Label htmlFor="image">{!initialData ? "Upload" : "Replace"} logo (Max 2MB)</Label>
       <Input id="image" type="file" accept="image/*" onChange={handleImageChange} className="cursor-pointer" />
