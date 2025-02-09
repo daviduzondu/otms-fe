@@ -12,6 +12,7 @@ import { QuestionTypeMap } from './question-card'
 import { AuthContext } from '../../contexts/auth.context'
 import { errorToast } from '../../helpers/show-toasts'
 import { Answer } from '../../types/test'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface StudentAnswerCardProps {
  answer: Answer
