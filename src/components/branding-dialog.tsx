@@ -31,24 +31,25 @@ export function BrandingDialog({ children, initialData }: { children?: JSX.Eleme
    )
    : [""],
  })
- const [errors, setErrors] = useState<{ [key: string]: string }>({})
+ const [errors, setErrors] = useState<{ [key: string]: string }>({});
  const queryClient = useQueryClient();
 
  useEffect(() => {
   if (!isOpen) {
    setFormValues({
     image: null,
-    textFields: initialData && initialData.field1 === formValues.textFields[0] &&  initialData.field2 === formValues.textFields[1] && initialData.field3 === formValues.textFields[2]
-     ? [initialData.field1, initialData.field2, initialData.field3].filter(
-      (value) => value != null
-     )
-     : [...formValues.textFields],
-   })
-   setErrors({}) 
+    textFields: initialData
+     ? [initialData.field1, initialData.field2, initialData.field3].filter(Boolean) as string[]
+     : [""],
+   });
+
+   setErrors({});
   }
- },[isOpen])
+ }, [isOpen]);
+
 
  useEffect(() => {
+
   if (initialData) setImagePreview(initialData.media.url);
  }, [])
 
