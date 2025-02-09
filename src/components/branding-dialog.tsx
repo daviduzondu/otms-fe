@@ -35,6 +35,20 @@ export function BrandingDialog({ children, initialData }: { children?: JSX.Eleme
  const queryClient = useQueryClient();
 
  useEffect(() => {
+  if (!isOpen) {
+   setFormValues({
+    image: null,
+    textFields: initialData
+     ? [initialData.field1, initialData.field2, initialData.field3].filter(
+      (value) => value != null
+     )
+     : [""],
+   })
+   setErrors({}) 
+  }
+ },[isOpen])
+
+ useEffect(() => {
   if (initialData) setImagePreview(initialData.media.url);
  }, [])
 
