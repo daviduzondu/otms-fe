@@ -37,10 +37,10 @@ export function BrandingDialog({ children, initialData }: { children?: JSX.Eleme
 
  useEffect(() => {
   if (!isOpen) {
-    setResetKey((prev) => prev + 1); // Increment key to force re-render
-    setErrors({});
+   setResetKey((prev) => prev + 1); // Increment key to force re-render
+   setErrors({});
   }
-}, [isOpen]);
+ }, [isOpen]);
 
 
  useEffect(() => {
@@ -143,7 +143,7 @@ export function BrandingDialog({ children, initialData }: { children?: JSX.Eleme
  }
 
  return (
-  <Dialog open={isOpen} onOpenChange={setIsOpen}>
+  <Dialog open={isOpen} onOpenChange={setIsOpen} key={resetKey}>
    <DialogTrigger asChild>
     {!children ? <Button variant="outline" className="z-10 absolute right-5 bottom-20 lg:relative lg:right-auto lg:bottom-auto">
      <Sparkles className="w-4 h-4 mr-2" />
@@ -163,7 +163,7 @@ export function BrandingDialog({ children, initialData }: { children?: JSX.Eleme
       />
      </div>
     )}
-    <form key={resetKey} onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
      <div className="space-y-2">
       <Label htmlFor="image">{!initialData ? "Upload" : "Replace"} logo (Max 2MB)</Label>
       <Input id="image" type="file" accept="image/*" onChange={handleImageChange} className="cursor-pointer" />
