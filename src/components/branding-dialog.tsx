@@ -36,17 +36,24 @@ export function BrandingDialog({ children, initialData }: { children?: JSX.Eleme
 
  useEffect(() => {
   if (!isOpen) {
-   setFormValues({
-    image: null,
-    textFields: initialData
-     ? [initialData.field1, initialData.field2, initialData.field3].filter(Boolean) as string[]
-     : [""],
-   });
+    setFormValues((prev) => {
+      // Check if the form fields still match the initialData
+      const isSameAsInitial =
+        initialData &&
+        prev.textFields.length === 3 &&
+        prev.textFields.every((val, idx) => val === [initialData.field1, initialData.field2, initialData.field3][idx]);
 
-   setErrors({});
+      return {
+        image: null,
+        textFields: isSameAsInitial
+          ? [initialData.field1, initialData.field2, initialData.field3].filter((val): val is string => Boolean(val))
+          : prev.textFields, // Keep the existing input if it was changed
+      };
+    });
+
+    setErrors({});
   }
- }, [isOpen]);
-
+}, [isOpen, initialData]); // Depend on `initialData` to handle updates properly
 
  useEffect(() => {
 
