@@ -44,6 +44,7 @@ export function StudentAnswerCard({
  const [points, setPoints] = useState(answer.point || 0)
  const [isHovered, setIsHovered] = useState(false)
  const [localGradeStatus, setLocalGradeStatus] = useState(getGradeStatus(answer))
+ const queryClient = useQueryClient();
 
  useEffect(() => {
   setLocalGradeStatus(getGradeStatus(answer))
@@ -82,6 +83,8 @@ export function StudentAnswerCard({
    });
 
    const { message } = await res.json();
+   queryClient.invalidateQueries(['analytics-summary', user?.accessToken]);
+
    if (!res.ok) throw new Error(message);
 
    onGrade(answer.questionId, points as number)
