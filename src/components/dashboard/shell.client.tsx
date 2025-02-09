@@ -81,7 +81,7 @@ export default function DashboardShell({ children }) {
    <NavItem setTopBar={setTopBar} icon={<ClipboardList />} label="Tests" href={'/dashboard/tests'} />
    <NavItem setTopBar={setTopBar} icon={<School />} label="Classes" href={'/dashboard/classes'} />
    <NavItem setTopBar={setTopBar} icon={<Users />} label="Students" href={'/dashboard/students'} />
-   <NavItem setTopBar={setTopBar} icon={<LogOut />} label="Log Out" onClick={() => confirm("Are you sure you want to log out?") && signOut({ callbackUrl: '/' })} className={"absolute bottom-0 w-full"} />
+   <NavItem setTopBar={setTopBar} icon={<LogOut />} label="Sign Out" onClick={() => confirm("Are you sure you want to log out?") && signOut({ callbackUrl: '/' })} className={"absolute bottom-0 w-full"} />
   </nav>
 
  </aside>
