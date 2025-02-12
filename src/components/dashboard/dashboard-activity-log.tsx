@@ -2,7 +2,7 @@
 
 import React, { useContext, useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { FileText, UserPlus, Edit, Activity, PlusCircle, BookOpen, FolderX } from 'lucide-react'
+import { FileText, UserPlus, Edit, Activity, PlusCircle, BookOpen, FolderX, User, Book } from 'lucide-react'
 import { format, isToday, isYesterday, isThisWeek, isThisMonth, parseISO } from 'date-fns'
 import { useQuery } from '@tanstack/react-query'
 import { AuthContext } from '../../contexts/auth.context'
@@ -27,12 +27,16 @@ const getActivityIcon = (type: string) => {
   case 'new_class':
    return <BookOpen className="w-4 h-4" />
   case 'new_student':
-   return <UserPlus className="w-4 h-4" />
+  case 'update_student':
+   return <User className="w-4 h-4" />
   case 'new_test':
    return <FileText className="w-4 h-4" />
   case 'new_question':
   case 'update_question':
    return <Edit className="w-4 h-4" />
+  case 'update_test':
+  case 'new_test':
+   return <Book className="w-4 h-4" />
   default:
    return <Activity className="w-4 h-4" />
  }
@@ -77,6 +81,9 @@ const groupActivities = (activities: ActivityItem[]): GroupedActivity[] => {
      break
     case 'update_test':
      message = `${items.length} ${items.length === 1 ? 'test' : 'tests'} updated`
+     break
+    case 'update_student':
+     message = `${items.length} ${items.length === 1 ? 'student' : 'students'} updated`
      break
     default:
      message = `${items.length} ${type} ${items.length === 1 ? 'activity' : 'activities'}`

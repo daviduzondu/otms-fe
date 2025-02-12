@@ -111,7 +111,7 @@ export function StudentAnswerCard({
      <div>
       <CardTitle className="text-lg font-normal" dangerouslySetInnerHTML={{ __html: answer.body }}></CardTitle>
       <CardDescription className="flex items-center mt-1 space-x-2">
-       <span className="text-xs">{QuestionTypeMap[answer.type]}{" "}{answer.questionId}</span>
+       <span className="text-xs">{QuestionTypeMap[answer.type]}{" "}</span>
       </CardDescription>
      </div>
 

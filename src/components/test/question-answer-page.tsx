@@ -512,7 +512,7 @@ export function QuestionAnswerPage({ companyName, data, accessToken, resultReady
  if (isTestComplete) {
   return (
    <div className='flex items-center justify-center h-screen '>
-    <Card className="lg:w-[25vw] border-green-200 bg-green-100 text-green-700 w-screen">
+    <Card className="lg:w-[25vw] border-green-200 bg-green-50 text-green-700 w-screen">
      <CardHeader className="flex"><BookCheck size={40} /></CardHeader>
      <CardContent className="font-bold text-lg -mt-3">
       Submission successful

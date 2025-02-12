@@ -88,7 +88,7 @@ export function TestPDFPreview({ testTitle, questions, instructions, duration }:
     </DialogHeader>
     <div className={`overflow-y-auto max-h-[80vh] text-left font-serif border`}>
      {/* Printable Content */}
-     <div ref={printableRef} className={`${sourceSerif4.className} bg-white p-10 shadow-lg print:shadow-none text-gray-900`} style={{ fontFamily: 'serif' }}>
+     <div ref={printableRef} className={`${sourceSerif4.className} bg-white p-5 shadow-lg print:shadow-none text-gray-900`} style={{ fontFamily: 'serif' }}>
       <div className='py-4'>
        {branding ?
         <div>

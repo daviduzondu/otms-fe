@@ -83,7 +83,7 @@ export default function ResultSheet({ submissions, testDetails }: { submissions:
     </DialogTitle>
    </DialogHeader>
    <div className=" overflow-y-auto max-h-[80vh] border p-2">
-    <div ref={printableRef} className={`${sourceSerif4.className} p-10`} style={{ fontFamily: 'serif' }}>
+    <div ref={printableRef} className={`${sourceSerif4.className} p-5`} style={{ fontFamily: 'serif' }}>
      {/* Branding */}
 
      {branding ?
