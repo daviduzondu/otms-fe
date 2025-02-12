@@ -372,7 +372,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
      <>
       <Card className="mb-6">
        <CardHeader>
-        <CardTitle>{selectedSubmission.firstName} {selectedSubmission.lastName}</CardTitle>
+        <CardTitle>{selectedSubmission.firstName}{" "}{selectedSubmission.lastName}</CardTitle>
         <CardDescription>{selectedSubmission.email}  {selectedSubmission.regNumber && "•"} {selectedSubmission.regNumber}</CardDescription>
        </CardHeader>
        <CardContent>
