@@ -74,7 +74,7 @@
  .bg-gradient-radial {
   background-image: radial-gradient(circle, white 0%, transparent 60%);
  }
- 
+
  .auth-container {
   view-transition-name: auth-container;
  }
@@ -126,9 +126,12 @@
  }
 
  @page {
-  @bottom-center {
-   content: counter(page);
+  @bottom-right {
+   content: "Page " counter(page) " of " counter(pages);
    font-family: serif;
+   /* margin-right: 2.5rem; */
+   /* margin-bottom: 2.5rem; */
+   z-index: 10;
   }
  }
 
@@ -195,7 +198,7 @@
   }
  }
 
- 
+
  .wysiwyg * {
   font-size: 15px !important;
   /* Set default font size to 20px */

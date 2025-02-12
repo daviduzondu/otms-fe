@@ -11,12 +11,14 @@ import { AuthContext } from '../../contexts/auth.context'
 import { useQuery } from '@tanstack/react-query'
 import { BrandingDialog } from '../branding-dialog'
 import { errorToast } from '../../helpers/show-toasts'
+import { addMinutes, formatDistance } from 'date-fns'
 
 
 interface TestPDFPreviewProps {
  testTitle: string
  questions: Question[]
  instructions?: string
+ duration: number;
 }
 
 async function fetchBranding(accessToken: string) {
@@ -53,7 +55,7 @@ async function removeBranding(accessToken: string) {
 }
 
 
-export function TestPDFPreview({ testTitle, questions, instructions }: TestPDFPreviewProps) {
+export function TestPDFPreview({ testTitle, questions, instructions, duration }: TestPDFPreviewProps) {
  const { user } = useContext(AuthContext)
  const [isOpen, setIsOpen] = useState(false)
  const printableRef = useRef<HTMLDivElement>(null)
@@ -82,37 +84,40 @@ export function TestPDFPreview({ testTitle, questions, instructions }: TestPDFPr
    </DialogTrigger>
    <DialogContent className="max-w-4xl w-full">
     <DialogHeader>
-     <DialogTitle>Test PDF Preview</DialogTitle>
+     <DialogTitle>Preview</DialogTitle>
     </DialogHeader>
-    <div className={`overflow-y-auto max-h-[80vh] text-left font-serif`}>
+    <div className={`overflow-y-auto max-h-[80vh] text-left font-serif border`}>
      {/* Printable Content */}
      <div ref={printableRef} className={`${sourceSerif4.className} bg-white p-10 shadow-lg print:shadow-none text-gray-900`} style={{ fontFamily: 'serif' }}>
-      {branding ?
-       <div>
-        <div className="flex w-full flex-row-reverse relative items-center justify-center  gap-1">
-         <div className="absolute top-0 right-0">
-          <img src={branding?.media.url} width={100} height={100} alt="Logo" />
-         </div>
-         <div className="flex flex-col text-center items-center justify-center">
-          <div className="uppercase text-xl">{branding?.field1}</div>
-          {branding?.field2 ? <div className="uppercase text-base">{branding.field2}</div> : null}
-          {branding?.field3 ? <div className="uppercase text-base">{branding?.field3}</div> : null}
+      <div className='py-4'>
+       {branding ?
+        <div>
+         <div className="flex w-full flex-row relative items-center justify-center  gap-1">
+          <div className="absolute top-0 left-0">
+           <img src={branding?.media.url} width={120} height={120} alt="Logo" />
+          </div>
+          <div className="flex flex-col text-center items-center justify-center">
+           <div className="uppercase text-xl">{branding?.field1}</div>
+           {branding?.field2 ? <div className="uppercase text-base">{branding.field2}</div> : null}
+           {branding?.field3 ? <div className="uppercase text-base">{branding?.field3}</div> : null}
+          </div>
          </div>
         </div>
+        : null}
+       {/* Test Header */}
+       <div className="pb-4 uppercase text-center mt-2">
+        <h1 className="text-xl font-extrabold">{testTitle}</h1>
        </div>
-       : null}
-      {/* Test Header */}
-      <div className="pb-4 uppercase text-center mt-2">
-       <h1 className="text-xl font-extrabold">{testTitle}</h1>
+       <div className='flex w-full justify-end text-sm'><span className='font-bold capitalize'>Time Allowed: {" "}
+        {formatDistance(addMinutes(new Date(), Number(duration)), new Date())}</span></div>
+       {/* Instructions */}
+       {instructions && (
+        <div className="-m-3 p-3 mt-4 mb-4 border-black border-dotted border">
+         <h2 className="font-semibold mb-2 underline">Instructions:</h2>
+         <p className="leading-relaxed whitespace-pre-wrap">{instructions}</p>
+        </div>
+       )}
       </div>
-
-      {/* Instructions */}
-      {instructions && (
-       <div className="-m-3 p-3 mb-4 border-black border ">
-        <h2 className="font-semibold mb-2 underline">Instructions:</h2>
-        <p className="leading-relaxed whitespace-pre-wrap">{instructions}</p>
-       </div>
-      )}
 
       {/* Questions Section */}
       <div className="space-y-8 text-[16px]">
@@ -123,13 +128,13 @@ export function TestPDFPreview({ testTitle, questions, instructions }: TestPDFPr
           <span>{index + 1}.</span>
           <div className='flex justify-between w-full flex-wrap'>
            <div className='flex space-x-2 flex-wrap'>
+            <span className='flex-shrink-0 italic font-semibold'>({question.points} points)</span>
             <span
              className="leading-relaxed"
              dangerouslySetInnerHTML={{ __html: question.body }}
             ></span>
             {/* {question.type === 'trueOrFalse' ? <strong>True or False</strong> : null} */}
            </div>
-           <span className='flex-shrink-0 italic'>({question.points} points)</span>
           </div>
          </div>
          {question.media ? <div className="flex items-center justify-center relative">

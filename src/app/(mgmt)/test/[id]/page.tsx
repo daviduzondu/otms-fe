@@ -291,6 +291,7 @@ export default function EnhancedTestQuestionManagement({ params }: { params: { i
           testTitle={testDetails.title}
           questions={questions}
           instructions={testDetails.instructions}
+          duration={testDetails.durationMin}
          />
          <EditTest testDetails={testDetails} onEditSuccessful={handleEditTest} />
          <Button variant="outline" size="sm" className="flex gap-2" onClick={toggleResponses}>

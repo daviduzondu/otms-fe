@@ -64,10 +64,10 @@ export default function ResultSheet({ submissions, testDetails }: { submissions:
   enabled: !!user?.accessToken,
  })
 
- // const simulatedSubmissions = Array.from({ length: 100 }, (_, i) => ({
- //  ...submissions[i % submissions.length], // Repeats mock data in a cycle
- //  id: i + 1, // Ensure each submission has a unique id
- // }));
+ const simulatedSubmissions = Array.from({ length: 100 }, (_, i) => ({
+  ...submissions[i % submissions.length], // Repeats mock data in a cycle
+  id: i + 1, // Ensure each submission has a unique id
+ }));
 
  return <Dialog>
   <DialogTrigger>
@@ -78,19 +78,19 @@ export default function ResultSheet({ submissions, testDetails }: { submissions:
   </DialogTrigger>
   <DialogContent className="max-w-6xl">
    <DialogHeader>
-    <DialogTitle>
-     Results for the test
+    <DialogTitle className="mb-4">
+     Preview
     </DialogTitle>
    </DialogHeader>
-   <div className=" overflow-y-auto max-h-[80vh]">
-    <div ref={printableRef} className={`${sourceSerif4.className}`} style={{ fontFamily: 'serif' }}>
+   <div className=" overflow-y-auto max-h-[80vh] border p-2">
+    <div ref={printableRef} className={`${sourceSerif4.className} p-10`} style={{ fontFamily: 'serif' }}>
      {/* Branding */}
 
      {branding ?
       <div>
-       <div className="flex w-full flex-row-reverse relative items-center justify-center  gap-1">
-        <div className="absolute top-0 right-0">
-         <img src={branding?.media.url} width={100} height={100} alt="Logo" />
+       <div className="flex w-full flex-row relative items-center justify-center  gap-1">
+        <div className="absolute top-0 left-0">
+         <img src={branding?.media.url} width={120} height={120} alt="Logo" />
         </div>
         <div className="flex flex-col text-center items-center justify-center">
          <div className="uppercase text-xl">{branding?.field1}</div>
