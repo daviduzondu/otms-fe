@@ -52,14 +52,15 @@ export default function Navbar(): React.JSX.Element {
       <div className="flex gap-3 items-center">
         {
           user !== null && (authLoading === "authenticated") ?
-            <>
+            <div className='flex gap-3 items-center group'>
+             <Badge className='hidden group-hover:block transition-all duration-300' variant={'outline'}>{user.email}</Badge>
               <Avatar>
                 <AvatarFallback className='bg-muted-foreground text-white flex items-center justify-center'>{user.firstName[0]}{user.lastName[0]}</AvatarFallback>
               </Avatar>
               <Button className='h-8 text-sm' variant={'outline'} onClick={() => (confirm('Are you sure?') && signOut())}>
                 Sign Out
               </Button>
-            </> : authLoading === "loading" && <TailSpin
+            </div> : authLoading === "loading" && <TailSpin
               visible={true}
               strokeWidth={5}
               height="30"

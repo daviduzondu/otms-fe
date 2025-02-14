@@ -454,7 +454,7 @@ export default function Responses({ testDetails }: { testDetails: TestDetails })
     </div>
     {selectedWebcamCapture && (
      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-4 rounded-lg max-w-3xl max-h-[90vh] flex flex-col overflow-hidden relative">
+      <div className="bg-white p-4 rounded-lg max-w-3xl min-w-[48rem]  max-h-[90vh] flex flex-col overflow-hidden relative">
        {/* Image Container */}
        <div className="relative flex-1 h-full bg-black">
         {selectedSubmission?.webcamCaptures && selectedSubmission.webcamCaptures.length > 1 ? (
