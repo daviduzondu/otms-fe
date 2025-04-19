@@ -1,29 +1,31 @@
 "use client";
 
-import { SessionProvider, signIn, useSession } from "next-auth/react";
+import { SessionProvider, signIn, signOut, useSession } from "next-auth/react";
 import { ReactNode, Suspense, useEffect, useState } from "react";
 import { Loader } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { jwtDecode } from 'jwt-decode';
+import { isAfter, isBefore } from "date-fns";
 
 interface AuthProviderProperties {
  children: ReactNode;
 }
 
 function SessionChecker({ children }: AuthProviderProperties) {
- const { status } = useSession();
+ const { status, data } = useSession();
  const [isLoading, setIsLoading] = useState(true);
  const pathname = usePathname();
 
  useEffect(() => {
-  if (status === 'unauthenticated' && pathname !== '/auth/login') {
-   signIn();
-   return;
-  }
-
   if (status === "loading") {
    setIsLoading(true);
   } else {
+   if (status === 'unauthenticated' && pathname !== '/auth/login') {
+    signIn();
+    return;
+   }
    setIsLoading(false);
+   if (data && isAfter(data?.expires, new Date(jwtDecode(data?.user?.accessToken).exp * 1000))) { signOut({ callbackUrl: '/auth/login' }) };
   }
  }, [status]);
 

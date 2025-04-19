@@ -26,7 +26,6 @@ export const authOptions: NextAuthOptions = {
    return token;
   },
   async session({ session, token, }) {
-   console.log("Token is", token);
    // Attach token data to session
    Object.assign(session, { user: token })
    // console.log(session)
