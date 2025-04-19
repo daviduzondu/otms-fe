@@ -46,6 +46,7 @@
     "framer-motion": "^11.18.0",
     "googleapis": "^144.0.0",
     "i": "^0.3.7",
+    "jwt-decode": "^4.0.0",
     "ldrs": "^1.0.2",
     "lexical": "^0.17.1",
     "lucide-react": "^0.429.0",

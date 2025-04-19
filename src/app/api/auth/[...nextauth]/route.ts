@@ -20,11 +20,13 @@ export const authOptions: NextAuthOptions = {
    // console.log(token)
    // If user is returned on login, attach user data to token
    if (user) {
+    console.log(user)
     Object.assign(token, user)
    }
    return token;
   },
   async session({ session, token, }) {
+   console.log("Token is", token);
    // Attach token data to session
    Object.assign(session, { user: token })
    // console.log(session)
@@ -33,6 +35,7 @@ export const authOptions: NextAuthOptions = {
  },
  session: {
   strategy: "jwt",
+  maxAge: 2419200
  },
  pages: {
   signIn: "/auth/login", // Custom login page
