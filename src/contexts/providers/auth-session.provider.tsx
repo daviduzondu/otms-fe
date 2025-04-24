@@ -20,7 +20,7 @@ function SessionChecker({ children }: AuthProviderProperties) {
   if (status === "loading") {
    setIsLoading(true);
   } else {
-   if (status === 'unauthenticated' && pathname !== '/auth/login') {
+   if (status === 'unauthenticated' && pathname !== '/auth/login' && pathname !== '/') {
     signIn();
     return;
    }
